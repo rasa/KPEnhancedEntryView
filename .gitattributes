@@ -1,2 +1,16 @@
 * text=auto !eol
+KPEnhancedEntryView/EntryView.Designer.cs -text
+KPEnhancedEntryView/EntryView.cs -text
+KPEnhancedEntryView/EntryView.resx -text
+KPEnhancedEntryView/KPEnhancedEntryView.csproj -text
+KPEnhancedEntryView/KPEnhancedEntryView.sln -text
+KPEnhancedEntryView/Plugin.cs -text
+KPEnhancedEntryView/Properties/AssemblyInfo.cs -text
+KPEnhancedEntryView/Properties/Resources.Designer.cs -text
+KPEnhancedEntryView/Properties/Resources.resx -text
+KPEnhancedEntryView/Properties/Settings.Designer.cs -text
+KPEnhancedEntryView/Properties/Settings.settings -text
+KPEnhancedEntryView/ProtectedFieldEditor.Designer.cs -text
+KPEnhancedEntryView/ProtectedFieldEditor.cs -text
+KPEnhancedEntryView/ProtectedFieldEditor.resx -text
 ThirdPartyAssemblies/Readme.txt -text
