@@ -63,6 +63,9 @@
     <Compile Include="EntryView.Designer.cs">
       <DependentUpon>EntryView.cs</DependentUpon>
     </Compile>
+    <Compile Include="FieldNameEditor.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProtectedFieldEditor.cs">

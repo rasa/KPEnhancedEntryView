@@ -2,6 +2,7 @@
 KPEnhancedEntryView/EntryView.Designer.cs -text
 KPEnhancedEntryView/EntryView.cs -text
 KPEnhancedEntryView/EntryView.resx -text
+KPEnhancedEntryView/FieldNameEditor.cs -text
 KPEnhancedEntryView/KPEnhancedEntryView.csproj -text
 KPEnhancedEntryView/KPEnhancedEntryView.sln -text
 KPEnhancedEntryView/Plugin.cs -text

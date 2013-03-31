@@ -34,10 +34,10 @@ namespace KPEnhancedEntryView
 			}
 
 			// Replace existing entry view with new one
-			mEntryView = new EntryView
+			mEntryView = new EntryView(mHost.Database)
 			{
 				Name = "m_KPEnhancedEntryView",
-				Dock = DockStyle.Fill
+				Dock = DockStyle.Fill,
 			};
 
 			entryViewContainer.Controls.Add(mEntryView);
@@ -56,15 +56,15 @@ namespace KPEnhancedEntryView
 			entryViewContainer.Controls.Remove(mOriginalEntryView);
 #endif
 
-
 			// Hook UIStateUpdated to watch for current entry changing.
 			mHost.MainWindow.UIStateUpdated += this.OnUIStateUpdated;
 
 			return true;
 		}
 
-		void mOriginalEntryView_FontChanged(object sender, EventArgs e)
+		private void mOriginalEntryView_FontChanged(object sender, EventArgs e)
 		{
+			//mEntryView.Font = new System.Drawing.Font(mOriginalEntryView.Font, System.Drawing.FontStyle.Strikeout);
 			mEntryView.Font = mOriginalEntryView.Font;
 		}
 
