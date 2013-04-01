@@ -17,4 +17,5 @@ KPEnhancedEntryView/Properties/Settings.settings -text
 KPEnhancedEntryView/ProtectedFieldEditor.Designer.cs -text
 KPEnhancedEntryView/ProtectedFieldEditor.cs -text
 KPEnhancedEntryView/ProtectedFieldEditor.resx -text
+KPEnhancedEntryView/VirtualFileDataObject.cs -text
 ThirdPartyAssemblies/Readme.txt -text

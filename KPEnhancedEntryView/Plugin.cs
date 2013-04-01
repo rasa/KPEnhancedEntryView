@@ -59,6 +59,9 @@ namespace KPEnhancedEntryView
 			// Hook UIStateUpdated to watch for current entry changing.
 			mHost.MainWindow.UIStateUpdated += this.OnUIStateUpdated;
 
+			// Hook events to update the UI when the entry is modified
+			mEntryView.EntryModified += this.mEntryView_EntryModified;
+
 			return true;
 		}
 
@@ -90,6 +93,12 @@ namespace KPEnhancedEntryView
 		private void OnUIStateUpdated(object sender, EventArgs e)
 		{
 			mEntryView.Entry = mHost.MainWindow.GetSelectedEntry(true);
+		}
+
+		private void mEntryView_EntryModified(object sender, EventArgs e)
+		{
+			mHost.MainWindow.UpdateUI(false, null, false, null, false, null, true);
+			mHost.MainWindow.RefreshEntriesList();
 		}
 	}
 }

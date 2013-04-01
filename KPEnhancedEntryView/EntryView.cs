@@ -82,9 +82,9 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region Population
-
+		private bool mSuspendEntryChangedPopulation;
+		
 		private PwEntry mEntry;
-
 		public PwEntry Entry 
 		{
 			get { return mEntry; }
@@ -97,6 +97,11 @@ namespace KPEnhancedEntryView
 
 		protected virtual void OnEntryChanged(EventArgs e)
 		{
+			if (mSuspendEntryChangedPopulation)
+			{
+				return;
+			}
+
 			if (Entry == null)
 			{
 				mFieldsGrid.ClearObjects();
@@ -124,7 +129,7 @@ namespace KPEnhancedEntryView
 
 				PopulateNotes(Entry.Strings.ReadSafe(PwDefs.NotesField));
 
-				mAttachments.Binaries = Entry.Binaries;
+				mAttachments.Entry = Entry;
 			}
 		}
 
@@ -304,11 +309,12 @@ namespace KPEnhancedEntryView
 
 			if (!rowObject.IsInsertionRow)
 			{
-
 				var newProtectedString = newValue as ProtectedString ??
 										 new ProtectedString(rowObject.Value.IsProtected, (string)newValue);
 
 				Entry.Strings.Set(rowObject.FieldName, newProtectedString);
+				OnEntryModified(EventArgs.Empty);
+
 				rowObject.Value = newProtectedString;
 			}
 		}
@@ -330,7 +336,8 @@ namespace KPEnhancedEntryView
 
 				rowObject.Value = new ProtectedString(isProtected, String.Empty);
 				Entry.Strings.Set(newName, rowObject.Value);
-				
+				OnEntryModified(EventArgs.Empty);
+
 				// Create a new insertion row to replace this one
 				mFieldsGrid.AddObject(RowObject.CreateInsertionRow());
 			}
@@ -339,12 +346,42 @@ namespace KPEnhancedEntryView
 				var fieldValue = Entry.Strings.Get(rowObject.FieldName);
 				Entry.Strings.Remove(rowObject.FieldName);
 				Entry.Strings.Set(newName, fieldValue);
+				OnEntryModified(EventArgs.Empty);
 			}
 
 			rowObject.FieldName = newName;
 		}
-
 		#endregion	
+
+		#region EntryModified event
+		public event EventHandler EntryModified;
+		protected virtual void OnEntryModified(EventArgs e)
+		{
+			if (Entry != null)
+			{
+				Entry.Touch(true, false);
+			}
+
+			var temp = EntryModified;
+			if (temp != null)
+			{
+				try
+				{
+					mSuspendEntryChangedPopulation = true; // We have already made the change to the UI, don't need to repopulate in response to notifying the main window of the change
+					temp(this, e);
+				}
+				finally
+				{
+					mSuspendEntryChangedPopulation = false;
+				}
+			}
+		}
+
+		private void mAttachments_EntryModified(object sender, EventArgs e)
+		{
+			OnEntryModified(e);
+		}
+		#endregion
 
 		#region RowObject
 		private class RowObject

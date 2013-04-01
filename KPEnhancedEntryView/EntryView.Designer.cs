@@ -172,9 +172,10 @@
 			// 
 			// mAttachments
 			// 
-			this.mAttachments.Binaries = null;
+			this.mAttachments.AllowDrop = true;
 			this.mAttachments.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mAttachments.EmptyListMsg = "Attachments";
+			this.mAttachments.Entry = null;
 			this.mAttachments.Location = new System.Drawing.Point(0, 0);
 			this.mAttachments.Name = "mAttachments";
 			this.mAttachments.ShowGroups = false;
@@ -183,6 +184,7 @@
 			this.mAttachments.UseCompatibleStateImageBehavior = false;
 			this.mAttachments.View = System.Windows.Forms.View.SmallIcon;
 			this.mAttachments.VirtualMode = true;
+			this.mAttachments.EntryModified += new System.EventHandler(this.mAttachments_EntryModified);
 			// 
 			// mPropertiesTab
 			// 
