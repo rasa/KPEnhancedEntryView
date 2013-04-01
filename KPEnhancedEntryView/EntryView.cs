@@ -16,8 +16,6 @@ namespace KPEnhancedEntryView
 {
 	public partial class EntryView : UserControl
 	{
-		private static RowObject sInsertionRow = new RowObject(Properties.Resources.NewFieldRowName, null);
-
 		private PwDatabase mDatabase;
 
 		#region Initialisation
@@ -33,6 +31,7 @@ namespace KPEnhancedEntryView
 			mDatabase = database;
 
 			mFieldValues.AspectPutter = new AspectPutterDelegate(SetFieldValue);
+			mFieldNames.AspectPutter = new AspectPutterDelegate(SetFieldName);
 			
 			ObjectListView.EditorRegistry.RegisterFirstChance(GetCellEditor);
 
@@ -42,16 +41,8 @@ namespace KPEnhancedEntryView
 				mFieldsGrid.UseAlternatingBackColors = true;
 			}
 
-			var overlay = (TextOverlay)mAttachments.EmptyListMsgOverlay;
-			overlay.Alignment = ContentAlignment.TopLeft;
-			overlay.InsetX = 0;
-			overlay.InsetY = 0;
-			overlay.BackColor = Color.Empty;
-			overlay.BorderColor = Color.Empty;
-			overlay.TextColor = SystemColors.GrayText;
-
-			mNotes.GotFocus += new EventHandler(mNotes_GotFocus);
-			mNotes.LostFocus += new EventHandler(mNotes_LostFocus);
+			mNotes.GotFocus += mNotes_GotFocus;
+			mNotes.LostFocus += mNotes_LostFocus;
 		}
 
 		#endregion
@@ -78,7 +69,7 @@ namespace KPEnhancedEntryView
 		{
 			if (e.Column == mFieldNames)
 			{
-				if (sInsertionRow.Equals(e.Model))
+				if (((RowObject)e.Model).IsInsertionRow)
 				{
 					e.SubItem.Font = mItalicFont;
 				}
@@ -125,13 +116,15 @@ namespace KPEnhancedEntryView
 				rows.AddRange(from kvp in Entry.Strings where !PwDefs.IsStandardField(kvp.Key) select new RowObject(kvp));
 
 				// Finally, an empty "add new" row
-				rows.Add(sInsertionRow);
+				rows.Add(RowObject.CreateInsertionRow());
 
 				mFieldsGrid.SetObjects(rows);
 				mFieldNames.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
 				mFieldNames.Width += 10; // Give it a bit of a margin to make it look better
 
 				PopulateNotes(Entry.Strings.ReadSafe(PwDefs.NotesField));
+
+				mAttachments.Binaries = Entry.Binaries;
 			}
 		}
 
@@ -204,17 +197,20 @@ namespace KPEnhancedEntryView
 		#region Cell Editing
 		private void mFieldsGrid_CellEditStarting(object sender, CellEditEventArgs e)
 		{
+			var rowObject = (RowObject)e.RowObject;
 			// Disallow editing of standard field names
 			if (e.Column == mFieldNames)
 			{
-				var protectedStringEntry = e.RowObject as Nullable<KeyValuePair<string, ProtectedString>>;
-				if (protectedStringEntry.HasValue)
+				if (rowObject.FieldName != null && PwDefs.IsStandardField(rowObject.FieldName))
 				{
-					if (PwDefs.IsStandardField(protectedStringEntry.Value.Key))
-					{
-						e.Cancel = true;
-					}
+					e.Cancel = true;
 				}
+			}
+			
+			// Disallow editing of the insertion row value
+			if (e.Column == mFieldValues && rowObject.IsInsertionRow)
+			{
+				e.Cancel = true;
 			}
 		}
 
@@ -222,9 +218,8 @@ namespace KPEnhancedEntryView
 		{
 			var rowObject = (RowObject)model;
 
-			if (column == mFieldValues)
+			if (column == mFieldValues && !rowObject.IsInsertionRow)
 			{
-				
 				if (rowObject.Value.IsProtected)
 				{
 					return new ProtectedFieldEditor
@@ -236,32 +231,131 @@ namespace KPEnhancedEntryView
 			}
 			else if (column == mFieldNames)
 			{
-				var editor = new FieldNameEditor(Entry) { Text = sInsertionRow.Equals(model) ? String.Empty : rowObject.FieldName };
+				var editor = new FieldNameEditor(Entry) { Text = rowObject.FieldName };
 				return editor;
 			}
 
 			return null;
 		}
 
+		private void mFieldsGrid_CellEditValidating(object sender, CellEditEventArgs e)
+		{
+			if (e.Column == mFieldNames)
+			{
+				var newValue = ((FieldNameEditor)e.Control).Text;
+				var rowObject = (RowObject)e.RowObject;
+
+				if (newValue != rowObject.FieldName)
+				{
+					// Logic copied from EditStringForm.ValidateStringName (EditStringForm.cs)
+					if (String.IsNullOrEmpty(newValue))
+					{
+						ReportValidationFailure(e.Control, KPRes.FieldNamePrompt);
+						e.Cancel = true;
+						return;
+					}
+					if (PwDefs.IsStandardField(newValue))
+					{
+						ReportValidationFailure(e.Control, KPRes.FieldNameInvalid);
+						e.Cancel = true;
+						return;
+					}
+					if (newValue.IndexOfAny(new[] { '{', '}' }) >= 0)
+					{
+						ReportValidationFailure(e.Control, KPRes.FieldNameInvalid);
+						e.Cancel = true;
+						return;
+					}
+					if (Entry.Strings.Exists(newValue))
+					{
+						ReportValidationFailure(e.Control, KPRes.FieldNameExistsAlready);
+						e.Cancel = true;
+						return;
+					}
+				}
+			}
+		}
+
+		private void ReportValidationFailure(Control control, string message)
+		{
+			mValidationMessage.Show(message, control, 0, control.Height);
+			control.KeyPress += ClearValidationFailureMessage;
+		}
+
+		private void ClearValidationFailureMessage(object sender, EventArgs e)
+		{
+			var control = (Control)sender;
+			control.KeyPress -= ClearValidationFailureMessage;
+			mValidationMessage.Hide(control);
+		}
+
+		private void mFieldsGrid_CellEditFinishing(object sender, CellEditEventArgs e)
+		{
+			if (e.Column == mFieldNames)
+			{
+				e.NewValue = ((FieldNameEditor)e.Control).Text;
+			}
+		}
+
+
 		private void SetFieldValue(Object model, Object newValue)
 		{
 			var rowObject = (RowObject)model;
 
-			var newProtectedString = newValue as ProtectedString ??
-									 new ProtectedString(rowObject.Value.IsProtected, (string)newValue);
+			if (!rowObject.IsInsertionRow)
+			{
 
-			Entry.Strings.Set(rowObject.FieldName, newProtectedString);
-			rowObject.Value = newProtectedString;
+				var newProtectedString = newValue as ProtectedString ??
+										 new ProtectedString(rowObject.Value.IsProtected, (string)newValue);
+
+				Entry.Strings.Set(rowObject.FieldName, newProtectedString);
+				rowObject.Value = newProtectedString;
+			}
 		}
+
+		private void SetFieldName(Object model, Object newValue)
+		{
+			var rowObject = (RowObject)model;
+			var newName = (string)newValue;
+
+			if (rowObject.IsInsertionRow)
+			{
+				// Check if this should be a protected string
+				var isProtected = false; // Default to not protected
+				var fieldOnOtherEntry = (from otherEntry in Entry.ParentGroup.Entries select otherEntry.Strings.Get(newName)).FirstOrDefault();
+				if (fieldOnOtherEntry != null)
+				{
+					isProtected = fieldOnOtherEntry.IsProtected;
+				}
+
+				rowObject.Value = new ProtectedString(isProtected, String.Empty);
+				Entry.Strings.Set(newName, rowObject.Value);
+				
+				// Create a new insertion row to replace this one
+				mFieldsGrid.AddObject(RowObject.CreateInsertionRow());
+			}
+			else
+			{
+				var fieldValue = Entry.Strings.Get(rowObject.FieldName);
+				Entry.Strings.Remove(rowObject.FieldName);
+				Entry.Strings.Set(newName, fieldValue);
+			}
+
+			rowObject.FieldName = newName;
+		}
+
 		#endregion	
 
 		#region RowObject
 		private class RowObject
 		{
-			public RowObject(KeyValuePair<string, ProtectedString> keyValuePair)
+			public static RowObject CreateInsertionRow()
 			{
-				FieldName = keyValuePair.Key;
-				Value = keyValuePair.Value;
+				return new RowObject(null, null);
+			}
+
+			public RowObject(KeyValuePair<string, ProtectedString> keyValuePair) : this (keyValuePair.Key, keyValuePair.Value)
+			{
 			}
 
 			public RowObject(string fieldName, ProtectedString protectedString)
@@ -277,6 +371,11 @@ namespace KPEnhancedEntryView
 			{
 				get
 				{
+					if (IsInsertionRow)
+					{
+						return Properties.Resources.NewFieldRowName;
+					}
+
 					switch (FieldName)
 					{
 						case PwDefs.TitleField:
@@ -312,6 +411,8 @@ namespace KPEnhancedEntryView
 					}
 				}
 			}
+
+			public bool IsInsertionRow { get { return FieldName == null; } }
 		}
 		#endregion
 	}

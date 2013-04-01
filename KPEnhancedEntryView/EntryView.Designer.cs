@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.mTabs = new System.Windows.Forms.TabControl();
 			this.mFieldsTab = new System.Windows.Forms.TabPage();
 			this.mSplitGridPanels = new System.Windows.Forms.SplitContainer();
@@ -37,8 +38,9 @@
 			this.mSplitNotesAttachements = new System.Windows.Forms.SplitContainer();
 			this.mNotesBorder = new System.Windows.Forms.Panel();
 			this.mNotes = new KeePass.UI.CustomRichTextBoxEx();
-			this.mAttachments = new BrightIdeasSoftware.FastObjectListView();
+			this.mAttachments = new KPEnhancedEntryView.AttachmentsListView();
 			this.mPropertiesTab = new System.Windows.Forms.TabPage();
+			this.mValidationMessage = new System.Windows.Forms.ToolTip(this.components);
 			this.mTabs.SuspendLayout();
 			this.mFieldsTab.SuspendLayout();
 			this.mSplitGridPanels.Panel1.SuspendLayout();
@@ -111,7 +113,9 @@
 			this.mFieldsGrid.UseCompatibleStateImageBehavior = false;
 			this.mFieldsGrid.View = System.Windows.Forms.View.Details;
 			this.mFieldsGrid.VirtualMode = true;
+			this.mFieldsGrid.CellEditFinishing += new BrightIdeasSoftware.CellEditEventHandler(this.mFieldsGrid_CellEditFinishing);
 			this.mFieldsGrid.CellEditStarting += new BrightIdeasSoftware.CellEditEventHandler(this.mFieldsGrid_CellEditStarting);
+			this.mFieldsGrid.CellEditValidating += new BrightIdeasSoftware.CellEditEventHandler(this.mFieldsGrid_CellEditValidating);
 			this.mFieldsGrid.FormatCell += new System.EventHandler<BrightIdeasSoftware.FormatCellEventArgs>(this.mFieldsGrid_FormatCell);
 			// 
 			// mFieldNames
@@ -168,6 +172,7 @@
 			// 
 			// mAttachments
 			// 
+			this.mAttachments.Binaries = null;
 			this.mAttachments.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mAttachments.EmptyListMsg = "Attachments";
 			this.mAttachments.Location = new System.Drawing.Point(0, 0);
@@ -221,7 +226,8 @@
 		private System.Windows.Forms.SplitContainer mSplitGridPanels;
 		private System.Windows.Forms.SplitContainer mSplitNotesAttachements;
 		private KeePass.UI.CustomRichTextBoxEx mNotes;
-		private BrightIdeasSoftware.FastObjectListView mAttachments;
+		private AttachmentsListView mAttachments;
 		private System.Windows.Forms.Panel mNotesBorder;
+		private System.Windows.Forms.ToolTip mValidationMessage;
 	}
 }

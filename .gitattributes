@@ -1,10 +1,13 @@
 * text=auto !eol
+KPEnhancedEntryView/AttachmentsListView.cs -text
 KPEnhancedEntryView/EntryView.Designer.cs -text
 KPEnhancedEntryView/EntryView.cs -text
 KPEnhancedEntryView/EntryView.resx -text
 KPEnhancedEntryView/FieldNameEditor.cs -text
+KPEnhancedEntryView/IconHelper.cs -text
 KPEnhancedEntryView/KPEnhancedEntryView.csproj -text
 KPEnhancedEntryView/KPEnhancedEntryView.sln -text
+KPEnhancedEntryView/NativeMethods.cs -text
 KPEnhancedEntryView/Plugin.cs -text
 KPEnhancedEntryView/Properties/AssemblyInfo.cs -text
 KPEnhancedEntryView/Properties/Resources.Designer.cs -text
