@@ -34,7 +34,7 @@ namespace KPEnhancedEntryView
 			}
 
 			// Replace existing entry view with new one
-			mEntryView = new EntryView(mHost.Database, mHost.MainWindow)
+			mEntryView = new EntryView(mHost.MainWindow)
 			{
 				Name = "m_KPEnhancedEntryView",
 				Dock = DockStyle.Fill,
@@ -42,23 +42,20 @@ namespace KPEnhancedEntryView
 
 			entryViewContainer.Controls.Add(mEntryView);
 
+			// Move the original entry view into a tab on the new view
+			entryViewContainer.Controls.Remove(mOriginalEntryView);
+			mEntryView.AllTextControl = mOriginalEntryView;
+
 			// Font is assigned, not inherited. So assign here too, and follow any changes
 			mOriginalEntryView.FontChanged += mOriginalEntryView_FontChanged;
 			mOriginalEntryView_FontChanged(null, EventArgs.Empty);
 
-			
-#if DEBUG
-			// While debugging, show the old entry view too, for comparison purposes
-			mOriginalEntryView.Dock = DockStyle.Bottom;
-			mOriginalEntryView.SendToBack();
-#else
-			mOriginalEntryView.Enabled = false; // Prevent attempts to give this control focus
-			entryViewContainer.Controls.Remove(mOriginalEntryView);
-#endif
-
 			// Hook UIStateUpdated to watch for current entry changing.
 			mHost.MainWindow.UIStateUpdated += this.OnUIStateUpdated;
 
+			// HACK: UIStateUpdated isn't called when navigating a reference link in the entry view, so grab that too.
+			mOriginalEntryView.LinkClicked += this.OnUIStateUpdated;
+			
 			// Hook events to update the UI when the entry is modified
 			mEntryView.EntryModified += this.mEntryView_EntryModified;
 
@@ -84,7 +81,9 @@ namespace KPEnhancedEntryView
 			mOriginalEntryView.FontChanged -= mOriginalEntryView_FontChanged;
 			mHost.MainWindow.UIStateUpdated -= this.OnUIStateUpdated;
 
-			mOriginalEntryView.Enabled = true;
+			// Restore original entry view to it's normal place
+			mEntryView.Parent.Controls.Add(mOriginalEntryView);
+			mEntryView.Parent.Controls.Remove(mEntryView);
 			mOriginalEntryView = null;
 
 			mHost = null;

@@ -16,25 +16,24 @@ using KeePass.Util;
 using System.Diagnostics;
 using System.Threading;
 using KeePass.Forms;
+using KeePassLib.Utility;
 
 namespace KPEnhancedEntryView
 {
 	public partial class EntryView : UserControl
 	{
-		private PwDatabase mDatabase;
 		private MainForm mMainForm;
 
 		#region Initialisation
 
-		public EntryView() : this(null, null)
+		public EntryView() : this(null)
 		{
 		}
 
-		public EntryView(PwDatabase database, MainForm mainForm)
+		public EntryView(MainForm mainForm)
 		{
 			InitializeComponent();
 
-			mDatabase = database;
 			mMainForm = mainForm;
 
 			mFieldValues.AspectPutter = new AspectPutterDelegate(SetFieldValue);
@@ -49,7 +48,31 @@ namespace KPEnhancedEntryView
 			}
 
 			mNotes.SimpleTextOnly = true;
+
+			SetLabel(mCreationTimeLabel, KPRes.CreationTime);
+			SetLabel(mAccessTimeLabel, KPRes.LastAccessTime);
+			SetLabel(mModificationTimeLabel, KPRes.LastModificationTime);
+			SetLabel(mExpiryTimeLabel, KPRes.ExpiryTime);
+			SetLabel(mTagsLabel, KPRes.Tags);
+			SetLabel(mOverrideUrlLabel, KPRes.UrlOverride);
 		}
+
+		private static void SetLabel(Label label, string text)
+		{
+			label.Text = text + ":";
+		}
+
+		public Control AllTextControl 
+		{
+			get { return mAllTextTab.Controls.Cast<Control>().FirstOrDefault(); }
+			set
+			{
+				mAllTextTab.Controls.Clear();
+				mAllTextTab.Controls.Add(value);
+			}
+		}
+
+		private PwDatabase Database { get { return mMainForm.ActiveDatabase; } }
 
 		#endregion
 
@@ -222,6 +245,8 @@ namespace KPEnhancedEntryView
 
 				mAttachments.Entry = Entry;
 			}
+
+			PopulateProperties();
 		}
 
 		private RowObject GetStandardField(string fieldName)
@@ -262,6 +287,10 @@ namespace KPEnhancedEntryView
 			get { return mNotesEditingActive; }
 			set
 			{
+				if (Entry == null)
+				{
+					value = false; // Can't edit if no entry
+				}
 				if (value != mNotesEditingActive)
 				{
 					using (new NotesRtfHelpers.SaveSelectionState(mNotes))
@@ -271,6 +300,7 @@ namespace KPEnhancedEntryView
 							mNotes.Text = Entry.Strings.ReadSafe(PwDefs.NotesField);
 							mNotes.ReadOnly = false;
 							mNotesBorder.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+							mNotesBorder.Padding = new Padding(0);
 							mNotesEditingActive = true;
 						}
 						else
@@ -280,13 +310,14 @@ namespace KPEnhancedEntryView
 							if (newValue != existingValue)
 							{
 								// Save changes
-								Entry.Strings.Set(PwDefs.NotesField, new ProtectedString(mDatabase.MemoryProtection.ProtectNotes, newValue));
+								Entry.Strings.Set(PwDefs.NotesField, new ProtectedString(Database.MemoryProtection.ProtectNotes, newValue));
 								OnEntryModified(EventArgs.Empty);
 							}
 
 							mNotesEditingActive = false;
 							PopulateNotes(newValue);
 							mNotes.ReadOnly = true;
+							mNotesBorder.Padding = new Padding(1);
 							mNotesBorder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 						}
 					}
@@ -595,6 +626,116 @@ namespace KPEnhancedEntryView
 
 			public bool IsInsertionRow { get { return FieldName == null; } }
 		}
-		#endregion		
+		#endregion
+
+		#region Properties Tab
+		private void PopulateProperties()
+		{
+			if (Entry == null)
+			{
+				mPropertiesTabLayout.Visible = false;
+			}
+			else
+			{
+				mGroupButton.Text = Entry.ParentGroup.Name;
+				UIUtil.SetButtonImage(mGroupButton, GetImage(Entry.ParentGroup.CustomIconUuid, Entry.ParentGroup.IconId), true);
+
+				UIUtil.SetButtonImage(m_btnIcon, GetImage(Entry.CustomIconUuid, Entry.IconId), true);
+
+				mCreationTime.Text = TimeUtil.ToDisplayString(Entry.CreationTime);
+				mAccessTime.Text = TimeUtil.ToDisplayString(Entry.LastAccessTime);
+				mModificationTime.Text = TimeUtil.ToDisplayString(Entry.LastModificationTime);
+
+				if (Entry.Expires)
+				{
+					mExpiryTime.Text = TimeUtil.ToDisplayString(Entry.ExpiryTime);
+
+					mExpiryTimeLabel.Visible = mExpiryTime.Visible = true;
+				}
+				else
+				{
+					mExpiryTimeLabel.Visible = mExpiryTime.Visible = false;
+				}
+
+				mOverrideUrl.Text = Entry.OverrideUrl;
+				mTags.Text = StrUtil.TagsToString(Entry.Tags, true);
+
+				mPropertiesTabLayout.Visible = true;
+			}
+		}
+
+		// Strangely, there doesn't appear to already exist a helper to get an image for a group. If one appears, then that should be used instead of this custom one.
+		private Image GetImage(PwUuid customIconId, PwIcon iconId)
+		{
+			Image image = null;
+			if (Database != null)
+			{
+				if (!customIconId.EqualsValue(PwUuid.Zero))
+				{
+					image = Database.GetCustomIcon(customIconId);
+				}
+				if (image == null)
+				{
+					try { image = mMainForm.ClientIcons.Images[(int)iconId]; }
+					catch (Exception) { Debug.Assert(false); }
+				}
+			}
+
+			return image;
+		}
+
+		private void mOverrideUrl_Validated(object sender, EventArgs e)
+		{
+			if (Entry != null)
+			{
+				Entry.OverrideUrl = mOverrideUrl.Text;
+				OnEntryModified(EventArgs.Empty);
+			}
+		}
+
+		private void mTags_Validated(object sender, EventArgs e)
+		{
+			if (Entry != null)
+			{
+				Entry.Tags.Clear();
+				Entry.Tags.AddRange(StrUtil.StringToTags(mTags.Text));
+				OnEntryModified(EventArgs.Empty);
+			}
+		}
+
+		private void mGroupButton_Click(object sender, EventArgs e)
+		{
+			mMainForm.UpdateUI(false, null, true, Entry.ParentGroup, true, null, false);
+		}
+
+		#region Icon Picking
+		// Logic from PwEntryForm.OnBtnPickIcon
+		private void m_btnIcon_Click(object sender, EventArgs e)
+		{
+			var iconPicker = new IconPickerForm();
+			iconPicker.InitEx(mMainForm.ClientIcons, (uint)PwIcon.Count, Database, (uint)Entry.IconId, Entry.CustomIconUuid);
+
+			if (iconPicker.ShowDialog() == DialogResult.OK)
+			{
+				if (iconPicker.ChosenCustomIconUuid != PwUuid.Zero)
+				{
+					Entry.CustomIconUuid = iconPicker.ChosenCustomIconUuid;
+				}
+				else
+				{
+					Entry.CustomIconUuid = PwUuid.Zero;
+					Entry.IconId = (PwIcon)iconPicker.ChosenIconId;
+				}
+
+				UIUtil.SetButtonImage(m_btnIcon, GetImage(Entry.CustomIconUuid, Entry.IconId), true);
+
+				OnEntryModified(EventArgs.Empty);
+			}
+
+			UIUtil.DestroyForm(iconPicker);
+		}
+		#endregion
+
+		#endregion
 	}
 }
