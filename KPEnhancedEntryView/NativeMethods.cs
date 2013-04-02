@@ -63,10 +63,17 @@ namespace KPEnhancedEntryView
 
 		public const int FILE_ATTRIBUTE_NORMAL = 0x80;
 
+		public const int WM_USER = 0x400;  
+		public const int EM_GETSCROLLPOS = WM_USER + 221;
+		public const int EM_SETSCROLLPOS = WM_USER + 222;
+
 		[DllImport("shell32.dll")]
 		public static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbSizeFileInfo, SHGFI uFlags);
 
 		[DllImport("User32.dll")]
 		public static extern int DestroyIcon(IntPtr hIcon);
+
+		[DllImport("user32.dll")]
+		public static extern IntPtr SendMessage(IntPtr hWnd, Int32 wMsg, Int32 wParam, ref System.Drawing.Point lParam);
 	}
 }

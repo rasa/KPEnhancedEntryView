@@ -11,24 +11,31 @@ using BrightIdeasSoftware;
 using KeePassLib.Security;
 using KeePass.UI;
 using KeePass.Resources;
+using System.Reflection;
+using KeePass.Util;
+using System.Diagnostics;
+using System.Threading;
+using KeePass.Forms;
 
 namespace KPEnhancedEntryView
 {
 	public partial class EntryView : UserControl
 	{
 		private PwDatabase mDatabase;
+		private MainForm mMainForm;
 
 		#region Initialisation
 
-		public EntryView() : this(null)
+		public EntryView() : this(null, null)
 		{
 		}
 
-		public EntryView(PwDatabase database)
+		public EntryView(PwDatabase database, MainForm mainForm)
 		{
 			InitializeComponent();
 
 			mDatabase = database;
+			mMainForm = mainForm;
 
 			mFieldValues.AspectPutter = new AspectPutterDelegate(SetFieldValue);
 			mFieldNames.AspectPutter = new AspectPutterDelegate(SetFieldName);
@@ -41,10 +48,89 @@ namespace KPEnhancedEntryView
 				mFieldsGrid.UseAlternatingBackColors = true;
 			}
 
-			mNotes.GotFocus += mNotes_GotFocus;
-			mNotes.LostFocus += mNotes_LostFocus;
+			mNotes.SimpleTextOnly = true;
 		}
 
+		#endregion
+
+		#region Hyperlinks
+		private void mFieldsGrid_HotItemChanged(object sender, HotItemChangedEventArgs e)
+		{
+			// HACK: Prevent Hyperlink handling from flickering first colum
+			e.Handled = e.HotColumnIndex == 0;
+		}
+
+		private void mFieldsGrid_IsHyperlink(object sender, IsHyperlinkEventArgs e)
+		{
+			e.Url = null;
+
+			var rowObject = (RowObject)e.Model;
+
+			if (e.Column == mFieldValues)
+			{
+				if (rowObject.Value != null && !rowObject.Value.IsProtected)
+				{
+					Uri uri;
+					if (Uri.TryCreate(rowObject.Value.ReadString(), UriKind.Absolute, out uri))
+					{
+						e.Url = uri.AbsoluteUri;
+					}
+				}
+			}
+		}
+
+		private void mFieldsGrid_HyperlinkClicked(object sender, HyperlinkClickedEventArgs e)
+		{
+			e.Handled = true; // Disable default processing
+
+			// Defer until double click time to ensure that if double clicking, URL isn't opened.
+			mDoubleClickTimer.Interval = SystemInformation.DoubleClickTime;
+			mClickedUrl = e.Url;
+			mDoubleClickTimer.Start();
+		}
+
+		private string mClickedUrl;
+		private void mDoubleClickTimer_Tick(object sender, EventArgs e)
+		{
+			mDoubleClickTimer.Stop(); // Tick once only.
+
+			if (!mFieldsGrid.IsCellEditing) // If they are now editing a cell, then don't visit the URL
+			{
+				var url = mClickedUrl;
+				mClickedUrl = null;
+				if (url != null)
+				{
+					WinUtil.OpenUrl(url, Entry);
+				}
+			}
+		}
+
+		private MethodInfo mMainFormOnEntryViewLinkClicked;
+		private void mNotes_LinkClicked(object sender, LinkClickedEventArgs e)
+		{
+			mNotes.Parent.Focus();
+
+			// OnEntryViewLinkClicked is not exposed so grab it through reflection. There is no other exposure of reference link following
+			if (mMainFormOnEntryViewLinkClicked == null)
+			{
+				mMainFormOnEntryViewLinkClicked = mMainForm.GetType().GetMethod("OnEntryViewLinkClicked", BindingFlags.Instance | BindingFlags.NonPublic);
+				
+				if (mMainFormOnEntryViewLinkClicked == null)
+				{
+					Debug.Fail("Couldn't find MainForm.OnEntryViewLinkClicked");
+					return;
+				}
+			}
+
+			mMainFormOnEntryViewLinkClicked.Invoke(mMainForm, new object[] { sender, e });
+
+			// UpdateUI isn't triggered for moving to the target of the link, if it's a reference link. Internal code manually updates the entry view, so do that here too
+			var selectedEntry = mMainForm.GetSelectedEntry(true);
+			if (selectedEntry != Entry) // Only bother if we've actually moved
+			{
+				Entry = selectedEntry;
+			}
+		}
 		#endregion
 
 		#region Font and formatting
@@ -63,13 +149,15 @@ namespace KPEnhancedEntryView
 			mItalicFont = new Font(Font, FontStyle.Italic);
 
 			mAttachments.EmptyListMsgFont = mItalicFont;
+			mFieldsGrid.HyperlinkStyle.Over.Font = Font;
 		}
 
 		private void mFieldsGrid_FormatCell(object sender, FormatCellEventArgs e)
 		{
+			var rowObject = (RowObject)e.Model;
 			if (e.Column == mFieldNames)
 			{
-				if (((RowObject)e.Model).IsInsertionRow)
+				if (rowObject.IsInsertionRow)
 				{
 					e.SubItem.Font = mItalicFont;
 				}
@@ -101,6 +189,9 @@ namespace KPEnhancedEntryView
 			{
 				return;
 			}
+
+			mFieldsGrid.CancelCellEdit();
+			NotesEditingActive = false;
 
 			if (Entry == null)
 			{
@@ -142,6 +233,8 @@ namespace KPEnhancedEntryView
 		#region Notes
 		private void PopulateNotes(string value)
 		{
+			Debug.Assert(!mNotesEditingActive, "Can't populate while editing!");
+
 			var builder = new RichTextBuilder { DefaultFont = Font };
 				
 			if (String.IsNullOrEmpty(value))
@@ -155,51 +248,100 @@ namespace KPEnhancedEntryView
 			}
 			else
 			{
-				builder.Append(ReplaceFormattingTags(value));
+				builder.Append(NotesRtfHelpers.ReplaceFormattingTags(value));
 				builder.Build(mNotes);
+
+				UIUtil.RtfLinkifyReferences(mNotes, false);
+				NotesRtfHelpers.RtfLinkifyUrls(mNotes);
 			}
 		}
 
-		private static string ReplaceFormattingTags(string strNotes)
+		private bool mNotesEditingActive;
+		private bool NotesEditingActive
 		{
-			// This code copied from KeePass.Forms.MainForm.ShowEntryDetails (MainForm_Functions.cs). It is not otherwise exposed.
-			KeyValuePair<string, string> kvpBold = RichTextBuilder.GetStyleIdCodes(
-					FontStyle.Bold);
-			KeyValuePair<string, string> kvpItalic = RichTextBuilder.GetStyleIdCodes(
-				FontStyle.Italic);
-			KeyValuePair<string, string> kvpUnderline = RichTextBuilder.GetStyleIdCodes(
-				FontStyle.Underline);
-
-			strNotes = strNotes.Replace(@"<b>", kvpBold.Key);
-			strNotes = strNotes.Replace(@"</b>", kvpBold.Value);
-			strNotes = strNotes.Replace(@"<i>", kvpItalic.Key);
-			strNotes = strNotes.Replace(@"</i>", kvpItalic.Value);
-			strNotes = strNotes.Replace(@"<u>", kvpUnderline.Key);
-			strNotes = strNotes.Replace(@"</u>", kvpUnderline.Value);
-
-			return strNotes;
-		}
-
-		private void mNotes_LostFocus(object sender, EventArgs e)
-		{
-			var existingValue = Entry.Strings.ReadSafe(PwDefs.NotesField);
-			var newValue = mNotes.Text;
-			if (newValue != existingValue)
+			get { return mNotesEditingActive; }
+			set
 			{
-				// Save changes
-				Entry.Strings.Set(PwDefs.NotesField, new ProtectedString(mDatabase.MemoryProtection.ProtectNotes, newValue));
+				if (value != mNotesEditingActive)
+				{
+					using (new NotesRtfHelpers.SaveSelectionState(mNotes))
+					{
+						if (value)
+						{
+							mNotes.Text = Entry.Strings.ReadSafe(PwDefs.NotesField);
+							mNotes.ReadOnly = false;
+							mNotesBorder.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+							mNotesEditingActive = true;
+						}
+						else
+						{
+							var existingValue = Entry.Strings.ReadSafe(PwDefs.NotesField);
+							var newValue = mNotes.Text;
+							if (newValue != existingValue)
+							{
+								// Save changes
+								Entry.Strings.Set(PwDefs.NotesField, new ProtectedString(mDatabase.MemoryProtection.ProtectNotes, newValue));
+								OnEntryModified(EventArgs.Empty);
+							}
+
+							mNotesEditingActive = false;
+							PopulateNotes(newValue);
+							mNotes.ReadOnly = true;
+							mNotesBorder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+						}
+					}
+				}
 			}
-			PopulateNotes(newValue);
 		}
 
-		private void mNotes_GotFocus(object sender, EventArgs e)
+		private void mNotes_KeyDown(object sender, KeyEventArgs e)
 		{
-			// Show unformatted text
-			mNotes.Text = Entry.Strings.ReadSafe(PwDefs.NotesField);
+			if (!NotesEditingActive && e.KeyData == Keys.Enter)
+			{
+				e.Handled = true;
+				NotesEditingActive = true;
+			}
+
+			if (NotesEditingActive && e.KeyData == Keys.Escape)
+			{
+				e.Handled = true;
+				// Should escape discard any changes made?
+				NotesEditingActive = false;
+			}
+		}
+
+		private void mNotes_Enter(object sender, EventArgs e)
+		{
+			// Defer briefly so that there's time for link clicking to invoke
+			BeginInvoke((MethodInvoker)delegate
+			{
+				if (mNotes.Focused)
+				{
+					NotesEditingActive = true;
+				}
+			});
+		}
+
+		private void mNotes_DoubleClick(object sender, EventArgs e)
+		{
+			NotesEditingActive = true;
+		}
+
+		private void mNotes_Leave(object sender, EventArgs e)
+		{
+			NotesEditingActive = false;
 		}
 		#endregion
 
 		#region Cell Editing
+		private void mFieldsGrid_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Enter)
+			{
+				mFieldsGrid.StartCellEdit(mFieldsGrid.SelectedItem, 1);
+			}
+		}
+
 		private void mFieldsGrid_CellEditStarting(object sender, CellEditEventArgs e)
 		{
 			var rowObject = (RowObject)e.RowObject;
@@ -300,6 +442,8 @@ namespace KPEnhancedEntryView
 			{
 				e.NewValue = ((FieldNameEditor)e.Control).Text;
 			}
+
+			mFieldsGrid.SelectedObject = e.RowObject;
 		}
 
 
@@ -451,6 +595,6 @@ namespace KPEnhancedEntryView
 
 			public bool IsInsertionRow { get { return FieldName == null; } }
 		}
-		#endregion
+		#endregion		
 	}
 }

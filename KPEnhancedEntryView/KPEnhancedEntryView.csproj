@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="IconHelper.cs" />
     <Compile Include="NativeMethods.cs" />
+    <Compile Include="NotesRtfHelpers.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProtectedFieldEditor.cs">

@@ -41,6 +41,7 @@
 			this.mAttachments = new KPEnhancedEntryView.AttachmentsListView();
 			this.mPropertiesTab = new System.Windows.Forms.TabPage();
 			this.mValidationMessage = new System.Windows.Forms.ToolTip(this.components);
+			this.mDoubleClickTimer = new System.Windows.Forms.Timer(this.components);
 			this.mTabs.SuspendLayout();
 			this.mFieldsTab.SuspendLayout();
 			this.mSplitGridPanels.Panel1.SuspendLayout();
@@ -98,6 +99,7 @@
 			this.mFieldsGrid.AllColumns.Add(this.mFieldNames);
 			this.mFieldsGrid.AllColumns.Add(this.mFieldValues);
 			this.mFieldsGrid.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
+			this.mFieldsGrid.CellEditTabChangesRows = true;
 			this.mFieldsGrid.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.mFieldNames,
             this.mFieldValues});
@@ -111,25 +113,35 @@
 			this.mFieldsGrid.TabIndex = 0;
 			this.mFieldsGrid.UseCellFormatEvents = true;
 			this.mFieldsGrid.UseCompatibleStateImageBehavior = false;
+			this.mFieldsGrid.UseHyperlinks = true;
 			this.mFieldsGrid.View = System.Windows.Forms.View.Details;
 			this.mFieldsGrid.VirtualMode = true;
 			this.mFieldsGrid.CellEditFinishing += new BrightIdeasSoftware.CellEditEventHandler(this.mFieldsGrid_CellEditFinishing);
 			this.mFieldsGrid.CellEditStarting += new BrightIdeasSoftware.CellEditEventHandler(this.mFieldsGrid_CellEditStarting);
 			this.mFieldsGrid.CellEditValidating += new BrightIdeasSoftware.CellEditEventHandler(this.mFieldsGrid_CellEditValidating);
 			this.mFieldsGrid.FormatCell += new System.EventHandler<BrightIdeasSoftware.FormatCellEventArgs>(this.mFieldsGrid_FormatCell);
+			this.mFieldsGrid.HotItemChanged += new System.EventHandler<BrightIdeasSoftware.HotItemChangedEventArgs>(this.mFieldsGrid_HotItemChanged);
+			this.mFieldsGrid.HyperlinkClicked += new System.EventHandler<BrightIdeasSoftware.HyperlinkClickedEventArgs>(this.mFieldsGrid_HyperlinkClicked);
+			this.mFieldsGrid.IsHyperlink += new System.EventHandler<BrightIdeasSoftware.IsHyperlinkEventArgs>(this.mFieldsGrid_IsHyperlink);
+			this.mFieldsGrid.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mFieldsGrid_KeyDown);
 			// 
 			// mFieldNames
 			// 
 			this.mFieldNames.AspectName = "DisplayName";
+			this.mFieldNames.AutoCompleteEditor = false;
+			this.mFieldNames.AutoCompleteEditorMode = System.Windows.Forms.AutoCompleteMode.None;
 			this.mFieldNames.CellPadding = null;
 			this.mFieldNames.Text = "Name";
 			// 
 			// mFieldValues
 			// 
 			this.mFieldValues.AspectName = "DisplayValue";
+			this.mFieldValues.AutoCompleteEditor = false;
+			this.mFieldValues.AutoCompleteEditorMode = System.Windows.Forms.AutoCompleteMode.None;
 			this.mFieldValues.CellPadding = null;
 			this.mFieldValues.FillsFreeSpace = true;
 			this.mFieldValues.Hideable = false;
+			this.mFieldValues.Hyperlink = true;
 			this.mFieldValues.Text = "Value";
 			// 
 			// mSplitNotesAttachements
@@ -169,6 +181,11 @@
 			this.mNotes.Size = new System.Drawing.Size(248, 64);
 			this.mNotes.TabIndex = 1;
 			this.mNotes.Text = "";
+			this.mNotes.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.mNotes_LinkClicked);
+			this.mNotes.DoubleClick += new System.EventHandler(this.mNotes_DoubleClick);
+			this.mNotes.Enter += new System.EventHandler(this.mNotes_Enter);
+			this.mNotes.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mNotes_KeyDown);
+			this.mNotes.Leave += new System.EventHandler(this.mNotes_Leave);
 			// 
 			// mAttachments
 			// 
@@ -176,6 +193,7 @@
 			this.mAttachments.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mAttachments.EmptyListMsg = "Attachments";
 			this.mAttachments.Entry = null;
+			this.mAttachments.IsSimpleDragSource = true;
 			this.mAttachments.Location = new System.Drawing.Point(0, 0);
 			this.mAttachments.Name = "mAttachments";
 			this.mAttachments.ShowGroups = false;
@@ -194,6 +212,10 @@
 			this.mPropertiesTab.Size = new System.Drawing.Size(365, 316);
 			this.mPropertiesTab.TabIndex = 1;
 			this.mPropertiesTab.Text = "Properties";
+			// 
+			// mDoubleClickTimer
+			// 
+			this.mDoubleClickTimer.Tick += new System.EventHandler(this.mDoubleClickTimer_Tick);
 			// 
 			// EntryView
 			// 
@@ -231,5 +253,6 @@
 		private AttachmentsListView mAttachments;
 		private System.Windows.Forms.Panel mNotesBorder;
 		private System.Windows.Forms.ToolTip mValidationMessage;
+		private System.Windows.Forms.Timer mDoubleClickTimer;
 	}
 }

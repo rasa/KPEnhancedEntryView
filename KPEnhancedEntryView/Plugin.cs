@@ -34,7 +34,7 @@ namespace KPEnhancedEntryView
 			}
 
 			// Replace existing entry view with new one
-			mEntryView = new EntryView(mHost.Database)
+			mEntryView = new EntryView(mHost.Database, mHost.MainWindow)
 			{
 				Name = "m_KPEnhancedEntryView",
 				Dock = DockStyle.Fill,
