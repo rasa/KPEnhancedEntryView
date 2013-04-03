@@ -33,7 +33,7 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>..\Releases\</OutputPath>
+    <OutputPath>..\Releases\Build Outputs\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -49,23 +49,23 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <Choose>
-	<When Condition="'$(Configuration)'=='Debug'">
-	  <ItemGroup>
-		<ProjectReference Include="..\KeePass-2.21-Source\KeePass\KeePass.csproj" Condition="">
-		  <Project>{10938016-DEE2-4A25-9A5A-8FD3444379CA}</Project>
-		  <Name>KeePass</Name>
-		  <Private>False</Private>
-		</ProjectReference>
-	  </ItemGroup>
-	</When>
-	<Otherwise>
-	 <ItemGroup>
-		<Reference Include="KeePass" Condition="'$(Configuration)'=='Release'">
-		  <HintPath>..\KeePass-2.21\KeePass.exe</HintPath>
-		  <Private>False</Private>
-		</Reference>
-	  </ItemGroup>
-	</Otherwise>
+    <When Condition="'$(Configuration)'=='Debug'">
+      <ItemGroup>
+        <ProjectReference Include="..\KeePass-2.21-Source\KeePass\KeePass.csproj" Condition="">
+          <Project>{10938016-DEE2-4A25-9A5A-8FD3444379CA}</Project>
+          <Name>KeePass</Name>
+          <Private>False</Private>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="KeePass" Condition="'$(Configuration)'=='Release'">
+          <HintPath>..\KeePass-2.21\KeePass.exe</HintPath>
+          <Private>False</Private>
+        </Reference>
+      </ItemGroup>
+    </Otherwise>
   </Choose>
   <ItemGroup>
     <Reference Include="System" />

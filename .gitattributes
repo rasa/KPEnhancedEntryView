@@ -32,3 +32,4 @@ KPEnhancedEntryView/Resources/Nuvola_Derived/B16x16_Key_New.png -text svneol=uns
 KPEnhancedEntryView/ValidationFailureReporter.cs -text
 KPEnhancedEntryView/VirtualFileDataObject.cs -text
 /Readme.txt -text
+Releases/PackageRelease.bat -text
