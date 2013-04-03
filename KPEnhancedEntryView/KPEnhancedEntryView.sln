@@ -9,6 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectListView2010", "..\Th
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E448F3C9-FC22-49FD-9760-602C3C3DD5C1}"
 	ProjectSection(SolutionItems) = preProject
+		..\Development.txt = ..\Development.txt
 		..\Readme.txt = ..\Readme.txt
 	EndProjectSection
 EndProject

@@ -1,0 +1,32 @@
+KeePass Enhanced Entry View is built using Visual Studio 2010 on Windows.
+
+It may or may not build under other environments, I don't know.
+
+Build Environment
+-----------------
+
+To set up the build environment, download the following dependencies:
+
+KeePass 2.21
+ Download http://downloads.sourceforge.net/keepass/KeePass-2.21.zip
+ Extract contents to the "KeePass-2.21" folder
+
+KeePass 2.21 Source
+ Download http://downloads.sourceforge.net/keepass/KeePass-2.21-Source.zip
+ Extract contents to the "KeePass-2.21-Source" folder
+
+ObjectListView Source
+ Download http://sourceforge.net/projects/objectlistview/files/objectlistview/2.6.0/ObjectListView-2.6.0.zip/download
+ Extract contents to the "ThirdPartyAssemblies" folder
+ 
+
+Building
+--------
+
+When building the solution, under Debug configuration KeePass is referenced as a project,
+to assist with debugging and source navigation. The build outputs will be placed in the
+plugins folder for the KeePass built from source, and that KeePass executed.
+
+Under Release configuration, KeePass is referenced as a binary, from the KeePass.exe in
+the KeePass-2.21 folder. This ensures a correct strong-named dependency. The build outputs
+will be placed in the Releases folder, ready for publication.

@@ -3,4 +3,6 @@ KPEnhancedEntryView/*.user
 KPEnhancedEntryView/bin
 KPEnhancedEntryView/obj
 KeePass-2.21-Source/*
+KeePass-2.21/*
+Releases/*
 ThirdPartyAssemblies/ObjectListViewDemo/*
