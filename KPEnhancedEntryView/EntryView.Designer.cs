@@ -7,19 +7,6 @@
 		/// </summary>
 		private System.ComponentModel.IContainer components = null;
 
-		/// <summary> 
-		/// Clean up any resources being used.
-		/// </summary>
-		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing && (components != null))
-			{
-				components.Dispose();
-			}
-			base.Dispose(disposing);
-		}
-
 		#region Component Designer generated code
 
 		/// <summary> 
@@ -32,13 +19,12 @@
 			this.mTabs = new System.Windows.Forms.TabControl();
 			this.mFieldsTab = new System.Windows.Forms.TabPage();
 			this.mSplitGridPanels = new System.Windows.Forms.SplitContainer();
-			this.mFieldsGrid = new BrightIdeasSoftware.FastObjectListView();
-			this.mFieldNames = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-			this.mFieldValues = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+			this.mFieldsGrid = new KPEnhancedEntryView.FieldsListView();
 			this.mSplitNotesAttachements = new System.Windows.Forms.SplitContainer();
 			this.mNotesBorder = new System.Windows.Forms.Panel();
 			this.mNotes = new KeePass.UI.CustomRichTextBoxEx();
 			this.mAttachments = new KPEnhancedEntryView.AttachmentsListView();
+			this.mValidationFailureReporter = new KPEnhancedEntryView.ValidationFailureReporter(this.components);
 			this.mPropertiesTab = new System.Windows.Forms.TabPage();
 			this.mPropertiesTabLayout = new System.Windows.Forms.TableLayoutPanel();
 			this.mOverrideUrl = new System.Windows.Forms.TextBox();
@@ -60,8 +46,23 @@
 			this.m_lblIcon = new System.Windows.Forms.Label();
 			this.m_btnIcon = new System.Windows.Forms.Button();
 			this.mAllTextTab = new System.Windows.Forms.TabPage();
-			this.mValidationMessage = new System.Windows.Forms.ToolTip(this.components);
 			this.mDoubleClickTimer = new System.Windows.Forms.Timer(this.components);
+			this.mFieldGridContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.mCopyCommand = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.mEditFieldCommand = new System.Windows.Forms.ToolStripMenuItem();
+			this.mProtectFieldCommand = new System.Windows.Forms.ToolStripMenuItem();
+			this.mPasswordGeneratorCommand = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+			this.mDeleteFieldCommand = new System.Windows.Forms.ToolStripMenuItem();
+			this.mAddNewCommand = new System.Windows.Forms.ToolStripMenuItem();
+			this.mAttachmentsContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.mViewBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
+			this.mRenameBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
+			this.mSaveBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
+			this.mDeleteBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.mAttachBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.mTabs.SuspendLayout();
 			this.mFieldsTab.SuspendLayout();
 			this.mSplitGridPanels.Panel1.SuspendLayout();
@@ -76,6 +77,8 @@
 			this.mPropertiesTab.SuspendLayout();
 			this.mPropertiesTabLayout.SuspendLayout();
 			this.mIconPanel.SuspendLayout();
+			this.mFieldGridContextMenu.SuspendLayout();
+			this.mAttachmentsContextMenu.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// mTabs
@@ -119,15 +122,11 @@
 			// 
 			// mFieldsGrid
 			// 
-			this.mFieldsGrid.AllColumns.Add(this.mFieldNames);
-			this.mFieldsGrid.AllColumns.Add(this.mFieldValues);
 			this.mFieldsGrid.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
 			this.mFieldsGrid.CellEditTabChangesRows = true;
-			this.mFieldsGrid.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.mFieldNames,
-            this.mFieldValues});
-			this.mFieldsGrid.Cursor = System.Windows.Forms.Cursors.Default;
+			this.mFieldsGrid.CopySelectionOnControlC = false;
 			this.mFieldsGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mFieldsGrid.Entry = null;
 			this.mFieldsGrid.FullRowSelect = true;
 			this.mFieldsGrid.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.mFieldsGrid.Location = new System.Drawing.Point(0, 0);
@@ -138,35 +137,11 @@
 			this.mFieldsGrid.UseCellFormatEvents = true;
 			this.mFieldsGrid.UseCompatibleStateImageBehavior = false;
 			this.mFieldsGrid.UseHyperlinks = true;
+			this.mFieldsGrid.ValidationFailureReporter = null;
 			this.mFieldsGrid.View = System.Windows.Forms.View.Details;
 			this.mFieldsGrid.VirtualMode = true;
-			this.mFieldsGrid.CellEditFinishing += new BrightIdeasSoftware.CellEditEventHandler(this.mFieldsGrid_CellEditFinishing);
-			this.mFieldsGrid.CellEditStarting += new BrightIdeasSoftware.CellEditEventHandler(this.mFieldsGrid_CellEditStarting);
-			this.mFieldsGrid.CellEditValidating += new BrightIdeasSoftware.CellEditEventHandler(this.mFieldsGrid_CellEditValidating);
-			this.mFieldsGrid.FormatCell += new System.EventHandler<BrightIdeasSoftware.FormatCellEventArgs>(this.mFieldsGrid_FormatCell);
-			this.mFieldsGrid.HotItemChanged += new System.EventHandler<BrightIdeasSoftware.HotItemChangedEventArgs>(this.mFieldsGrid_HotItemChanged);
+			this.mFieldsGrid.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mFieldsGrid_CellRightClick);
 			this.mFieldsGrid.HyperlinkClicked += new System.EventHandler<BrightIdeasSoftware.HyperlinkClickedEventArgs>(this.mFieldsGrid_HyperlinkClicked);
-			this.mFieldsGrid.IsHyperlink += new System.EventHandler<BrightIdeasSoftware.IsHyperlinkEventArgs>(this.mFieldsGrid_IsHyperlink);
-			this.mFieldsGrid.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mFieldsGrid_KeyDown);
-			// 
-			// mFieldNames
-			// 
-			this.mFieldNames.AspectName = "DisplayName";
-			this.mFieldNames.AutoCompleteEditor = false;
-			this.mFieldNames.AutoCompleteEditorMode = System.Windows.Forms.AutoCompleteMode.None;
-			this.mFieldNames.CellPadding = null;
-			this.mFieldNames.Text = "Name";
-			// 
-			// mFieldValues
-			// 
-			this.mFieldValues.AspectName = "DisplayValue";
-			this.mFieldValues.AutoCompleteEditor = false;
-			this.mFieldValues.AutoCompleteEditorMode = System.Windows.Forms.AutoCompleteMode.None;
-			this.mFieldValues.CellPadding = null;
-			this.mFieldValues.FillsFreeSpace = true;
-			this.mFieldValues.Hideable = false;
-			this.mFieldValues.Hyperlink = true;
-			this.mFieldValues.Text = "Value";
 			// 
 			// mSplitNotesAttachements
 			// 
@@ -215,6 +190,8 @@
 			// mAttachments
 			// 
 			this.mAttachments.AllowDrop = true;
+			this.mAttachments.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.F2Only;
+			this.mAttachments.CopySelectionOnControlC = false;
 			this.mAttachments.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mAttachments.EmptyListMsg = "Attachments";
 			this.mAttachments.Entry = null;
@@ -225,9 +202,11 @@
 			this.mAttachments.Size = new System.Drawing.Size(107, 69);
 			this.mAttachments.TabIndex = 0;
 			this.mAttachments.UseCompatibleStateImageBehavior = false;
+			this.mAttachments.ValidationFailureReporter = this.mValidationFailureReporter;
 			this.mAttachments.View = System.Windows.Forms.View.SmallIcon;
 			this.mAttachments.VirtualMode = true;
 			this.mAttachments.EntryModified += new System.EventHandler(this.mAttachments_EntryModified);
+			this.mAttachments.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mAttachments_CellRightClick);
 			// 
 			// mPropertiesTab
 			// 
@@ -477,6 +456,127 @@
 			// 
 			this.mDoubleClickTimer.Tick += new System.EventHandler(this.mDoubleClickTimer_Tick);
 			// 
+			// mFieldGridContextMenu
+			// 
+			this.mFieldGridContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mCopyCommand,
+            this.toolStripSeparator1,
+            this.mEditFieldCommand,
+            this.mProtectFieldCommand,
+            this.mPasswordGeneratorCommand,
+            this.toolStripSeparator2,
+            this.mDeleteFieldCommand,
+            this.mAddNewCommand});
+			this.mFieldGridContextMenu.Name = "mFieldGridContextMenu";
+			this.mFieldGridContextMenu.Size = new System.Drawing.Size(221, 148);
+			// 
+			// mCopyCommand
+			// 
+			this.mCopyCommand.Image = global::KPEnhancedEntryView.Properties.Resources.B16x16_KGPG_Info;
+			this.mCopyCommand.Name = "mCopyCommand";
+			this.mCopyCommand.Size = new System.Drawing.Size(220, 22);
+			this.mCopyCommand.Text = "Copy {0}";
+			// 
+			// toolStripSeparator1
+			// 
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(217, 6);
+			// 
+			// mEditFieldCommand
+			// 
+			this.mEditFieldCommand.Image = global::KPEnhancedEntryView.Properties.Resources.B16x16_KGPG_Sign;
+			this.mEditFieldCommand.Name = "mEditFieldCommand";
+			this.mEditFieldCommand.Size = new System.Drawing.Size(220, 22);
+			this.mEditFieldCommand.Text = "&Edit Field";
+			// 
+			// mProtectFieldCommand
+			// 
+			this.mProtectFieldCommand.CheckOnClick = true;
+			this.mProtectFieldCommand.Name = "mProtectFieldCommand";
+			this.mProtectFieldCommand.Size = new System.Drawing.Size(220, 22);
+			this.mProtectFieldCommand.Text = "&Protect Field";
+			// 
+			// mPasswordGeneratorCommand
+			// 
+			this.mPasswordGeneratorCommand.Image = global::KPEnhancedEntryView.Properties.Resources.B16x16_Key_New;
+			this.mPasswordGeneratorCommand.Name = "mPasswordGeneratorCommand";
+			this.mPasswordGeneratorCommand.Size = new System.Drawing.Size(220, 22);
+			this.mPasswordGeneratorCommand.Text = "&Open Password Generator...";
+			// 
+			// toolStripSeparator2
+			// 
+			this.toolStripSeparator2.Name = "toolStripSeparator2";
+			this.toolStripSeparator2.Size = new System.Drawing.Size(217, 6);
+			// 
+			// mDeleteFieldCommand
+			// 
+			this.mDeleteFieldCommand.Image = global::KPEnhancedEntryView.Properties.Resources.B16x16_DeleteEntry;
+			this.mDeleteFieldCommand.Name = "mDeleteFieldCommand";
+			this.mDeleteFieldCommand.Size = new System.Drawing.Size(220, 22);
+			this.mDeleteFieldCommand.Text = "&Delete Field";
+			// 
+			// mAddNewCommand
+			// 
+			this.mAddNewCommand.Image = global::KPEnhancedEntryView.Properties.Resources.B16x16_KGPG_Import;
+			this.mAddNewCommand.Name = "mAddNewCommand";
+			this.mAddNewCommand.Size = new System.Drawing.Size(220, 22);
+			this.mAddNewCommand.Text = "&Add New Field";
+			// 
+			// mAttachmentsContextMenu
+			// 
+			this.mAttachmentsContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mViewBinaryCommand,
+            this.mRenameBinaryCommand,
+            this.mSaveBinaryCommand,
+            this.mDeleteBinaryCommand,
+            this.toolStripSeparator3,
+            this.mAttachBinaryCommand});
+			this.mAttachmentsContextMenu.Name = "mAttachmentsContextMenu";
+			this.mAttachmentsContextMenu.Size = new System.Drawing.Size(153, 142);
+			// 
+			// mViewBinaryCommand
+			// 
+			this.mViewBinaryCommand.Name = "mViewBinaryCommand";
+			this.mViewBinaryCommand.Size = new System.Drawing.Size(152, 22);
+			this.mViewBinaryCommand.Text = "&View";
+			this.mViewBinaryCommand.Click += new System.EventHandler(this.mViewBinaryCommand_Click);
+			// 
+			// mRenameBinaryCommand
+			// 
+			this.mRenameBinaryCommand.Name = "mRenameBinaryCommand";
+			this.mRenameBinaryCommand.Size = new System.Drawing.Size(152, 22);
+			this.mRenameBinaryCommand.Text = "&Rename";
+			this.mRenameBinaryCommand.Click += new System.EventHandler(this.mRenameBinaryCommand_Click);
+			// 
+			// mSaveBinaryCommand
+			// 
+			this.mSaveBinaryCommand.Image = global::KPEnhancedEntryView.Properties.Resources.B16x16_Attach;
+			this.mSaveBinaryCommand.Name = "mSaveBinaryCommand";
+			this.mSaveBinaryCommand.Size = new System.Drawing.Size(152, 22);
+			this.mSaveBinaryCommand.Text = "&Save";
+			this.mSaveBinaryCommand.Click += new System.EventHandler(this.mSaveBinaryCommand_Click);
+			// 
+			// mDeleteBinaryCommand
+			// 
+			this.mDeleteBinaryCommand.Image = global::KPEnhancedEntryView.Properties.Resources.B16x16_EditDelete;
+			this.mDeleteBinaryCommand.Name = "mDeleteBinaryCommand";
+			this.mDeleteBinaryCommand.Size = new System.Drawing.Size(152, 22);
+			this.mDeleteBinaryCommand.Text = "&Delete";
+			this.mDeleteBinaryCommand.Click += new System.EventHandler(this.mDeleteBinaryCommand_Click);
+			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(149, 6);
+			// 
+			// mAttachBinaryCommand
+			// 
+			this.mAttachBinaryCommand.Image = global::KPEnhancedEntryView.Properties.Resources.B16x16_Folder_Yellow_Open;
+			this.mAttachBinaryCommand.Name = "mAttachBinaryCommand";
+			this.mAttachBinaryCommand.Size = new System.Drawing.Size(152, 22);
+			this.mAttachBinaryCommand.Text = "Attach &File(s)...";
+			this.mAttachBinaryCommand.Click += new System.EventHandler(this.mAttachBinaryCommand_Click);
+			// 
 			// EntryView
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -500,6 +600,8 @@
 			this.mPropertiesTabLayout.PerformLayout();
 			this.mIconPanel.ResumeLayout(false);
 			this.mIconPanel.PerformLayout();
+			this.mFieldGridContextMenu.ResumeLayout(false);
+			this.mAttachmentsContextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
@@ -509,15 +611,13 @@
 		private System.Windows.Forms.TabControl mTabs;
 		private System.Windows.Forms.TabPage mFieldsTab;
 		private System.Windows.Forms.TabPage mPropertiesTab;
-		private BrightIdeasSoftware.FastObjectListView mFieldsGrid;
-		private BrightIdeasSoftware.OLVColumn mFieldNames;
-		private BrightIdeasSoftware.OLVColumn mFieldValues;
+		private FieldsListView mFieldsGrid;
 		private System.Windows.Forms.SplitContainer mSplitGridPanels;
 		private System.Windows.Forms.SplitContainer mSplitNotesAttachements;
 		private KeePass.UI.CustomRichTextBoxEx mNotes;
 		private AttachmentsListView mAttachments;
 		private System.Windows.Forms.Panel mNotesBorder;
-		private System.Windows.Forms.ToolTip mValidationMessage;
+		private ValidationFailureReporter mValidationFailureReporter;
 		private System.Windows.Forms.Timer mDoubleClickTimer;
 		private System.Windows.Forms.TabPage mAllTextTab;
 		private System.Windows.Forms.TableLayoutPanel mPropertiesTabLayout;
@@ -539,5 +639,21 @@
 		private System.Windows.Forms.Panel mIconPanel;
 		private System.Windows.Forms.Label m_lblIcon;
 		private System.Windows.Forms.Button m_btnIcon;
+		private System.Windows.Forms.ContextMenuStrip mFieldGridContextMenu;
+		private System.Windows.Forms.ToolStripMenuItem mCopyCommand;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+		private System.Windows.Forms.ToolStripMenuItem mEditFieldCommand;
+		private System.Windows.Forms.ToolStripMenuItem mProtectFieldCommand;
+		private System.Windows.Forms.ToolStripMenuItem mPasswordGeneratorCommand;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+		private System.Windows.Forms.ToolStripMenuItem mDeleteFieldCommand;
+		private System.Windows.Forms.ToolStripMenuItem mAddNewCommand;
+		private System.Windows.Forms.ContextMenuStrip mAttachmentsContextMenu;
+		private System.Windows.Forms.ToolStripMenuItem mViewBinaryCommand;
+		private System.Windows.Forms.ToolStripMenuItem mSaveBinaryCommand;
+		private System.Windows.Forms.ToolStripMenuItem mDeleteBinaryCommand;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+		private System.Windows.Forms.ToolStripMenuItem mAttachBinaryCommand;
+		private System.Windows.Forms.ToolStripMenuItem mRenameBinaryCommand;
 	}
 }

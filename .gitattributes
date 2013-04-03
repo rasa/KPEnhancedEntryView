@@ -4,6 +4,7 @@ KPEnhancedEntryView/EntryView.Designer.cs -text
 KPEnhancedEntryView/EntryView.cs -text
 KPEnhancedEntryView/EntryView.resx -text
 KPEnhancedEntryView/FieldNameEditor.cs -text
+KPEnhancedEntryView/FieldsListView.cs -text
 KPEnhancedEntryView/IconHelper.cs -text
 KPEnhancedEntryView/KPEnhancedEntryView.csproj -text
 KPEnhancedEntryView/KPEnhancedEntryView.sln -text
@@ -18,5 +19,16 @@ KPEnhancedEntryView/Properties/Settings.settings -text
 KPEnhancedEntryView/ProtectedFieldEditor.Designer.cs -text
 KPEnhancedEntryView/ProtectedFieldEditor.cs -text
 KPEnhancedEntryView/ProtectedFieldEditor.resx -text
+KPEnhancedEntryView/Resources/B16x16_Folder_Yellow_Open.png -text
+KPEnhancedEntryView/Resources/Images/B17x05_3BlackDots.png -text svneol=unset#unset
+KPEnhancedEntryView/Resources/Nuvola/B16x16_Attach.png -text svneol=unset#unset
+KPEnhancedEntryView/Resources/Nuvola/B16x16_EditDelete.png -text svneol=unset#unset
+KPEnhancedEntryView/Resources/Nuvola/B16x16_Folder_Yellow_Open.png -text svneol=unset#unset
+KPEnhancedEntryView/Resources/Nuvola/B16x16_KGPG_Import.png -text svneol=unset#unset
+KPEnhancedEntryView/Resources/Nuvola/B16x16_KGPG_Info.png -text svneol=unset#unset
+KPEnhancedEntryView/Resources/Nuvola/B16x16_KGPG_Sign.png -text svneol=unset#unset
+KPEnhancedEntryView/Resources/Nuvola_Derived/B16x16_DeleteEntry.png -text svneol=unset#unset
+KPEnhancedEntryView/Resources/Nuvola_Derived/B16x16_Key_New.png -text svneol=unset#unset
+KPEnhancedEntryView/ValidationFailureReporter.cs -text
 KPEnhancedEntryView/VirtualFileDataObject.cs -text
 ThirdPartyAssemblies/Readme.txt -text

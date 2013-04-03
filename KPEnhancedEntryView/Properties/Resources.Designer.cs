@@ -60,12 +60,156 @@ namespace KPEnhancedEntryView.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap B16x16_Attach {
+            get {
+                object obj = ResourceManager.GetObject("B16x16_Attach", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap B16x16_DeleteEntry {
+            get {
+                object obj = ResourceManager.GetObject("B16x16_DeleteEntry", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap B16x16_EditDelete {
+            get {
+                object obj = ResourceManager.GetObject("B16x16_EditDelete", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap B16x16_Folder_Yellow_Open {
+            get {
+                object obj = ResourceManager.GetObject("B16x16_Folder_Yellow_Open", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap B16x16_Key_New {
+            get {
+                object obj = ResourceManager.GetObject("B16x16_Key_New", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap B16x16_KGPG_Import {
+            get {
+                object obj = ResourceManager.GetObject("B16x16_KGPG_Import", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap B16x16_KGPG_Info {
+            get {
+                object obj = ResourceManager.GetObject("B16x16_KGPG_Info", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap B16x16_KGPG_Sign {
+            get {
+                object obj = ResourceManager.GetObject("B16x16_KGPG_Sign", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap B17x05_3BlackDots {
+            get {
+                object obj = ResourceManager.GetObject("B17x05_3BlackDots", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &amp;Copy {0}.
+        /// </summary>
+        internal static string CopyCommand {
+            get {
+                return ResourceManager.GetString("CopyCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete the selected attachment?.
+        /// </summary>
+        internal static string DeleteAttachmentQuestion {
+            get {
+                return ResourceManager.GetString("DeleteAttachmentQuestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete the selected attachments?.
+        /// </summary>
+        internal static string DeleteAttachmentsQuestion {
+            get {
+                return ResourceManager.GetString("DeleteAttachmentsQuestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Attachments.
+        /// </summary>
+        internal static string DeleteAttachmentsTitle {
+            get {
+                return ResourceManager.GetString("DeleteAttachmentsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Attachment.
+        /// </summary>
+        internal static string DeleteAttachmentTitle {
+            get {
+                return ResourceManager.GetString("DeleteAttachmentTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field.
+        /// </summary>
+        internal static string Field {
+            get {
+                return ResourceManager.GetString("Field", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} more attachments.
+        /// </summary>
+        internal static string MoreAttachments {
+            get {
+                return ResourceManager.GetString("MoreAttachments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        internal static string Name {
+            get {
+                return ResourceManager.GetString("Name", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to (add new).
         /// </summary>
         internal static string NewFieldRowName {
             get {
                 return ResourceManager.GetString("NewFieldRowName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value.
+        /// </summary>
+        internal static string Value {
+            get {
+                return ResourceManager.GetString("Value", resourceCulture);
             }
         }
     }

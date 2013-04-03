@@ -26,7 +26,8 @@ namespace KPEnhancedEntryView
 			{
 				// TODO: Non-windows platforms?
 			}
-			return SystemIcons.WinLogo;
+			
+			return null;
 		}
 	}
 }

@@ -117,7 +117,63 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="B16x16_Attach" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Nuvola\B16x16_Attach.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="B16x16_DeleteEntry" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Nuvola_Derived\B16x16_DeleteEntry.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="B16x16_EditDelete" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Nuvola\B16x16_EditDelete.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="B16x16_Key_New" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Nuvola_Derived\B16x16_Key_New.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="B16x16_KGPG_Import" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Nuvola\B16x16_KGPG_Import.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="B16x16_KGPG_Info" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Nuvola\B16x16_KGPG_Info.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="B16x16_KGPG_Sign" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Nuvola\B16x16_KGPG_Sign.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="B17x05_3BlackDots" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Images\B17x05_3BlackDots.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CopyCommand" xml:space="preserve">
+    <value>&amp;Copy {0}</value>
+  </data>
+  <data name="Field" xml:space="preserve">
+    <value>Field</value>
+  </data>
   <data name="NewFieldRowName" xml:space="preserve">
     <value>(add new)</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="B16x16_Folder_Yellow_Open" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\B16x16_Folder_Yellow_Open.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DeleteAttachmentQuestion" xml:space="preserve">
+    <value>Are you sure you want to delete the selected attachment?</value>
+  </data>
+  <data name="DeleteAttachmentsQuestion" xml:space="preserve">
+    <value>Are you sure you want to delete the selected attachments?</value>
+  </data>
+  <data name="DeleteAttachmentsTitle" xml:space="preserve">
+    <value>Delete Attachments</value>
+  </data>
+  <data name="DeleteAttachmentTitle" xml:space="preserve">
+    <value>Delete Attachment</value>
+  </data>
+  <data name="MoreAttachments" xml:space="preserve">
+    <value>{0} more attachments</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Value</value>
   </data>
 </root>

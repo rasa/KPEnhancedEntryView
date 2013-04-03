@@ -29,6 +29,10 @@ namespace KPEnhancedEntryView
 			View = System.Windows.Forms.View.SmallIcon;
 			Scrollable = true;
 
+			CellEditActivation = CellEditActivateMode.F2Only;
+
+			CopySelectionOnControlC = false;
+
 			DragSource = new VirtualFileDragSource();
 			AllowDrop = true;
 
@@ -40,24 +44,50 @@ namespace KPEnhancedEntryView
 			overlay.BorderColor = Color.Empty;
 			overlay.TextColor = SystemColors.GrayText;
 
-			var column = new OLVColumn { FillsFreeSpace = true };
+			var column = new OLVColumn
+			{
+				FillsFreeSpace = true,
+				AutoCompleteEditor = false,
+				AspectGetter = model => ((RowObject)model).Name,
+				AspectPutter = SetAttachmentName,
+				ImageGetter = IconImageGetter
+			};
 			Columns.Add(column);
-
-			column.AspectGetter = NameGetter;
-			column.ImageGetter += IconImageGetter;
 		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (mItalicFont != null)
+				{
+					mItalicFont.Dispose();
+					mItalicFont = null;
+				}
+			}
+			base.Dispose(disposing);
+		}
+
+		#region Font
+		private Font mItalicFont = null;
+
+		protected override void OnFontChanged(EventArgs e)
+		{
+			base.OnFontChanged(e);
+
+			if (mItalicFont != null) mItalicFont.Dispose();
+
+			mItalicFont = new Font(Font, FontStyle.Italic);
+
+			EmptyListMsgFont = mItalicFont;
+		}
+		#endregion
 
 		#region Getters
-		private object NameGetter(object model)
-		{
-			var kvp = (KeyValuePair<string, ProtectedBinary>)model;
-			return kvp.Key;
-		}
-
 		private object IconImageGetter(object model)
 		{
-			var kvp = (KeyValuePair<string, ProtectedBinary>)model;
-			var path = kvp.Key;
+			var rowObject = (RowObject)model;
+			var path = rowObject.Name;
 			var extension = System.IO.Path.GetExtension(path);
 
 			if (!SmallImageList.Images.ContainsKey(extension))
@@ -90,8 +120,13 @@ namespace KPEnhancedEntryView
 			}
 			else
 			{
-				SetObjects(Entry.Binaries);
+				RefreshObjectsFromEntry();
 			}
+		}
+
+		private void RefreshObjectsFromEntry()
+		{
+			SetObjects(from kvp in Entry.Binaries select new RowObject(kvp));
 		}
 		#endregion
 
@@ -99,15 +134,230 @@ namespace KPEnhancedEntryView
 		public event EventHandler EntryModified;
 		protected virtual void OnEntryModified(EventArgs e)
 		{
-			if (Entry != null)
-			{
-				Entry.Touch(true, false);
-			}
-
 			var temp = EntryModified;
 			if (temp != null)
 			{
 				temp(this, e);
+			}
+		}
+		#endregion
+
+		#region Commands
+		protected override bool ProcessDialogKey(Keys keyData)
+		{
+			if (!IsCellEditing)
+			{
+				if (SelectedIndices.Count > 0)
+				{
+					if (keyData == Keys.Delete)
+					{
+						DeleteSelected();
+						return true;
+					}
+				}
+			}
+			return base.ProcessDialogKey(keyData);
+		}
+
+		public void AttachFiles()
+		{
+			// Copied from PwEntryForm.OnCtxBinImport (PwEntryForm.cs)
+			var ofd = UIUtil.CreateOpenFileDialog(KPRes.AttachFiles,
+				UIUtil.CreateFileTypeFilter(null, null, true), 1, null, true,
+				KeePass.App.AppDefs.FileDialogContext.Attachments);
+
+			if (ofd.ShowDialog() == DialogResult.OK)
+			{
+				BinImportFiles(ofd.FileNames);
+
+				RefreshObjectsFromEntry();
+				OnEntryModified(EventArgs.Empty);
+			}
+		}
+
+		public void ViewSelected()
+		{
+			var rowObject = SelectedObject as RowObject;
+			if (rowObject != null)
+			{
+				ShowBinaryWindow(rowObject.Name, rowObject.Binary);
+			}
+		}
+
+		public void RenameSelected()
+		{
+			if (SelectedItem != null)
+			{
+				StartCellEdit(SelectedItem, 0);
+			}
+		}
+
+		public void DeleteSelected()
+		{
+			bool singleItem = (SelectedIndices.Count == 1);
+
+			var prompt = new VistaTaskDialog
+			{
+				CommandLinks = false,
+				Content = CreateSummaryList(from RowObject rowObject in SelectedObjects select rowObject.Name),
+				MainInstruction = singleItem ? Properties.Resources.DeleteAttachmentQuestion :
+												Properties.Resources.DeleteAttachmentsQuestion,
+				WindowTitle = PwDefs.ShortProductName
+			};
+
+			prompt.SetIcon(VtdCustomIcon.Question);
+			prompt.AddButton((int)DialogResult.OK, KPRes.DeleteCmd, null);
+			prompt.AddButton((int)DialogResult.Cancel, KPRes.CancelCmd, null);
+
+			if (prompt.ShowDialog())
+			{
+				if (prompt.Result == (int)DialogResult.Cancel) return;
+			}
+			else
+			{
+				if (!MessageService.AskYesNo(singleItem ? Properties.Resources.DeleteAttachmentQuestion : Properties.Resources.DeleteAttachmentsQuestion,
+											 singleItem ? Properties.Resources.DeleteAttachmentTitle : Properties.Resources.DeleteAttachmentsTitle))
+				{
+					return;
+				}
+			}
+
+			foreach (RowObject rowObject in SelectedObjects)
+			{
+				Entry.Binaries.Remove(rowObject.Name);
+			}
+			RemoveObjects(SelectedObjects);
+			
+			OnEntryModified(EventArgs.Empty);
+		}
+
+		private string CreateSummaryList(IEnumerable<String> attachmentNames)
+		{
+			var maxItemsToShow = 10;
+			// Consistent behaviour with EntryUtil.CreateSummaryList (EntryUtil.cs)
+			var summary = String.Join(MessageService.NewLine, (from attachmentName in attachmentNames.Take(maxItemsToShow) select "- " + StrUtil.CompactString3Dots(attachmentName, 39)).ToArray());
+
+			var count = attachmentNames.Count();
+			if (count > maxItemsToShow)
+			{
+				summary += MessageService.NewLine + "- " + String.Format(Properties.Resources.MoreAttachments, count - maxItemsToShow);
+			}
+
+			return summary;
+		}
+
+		public void SaveSelected()
+		{
+			// Copied from PwEntryForm.OnBtnBinSave (PwEntryForm.cs)
+			var lvsc = SelectedObjects.Cast<RowObject>().ToList();
+
+			int nSelCount = lvsc.Count;
+			if (nSelCount == 0) { Debug.Assert(false); return; }
+
+			if (nSelCount == 1)
+			{
+				SaveFileDialogEx sfd = UIUtil.CreateSaveFileDialog(KPRes.AttachmentSave,
+					lvsc[0].Name, UIUtil.CreateFileTypeFilter(null, null, true), 1, null,
+					KeePass.App.AppDefs.FileDialogContext.Attachments);
+
+				if (sfd.ShowDialog() == DialogResult.OK)
+					SaveAttachmentTo(lvsc[0].Binary, sfd.FileName, false);
+			}
+			else // nSelCount > 1
+			{
+				FolderBrowserDialog fbd = UIUtil.CreateFolderBrowserDialog(KPRes.AttachmentsSave);
+
+				if (fbd.ShowDialog() == DialogResult.OK)
+				{
+					string strRootPath = UrlUtil.EnsureTerminatingSeparator(fbd.SelectedPath, false);
+
+					foreach (var lvi in lvsc)
+						SaveAttachmentTo(lvi.Binary, strRootPath + lvi.Name, true);
+				}
+				fbd.Dispose();
+			}
+		}
+
+		// Copied from PwEntryForm.SaveAttachmentTo (PwEntryForm.cs)
+		private void SaveAttachmentTo(ProtectedBinary pb, string strFileName,
+			bool bConfirmOverwrite)
+		{
+			Debug.Assert(pb != null); if (pb == null) throw new ArgumentNullException("pb");
+			Debug.Assert(strFileName != null); if (strFileName == null) throw new ArgumentNullException("strFileName");
+
+			if (bConfirmOverwrite && File.Exists(strFileName))
+			{
+				string strMsg = KPRes.FileExistsAlready + MessageService.NewLine +
+					strFileName + MessageService.NewParagraph +
+					KPRes.OverwriteExistingFileQuestion;
+
+				if (MessageService.AskYesNo(strMsg) == false)
+					return;
+			}
+
+			Debug.Assert(pb != null); if (pb == null) throw new ArgumentException();
+
+			byte[] pbData = pb.ReadData();
+			try { File.WriteAllBytes(strFileName, pbData); }
+			catch (Exception exWrite)
+			{
+				MessageService.ShowWarning(strFileName, exWrite);
+			}
+			MemUtil.ZeroByteArray(pbData);
+		}
+		#endregion
+
+		#region Renaming
+		protected override void OnCellEditorValidating(CellEditEventArgs e)
+		{
+			var rowObject = (RowObject)e.RowObject;
+			var newName = (string)e.NewValue;
+
+			if (newName != rowObject.Name)
+			{
+				// Logic copied from PwEntryForm.OnBinAfterLabelEdit (PwEntryForm.cs)
+				if (String.IsNullOrEmpty(newName))
+				{
+					ReportValidationFailure(e.Control, KPRes.FieldNamePrompt);
+					e.Cancel = true;
+					return;
+				}
+				if (Entry.Binaries.Get(newName) != null)
+				{
+					ReportValidationFailure(e.Control, KPRes.FieldNameExistsAlready);
+					e.Cancel = true;
+					return;
+				}
+			}
+
+			base.OnCellEditorValidating(e);
+		}
+
+		#region Validation Failure Reporting
+		public ValidationFailureReporter ValidationFailureReporter { get; set; }
+
+		private void ReportValidationFailure(Control control, string message)
+		{
+			if (ValidationFailureReporter != null)
+			{
+				ValidationFailureReporter.ReportValidationFailure(control, message);
+			}
+		}
+		#endregion
+
+		private void SetAttachmentName(Object model, Object newValue)
+		{
+			var rowObject = (RowObject)model;
+			var newName = (string)newValue;
+
+			if (!String.IsNullOrEmpty(newName) && newName != rowObject.Name)
+			{
+				var binary = Entry.Binaries.Get(rowObject.Name);
+				Entry.Binaries.Remove(rowObject.Name);
+				Entry.Binaries.Set(newName, binary);
+
+				rowObject.Name = newName;
+				OnEntryModified(EventArgs.Empty);
 			}
 		}
 		#endregion
@@ -117,9 +367,7 @@ namespace KPEnhancedEntryView
 		{
 			base.OnItemActivate(e);
 
-			var kvp = (KeyValuePair<string, ProtectedBinary>)SelectedObject;
-
-			ShowBinaryWindow(kvp.Key, kvp.Value);
+			ViewSelected();
 		}
 
 		private void ShowBinaryWindow(string name, ProtectedBinary binary)
@@ -174,6 +422,8 @@ namespace KPEnhancedEntryView
 
 				FindForm().Activate(); // Activate the parent form so that the message boxes and popup dialogs show up in the right places
 				BinImportFiles(files);
+
+				RefreshObjectsFromEntry();
 				OnEntryModified(EventArgs.Empty);
 			}
 		}
@@ -274,8 +524,8 @@ namespace KPEnhancedEntryView
 			public object StartDrag(ObjectListView olv, System.Windows.Forms.MouseButtons button, OLVListItem item)
 			{
 				var dataObject = new VirtualFileDataObject();
-				dataObject.SetData(from kvp in olv.SelectedObjects.Cast<KeyValuePair<string, ProtectedBinary>>()
-								   select CreateFileDescriptor(kvp.Key, kvp.Value));
+				dataObject.SetData(from rowObject in olv.SelectedObjects.Cast<RowObject>()
+								   select CreateFileDescriptor(rowObject.Name, rowObject.Binary));
 
 				return dataObject;
 			}
@@ -304,5 +554,17 @@ namespace KPEnhancedEntryView
 			}
 		}
 		#endregion
+
+		private class RowObject
+		{
+			public RowObject(KeyValuePair<string, ProtectedBinary> keyValuePair)
+			{
+				Name = keyValuePair.Key;
+				Binary = keyValuePair.Value;
+			}
+
+			public string Name { get; set; }
+			public ProtectedBinary Binary { get; set; }
+		}
 	}
 }

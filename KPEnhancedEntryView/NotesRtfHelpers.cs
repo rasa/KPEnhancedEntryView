@@ -61,18 +61,28 @@ namespace KPEnhancedEntryView
 					}
 				}
 			}
+			rtb.Select(0, 0);
 		}
 
 		public class SaveSelectionState : IDisposable
 		{
-			private RichTextBox mRichTextBox;
-			private int mSelectionStart;
-			private int mSelectionLength;
-			private Point? mScrollPos;
+			private readonly RichTextBox mRichTextBox;
+			private readonly bool mRestoreOnlyIfTextUnchanged;
+			private readonly int mSelectionStart;
+			private readonly int mSelectionLength;
+			private readonly Point? mScrollPos;
 
-			public SaveSelectionState(RichTextBox richTextBox)
+			private readonly string mInitialText;
+
+			public SaveSelectionState(RichTextBox richTextBox, bool restoreOnlyIfITextUnchanged = false)
 			{
 				mRichTextBox = richTextBox;
+				mRestoreOnlyIfTextUnchanged = restoreOnlyIfITextUnchanged;
+
+				if (mRestoreOnlyIfTextUnchanged)
+				{
+					mInitialText = richTextBox.Text;
+				}
 
 				try
 				{
@@ -88,6 +98,12 @@ namespace KPEnhancedEntryView
 			}
 			public void Dispose()
 			{
+				if (mRestoreOnlyIfTextUnchanged && mRichTextBox.Text != mInitialText)
+				{
+					// Do not restore - text is changed.
+					return;
+				}
+
 				mRichTextBox.SelectionStart = mSelectionStart;
 				mRichTextBox.SelectionLength = mSelectionLength;
 

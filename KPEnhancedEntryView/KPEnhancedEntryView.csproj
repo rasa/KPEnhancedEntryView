@@ -69,6 +69,9 @@
     <Compile Include="FieldNameEditor.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="FieldsListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="IconHelper.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="NotesRtfHelpers.cs" />
@@ -79,6 +82,9 @@
     </Compile>
     <Compile Include="ProtectedFieldEditor.Designer.cs">
       <DependentUpon>ProtectedFieldEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ValidationFailureReporter.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="VirtualFileDataObject.cs" />
     <EmbeddedResource Include="EntryView.resx">
@@ -117,6 +123,33 @@
       <Project>{18FEDA0C-D147-4286-B39A-01204808106A}</Project>
       <Name>ObjectListView2010</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Images\B17x05_3BlackDots.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Nuvola\B16x16_KGPG_Info.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Nuvola\B16x16_Attach.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Nuvola\B16x16_EditDelete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Nuvola\B16x16_KGPG_Import.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Nuvola\B16x16_KGPG_Sign.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Nuvola_Derived\B16x16_DeleteEntry.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Nuvola_Derived\B16x16_Key_New.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\B16x16_Folder_Yellow_Open.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

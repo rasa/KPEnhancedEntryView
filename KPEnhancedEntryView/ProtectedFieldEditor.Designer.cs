@@ -28,7 +28,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProtectedFieldEditor));
 			this.mTextBox = new System.Windows.Forms.TextBox();
 			this.mToggleHidden = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
@@ -45,7 +44,7 @@
 			// 
 			this.mToggleHidden.Appearance = System.Windows.Forms.Appearance.Button;
 			this.mToggleHidden.Dock = System.Windows.Forms.DockStyle.Right;
-			this.mToggleHidden.Image = ((System.Drawing.Image)(resources.GetObject("mToggleHidden.Image")));
+			this.mToggleHidden.Image = global::KPEnhancedEntryView.Properties.Resources.B17x05_3BlackDots;
 			this.mToggleHidden.Location = new System.Drawing.Point(271, 0);
 			this.mToggleHidden.Name = "mToggleHidden";
 			this.mToggleHidden.Padding = new System.Windows.Forms.Padding(0, 1, 0, 0);
