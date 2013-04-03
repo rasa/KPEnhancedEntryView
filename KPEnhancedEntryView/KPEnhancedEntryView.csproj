@@ -33,7 +33,7 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>..\KeePass-2.21-Source\Build\KeePass\Release\Plugins\</OutputPath>
+    <OutputPath>..\Releases\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -48,6 +48,25 @@
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
+  <Choose>
+	<When Condition="'$(Configuration)'=='Debug'">
+	  <ItemGroup>
+		<ProjectReference Include="..\KeePass-2.21-Source\KeePass\KeePass.csproj" Condition="">
+		  <Project>{10938016-DEE2-4A25-9A5A-8FD3444379CA}</Project>
+		  <Name>KeePass</Name>
+		  <Private>False</Private>
+		</ProjectReference>
+	  </ItemGroup>
+	</When>
+	<Otherwise>
+	 <ItemGroup>
+		<Reference Include="KeePass" Condition="'$(Configuration)'=='Release'">
+		  <HintPath>..\KeePass-2.21\KeePass.exe</HintPath>
+		  <Private>False</Private>
+		</Reference>
+	  </ItemGroup>
+	</Otherwise>
+  </Choose>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -103,22 +122,8 @@
     <EmbeddedResource Include="ProtectedFieldEditor.resx">
       <DependentUpon>ProtectedFieldEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KeePass-2.21-Source\KeePass\KeePass.csproj">
-      <Project>{10938016-DEE2-4A25-9A5A-8FD3444379CA}</Project>
-      <Name>KeePass</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\ThirdPartyAssemblies\ObjectListViewDemo\ObjectListView\ObjectListView2010.csproj">
       <Project>{18FEDA0C-D147-4286-B39A-01204808106A}</Project>
       <Name>ObjectListView2010</Name>

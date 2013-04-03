@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
-using System.Text;
-using BrightIdeasSoftware;
 using System.Windows.Forms;
-using KeePassLib.Security;
-using KeePassLib;
+using BrightIdeasSoftware;
+using KeePass.Forms;
 using KeePass.Resources;
 using KeePass.UI;
-using System.Drawing;
 using KeePass.Util;
-using KeePass.Forms;
+using KeePassLib;
 using KeePassLib.Cryptography.PasswordGenerator;
-using System.Reflection;
+using KeePassLib.Security;
 
 namespace KPEnhancedEntryView
 {

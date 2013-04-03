@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using KeePass.Plugins;
-using System.Windows.Forms;
-using KeePassLib;
 using System.Diagnostics;
+using System.Linq;
+using System.Windows.Forms;
+using KeePass.Plugins;
 
 namespace KPEnhancedEntryView
 {
