@@ -61,6 +61,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.2
+ Fixed bug where editing a field value would not notify KeePass that a modification
+ had been made
 
 v0.1 (2013-04-03)
  Initial release

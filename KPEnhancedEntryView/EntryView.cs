@@ -391,6 +391,11 @@ namespace KPEnhancedEntryView
 		{
 			OnEntryModified(e);
 		}
+
+		private void mFieldsGrid_EntryModified(object sender, EventArgs e)
+		{
+			OnEntryModified(e);
+		}
 		#endregion
 
 		#region Properties Tab

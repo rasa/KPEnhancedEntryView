@@ -141,6 +141,7 @@
 			this.mFieldsGrid.View = System.Windows.Forms.View.Details;
 			this.mFieldsGrid.VirtualMode = true;
 			this.mFieldsGrid.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mFieldsGrid_CellRightClick);
+			this.mFieldsGrid.EntryModified += new System.EventHandler(this.mFieldsGrid_EntryModified);
 			this.mFieldsGrid.HyperlinkClicked += new System.EventHandler<BrightIdeasSoftware.HyperlinkClickedEventArgs>(this.mFieldsGrid_HyperlinkClicked);
 			// 
 			// mSplitNotesAttachements
