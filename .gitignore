@@ -2,8 +2,7 @@ KPEnhancedEntryView/*.suo
 KPEnhancedEntryView/*.user
 KPEnhancedEntryView/bin
 KPEnhancedEntryView/obj
-KeePass-2.22-Source/*
-KeePass-2.22/*
+KeePass/*
 Releases/Build[!!-~]Outputs
 Releases/v*
 /Screenshots
