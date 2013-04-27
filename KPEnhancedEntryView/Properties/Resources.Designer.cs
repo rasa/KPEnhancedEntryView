@@ -67,6 +67,13 @@ namespace KPEnhancedEntryView.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap B16x16_Browser {
+            get {
+                object obj = ResourceManager.GetObject("B16x16_Browser", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap B16x16_DeleteEntry {
             get {
                 object obj = ResourceManager.GetObject("B16x16_DeleteEntry", resourceCulture);

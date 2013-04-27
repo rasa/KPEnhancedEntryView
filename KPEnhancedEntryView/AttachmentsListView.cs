@@ -53,6 +53,13 @@ namespace KPEnhancedEntryView
 			Columns.Add(column);
 		}
 
+		// Disallow setting of IsSimpleDragSource (as it breaks the file dragging, and is sometimes automatically set by the designer for some reason)
+		public override bool IsSimpleDragSource
+		{
+			get { return false; }
+			set { }
+		}
+
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing)

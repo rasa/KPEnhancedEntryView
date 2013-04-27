@@ -31,6 +31,7 @@ namespace KPEnhancedEntryView
 			ShowGroups = false;
 			UseCellFormatEvents = true;
 			UseHyperlinks = true;
+			DragSource = new FieldValueDragSource();
 
 			mFieldNames = new OLVColumn
 			{
@@ -54,6 +55,14 @@ namespace KPEnhancedEntryView
 
 			ObjectListView.EditorRegistry.RegisterFirstChance(GetCellEditor);
 		}
+
+		// Disallow setting of IsSimpleDragSource (as it breaks the file dragging, and is sometimes automatically set by the designer for some reason)
+		public override bool IsSimpleDragSource
+		{
+			get { return false; }
+			set { }
+		}
+
 
 		/// <summary>
 		/// Ensure this is called before using the control
@@ -114,7 +123,7 @@ namespace KPEnhancedEntryView
 				rows.Add(GetStandardField(PwDefs.UrlField));
 
 				// Then, all custom strings
-				rows.AddRange(from kvp in Entry.Strings where !PwDefs.IsStandardField(kvp.Key) select new RowObject(kvp));
+				rows.AddRange(from kvp in Entry.Strings where !IsExcludedField(kvp.Key) select new RowObject(kvp));
 
 				// Finally, an empty "add new" row
 				rows.Add(RowObject.CreateInsertionRow());
@@ -123,6 +132,12 @@ namespace KPEnhancedEntryView
 				mFieldNames.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
 				mFieldNames.Width += 10; // Give it a bit of a margin to make it look better
 			}
+		}
+
+		private bool IsExcludedField(string fieldName)
+		{
+			return PwDefs.IsStandardField(fieldName) ||  // Exclude standard fields (they are handled separately)
+					fieldName == "KPRPC JSON";			 // Exclude KeyFox's custom field (not intended to be user visible or directly editable)
 		}
 
 		private RowObject GetStandardField(string fieldName)
@@ -403,6 +418,7 @@ namespace KPEnhancedEntryView
 			return base.ProcessDialogKey(keyData);
 		}
 
+		public void OpenURLCommand_Click(object sender, EventArgs e) { DoFieldCommand(OpenURLCommand); }
 		public void CopyCommand_Click(object sender, EventArgs e) { DoFieldCommand(CopyCommand); }
 		public void EditFieldCommand_Click(object sender, EventArgs e) { DoFieldCommand(EditFieldCommand); }
 		public void ProtectFieldCommand_Click(object sender, EventArgs e) { DoFieldCommand(rowObject => ProtectFieldCommand(rowObject, ((ToolStripMenuItem)sender).Checked)); }
@@ -420,6 +436,11 @@ namespace KPEnhancedEntryView
 			}
 		}
 
+		private void OpenURLCommand(RowObject rowObject)
+		{
+			OnHyperlinkClicked(new HyperlinkClickedEventArgs { Url = rowObject.Value.ReadString() });
+		}
+
 		private void CopyCommand(RowObject rowObject)
 		{
 			if (ClipboardUtil.CopyAndMinimize(rowObject.Value, true, mMainForm, Entry, Database))
@@ -435,9 +456,7 @@ namespace KPEnhancedEntryView
 
 		private void ProtectFieldCommand(RowObject rowObject, bool isChecked)
 		{
-			rowObject.Value = new ProtectedString(isChecked, rowObject.Value.ReadUtf8());
-
-			OnEntryModified(EventArgs.Empty);
+			SetFieldValue(rowObject, new ProtectedString(isChecked, rowObject.Value.ReadUtf8()));
 		}
 
 		private void PasswordGeneratorCommand(RowObject rowObject)
@@ -487,6 +506,50 @@ namespace KPEnhancedEntryView
 		private void AddNewCommand()
 		{
 			StartCellEdit(GetLastItemInDisplayOrder(), 0);
+		}
+		#endregion
+
+		#region Drag and drop
+		internal class FieldValueDragSource : IDragSource
+		{
+			public object StartDrag(ObjectListView olv, System.Windows.Forms.MouseButtons button, OLVListItem item)
+			{
+				if (button == MouseButtons.Left)
+				{
+					string dragText = null;
+					if (!KeePass.App.AppPolicy.Current.DragDrop)
+					{
+						dragText = KeePass.App.AppPolicy.RequiredPolicyMessage(KeePass.App.AppPolicyId.DragDrop);
+					}
+					else
+					{
+						var rowObject = item.RowObject as RowObject;
+						if (rowObject != null)
+						{
+							dragText = rowObject.Value.ReadString();
+						}
+					}
+
+					if (!String.IsNullOrEmpty(dragText))
+					{
+						var dataObject = new DataObject();
+						dataObject.SetText(dragText);
+
+						return dataObject;
+					}
+				}
+
+				return null;
+			}
+
+			public System.Windows.Forms.DragDropEffects GetAllowedEffects(object dragObject)
+			{
+				return DragDropEffects.Copy;
+			}
+
+			public void EndDrag(object dragObject, System.Windows.Forms.DragDropEffects effect)
+			{
+			}
 		}
 		#endregion
 

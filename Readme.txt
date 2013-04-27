@@ -61,6 +61,16 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.3
+ Allow drag and drop of field values
+
+ Added "Open URL" to the context menu for fields which are URLs
+
+ Fixed bug where Protect Fields context menu command wouldn't actually make any change
+
+ Does not include KeeFox's "KPRPC JSON" custom field (as this is not intended to be 
+  directly user editable or visible)
+
 v0.2
  Fixed bug where editing a field value would not notify KeePass that a modification
  had been made

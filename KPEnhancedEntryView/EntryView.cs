@@ -55,6 +55,7 @@ namespace KPEnhancedEntryView
 			mDeleteFieldCommand.ShortcutKeyDisplayString = UIUtil.GetKeysName(Keys.Delete);
 			mCopyCommand.ShortcutKeys = Keys.Control | Keys.C;
 
+			mOpenURLCommand.Click += mFieldsGrid.OpenURLCommand_Click;
 			mCopyCommand.Click += mFieldsGrid.CopyCommand_Click;
 			mEditFieldCommand.Click += mFieldsGrid.EditFieldCommand_Click;
 			mProtectFieldCommand.Click += mFieldsGrid.ProtectFieldCommand_Click;
@@ -323,6 +324,7 @@ namespace KPEnhancedEntryView
 
 			if (rowObject == null || rowObject.IsInsertionRow)
 			{
+				mOpenURLCommand.Visible = false;
 				mCopyCommand.Enabled = false;
 				mEditFieldCommand.Enabled = false;
 				mProtectFieldCommand.Enabled = false;
@@ -335,6 +337,7 @@ namespace KPEnhancedEntryView
 			}
 			else
 			{
+				mOpenURLCommand.Visible = e.Item.SubItems.Count == 2 && e.Item.GetSubItem(1).Url != null;
 				mCopyCommand.Enabled = true;
 				mEditFieldCommand.Enabled = true;
 				mProtectFieldCommand.Enabled = true;
