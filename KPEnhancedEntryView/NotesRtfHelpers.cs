@@ -72,7 +72,9 @@ namespace KPEnhancedEntryView
 
 			private readonly string mInitialText;
 
-			public SaveSelectionState(RichTextBox richTextBox, bool restoreOnlyIfITextUnchanged = false)
+			public SaveSelectionState(RichTextBox richTextBox) : this(richTextBox, false) { } // Optional parameters not supported with PlgX compiler
+
+			public SaveSelectionState(RichTextBox richTextBox, bool restoreOnlyIfITextUnchanged)
 			{
 				mRichTextBox = richTextBox;
 				mRestoreOnlyIfTextUnchanged = restoreOnlyIfITextUnchanged;

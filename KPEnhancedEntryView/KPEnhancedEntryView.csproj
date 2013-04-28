@@ -48,7 +48,7 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>..\Releases\Build Outputs\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -66,7 +66,7 @@
   <Choose>
     <When Condition="'$(Configuration)'=='Debug'">
       <ItemGroup>
-        <ProjectReference Include="..\KeePass-Source\KeePass\KeePass.csproj" Condition="">
+        <ProjectReference Include="..\KeePass-Source\KeePass\KeePass.csproj">
           <Project>{10938016-DEE2-4A25-9A5A-8FD3444379CA}</Project>
           <Name>KeePass</Name>
           <Private>False</Private>
@@ -75,7 +75,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="KeePass" Condition="'$(Configuration)'=='Release'">
+        <Reference Include="KeePass">
           <HintPath>..\KeePass\KeePass.exe</HintPath>
           <Private>False</Private>
         </Reference>
@@ -144,32 +144,25 @@
       <Name>ObjectListView2010</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup Condition="False">
+    <!-- Fake include just for KeePass PlgX compiler -->
+    <Reference Include="ObjectListView.dll">
+      <Name>Fake ObjectListView reference for PlgX</Name>
+      <HintPath>bin/Release/ObjectListView.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Images\B17x05_3BlackDots.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Nuvola\B16x16_KGPG_Info.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Nuvola\B16x16_Attach.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Nuvola\B16x16_EditDelete.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Nuvola\B16x16_KGPG_Import.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Nuvola\B16x16_KGPG_Sign.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Nuvola_Derived\B16x16_DeleteEntry.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Nuvola_Derived\B16x16_Key_New.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\B16x16_Folder_Yellow_Open.png" />
+    <None Include="Resources\Nuvola\B16x16_Browser.png" />
+    <None Include="Resources\Nuvola\B16x16_Folder_Yellow_Open.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -188,11 +181,10 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Nuvola\B16x16_Browser.png" />
-    <None Include="Resources\Nuvola\B16x16_Folder_Yellow_Open.png" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>IF $(ConfigurationName) == Release "$(ProjectDir)..\CreatePlgX.bat"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

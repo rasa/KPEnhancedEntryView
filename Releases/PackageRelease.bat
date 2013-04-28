@@ -1,5 +1,5 @@
 @echo off
-set version=0.3
+set version=0.4
 set output=%~dp0v%version%\
 set zipfile="%output%KPEnhancedEntryView-v%version%.zip"
 set buildoutputs="%~dp0Build Outputs"
@@ -10,7 +10,7 @@ copy "%~dp0..\Readme.txt" %buildoutputs%
 copy "%~dp0..\COPYING" %buildoutputs%
 
 rem don't include pdb files
-del %buildoutputs%\*.pdb
+rem del %buildoutputs%\*.pdb
 
 pushd %buildoutputs%
 "%ProgramFiles%\7-Zip\7z.exe" a -tzip -mx9 -bd %zipfile% *

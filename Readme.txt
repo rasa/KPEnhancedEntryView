@@ -17,7 +17,7 @@ Features
 
 Installation
 ------------
-Place KPEnhancedEntryView.dll and ObjectListView.dll in your KeePass Plugins folder.
+Place KPEnhancedEntryView.plgx in your KeePass Plugins folder.
 It is recommended, though not essential, to use Side by Side window layout; to do this go to
  the View menu and choose Window Layout, then Side by Side.
 If you are seeing no entry view at all, ensure that the "Show Entry View" item on the View
@@ -26,7 +26,7 @@ If you are seeing no entry view at all, ensure that the "Show Entry View" item o
 
 Uninstallation
 --------------
-Delete KPEnhancedEntryView.dll and ObjectListView.dll from your KeePass Plugins folder.
+Delete KPEnhancedEntryView.plgx from your KeePass Plugins folder.
 
 
 Usage
@@ -61,6 +61,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.4
+ Packaged as plgx instead of dlls.
+
 v0.3
  Allow drag and drop of field values
 

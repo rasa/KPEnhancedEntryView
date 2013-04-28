@@ -1,5 +1,6 @@
 * text=auto !eol
 /COPYING -text
+/CreatePlgX.bat -text
 /Development.txt -text
 KPEnhancedEntryView/AttachmentsListView.cs -text
 KPEnhancedEntryView/EntryView.Designer.cs -text
@@ -32,5 +33,6 @@ KPEnhancedEntryView/Resources/Nuvola_Derived/B16x16_DeleteEntry.png -text svneol
 KPEnhancedEntryView/Resources/Nuvola_Derived/B16x16_Key_New.png -text svneol=unset#unset
 KPEnhancedEntryView/ValidationFailureReporter.cs -text
 KPEnhancedEntryView/VirtualFileDataObject.cs -text
+/PlgXExclude.txt -text
 /Readme.txt -text
 Releases/PackageRelease.bat -text

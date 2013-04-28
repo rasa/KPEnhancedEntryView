@@ -1,0 +1,6 @@
+\bin\Release\KPEnhancedEntryView.dll
+\obj\
+.user
+.sln
+.suo
+.pdb
