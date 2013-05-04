@@ -336,6 +336,8 @@ namespace KPEnhancedEntryView
 				var newProtectedString = newValue as ProtectedString ??
 										 new ProtectedString(rowObject.Value.IsProtected, (string)newValue);
 
+				Entry.CreateBackup(Database);
+
 				Entry.Strings.Set(rowObject.FieldName, newProtectedString);
 				OnEntryModified(EventArgs.Empty);
 
@@ -358,6 +360,8 @@ namespace KPEnhancedEntryView
 					isProtected = fieldOnOtherEntry.IsProtected;
 				}
 
+				Entry.CreateBackup(Database);
+
 				rowObject.Value = new ProtectedString(isProtected, new byte[0]);
 				Entry.Strings.Set(newName, rowObject.Value);
 				OnEntryModified(EventArgs.Empty);
@@ -368,6 +372,9 @@ namespace KPEnhancedEntryView
 			else
 			{
 				var fieldValue = Entry.Strings.Get(rowObject.FieldName);
+
+				Entry.CreateBackup(Database);
+
 				Entry.Strings.Remove(rowObject.FieldName);
 				Entry.Strings.Set(newName, fieldValue);
 				OnEntryModified(EventArgs.Empty);
@@ -477,6 +484,8 @@ namespace KPEnhancedEntryView
 				ProtectedString newPassword;
 				PwGenerator.Generate(out newPassword, passwordGenerator.SelectedProfile, entropy, KeePass.Program.PwGeneratorPool);
 
+				Entry.CreateBackup(Database);
+
 				Entry.Strings.Set(rowObject.FieldName, newPassword);
 				rowObject.Value = newPassword;
 
@@ -488,9 +497,14 @@ namespace KPEnhancedEntryView
 
 		private void DeleteFieldCommand(RowObject rowObject)
 		{
+			Entry.CreateBackup(Database);
+
 			if (PwDefs.IsStandardField(rowObject.FieldName))
 			{
 				var blankValue = new ProtectedString(rowObject.Value.IsProtected, new byte[0]);
+
+				Entry.Strings.Set(rowObject.FieldName, blankValue);
+
 				rowObject.Value = blankValue;
 			}
 			else

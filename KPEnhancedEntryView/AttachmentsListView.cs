@@ -105,6 +105,11 @@ namespace KPEnhancedEntryView
 		}
 		#endregion
 
+		/// <summary>
+		/// Database must be set in order to perform history maintenance when modifying the value
+		/// </summary>
+		public PwDatabase Database { get; set; }
+
 		#region Entry
 		private PwEntry mEntry;
 		public PwEntry Entry 
@@ -173,6 +178,8 @@ namespace KPEnhancedEntryView
 
 			if (ofd.ShowDialog() == DialogResult.OK)
 			{
+				Entry.CreateBackup(Database);
+
 				BinImportFiles(ofd.FileNames);
 
 				RefreshObjectsFromEntry();
@@ -226,6 +233,8 @@ namespace KPEnhancedEntryView
 					return;
 				}
 			}
+
+			Entry.CreateBackup(Database);
 
 			foreach (RowObject rowObject in SelectedObjects)
 			{
@@ -358,6 +367,9 @@ namespace KPEnhancedEntryView
 			if (!String.IsNullOrEmpty(newName) && newName != rowObject.Name)
 			{
 				var binary = Entry.Binaries.Get(rowObject.Name);
+
+				Entry.CreateBackup(Database);
+
 				Entry.Binaries.Remove(rowObject.Name);
 				Entry.Binaries.Set(newName, binary);
 
@@ -388,6 +400,8 @@ namespace KPEnhancedEntryView
 
 				if (editor.EditedBinaryData != null)
 				{
+					Entry.CreateBackup(Database);
+
 					Entry.Binaries.Set(name, new ProtectedBinary(binary.IsProtected, editor.EditedBinaryData));
 					OnEntryModified(EventArgs.Empty);
 				}
@@ -426,6 +440,9 @@ namespace KPEnhancedEntryView
 				string[] files = (string[])args.Data.GetData(DataFormats.FileDrop);
 
 				FindForm().Activate(); // Activate the parent form so that the message boxes and popup dialogs show up in the right places
+
+				Entry.CreateBackup(Database);
+				
 				BinImportFiles(files);
 
 				RefreshObjectsFromEntry();

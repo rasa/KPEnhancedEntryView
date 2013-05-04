@@ -19,6 +19,10 @@ namespace KPEnhancedEntryView
 	{
 		private readonly MainForm mMainForm;
 		private readonly RichTextBoxContextMenu mNotesContextMenu;
+		private readonly OpenWithMenu mURLDropDownMenu;
+
+		/// <summary>When a context menu is shown for a field value with a URL, that URL will be stored in this variable for use with the OpenWith menu</summary>
+		private string mLastContextMenuUrl;
 
 		#region Initialisation
 
@@ -62,6 +66,9 @@ namespace KPEnhancedEntryView
 			mPasswordGeneratorCommand.Click += mFieldsGrid.PasswordGeneratorCommand_Click;
 			mDeleteFieldCommand.Click += mFieldsGrid.DeleteFieldCommand_Click;
 			mAddNewCommand.Click += mFieldsGrid.AddNewCommand_Click;
+
+			mURLDropDownMenu = new OpenWithMenu(mURLDropDown);
+			CustomizeOnClick(mURLDropDownMenu);
 		}
 
 		private static void SetLabel(Label label, string text)
@@ -101,12 +108,85 @@ namespace KPEnhancedEntryView
 				{
 					mNotesContextMenu.Detach();
 				}
+
+				if (mURLDropDownMenu != null)
+				{
+					mURLDropDownMenu.Destroy();
+				}
 			}
 			base.Dispose(disposing);
 		}
 		#endregion
 
 		#region Hyperlinks
+
+		private void CustomizeOnClick(OpenWithMenu openWithMenu)
+		{
+			// The OpenWithMenu will only open the entry main URL field when clicked, and it's sealed, so have to use reflection to hack it open
+			
+			var dynMenu = GetDynamicMenu(openWithMenu);
+			if (dynMenu != null)
+			{
+				var onOpenUrlMethodInfo = typeof(OpenWithMenu).GetMethod("OnOpenUrl", BindingFlags.Instance | BindingFlags.NonPublic);
+				if (onOpenUrlMethodInfo != null)
+				{
+					// Detach the original handler
+					var onOpenUrlDelegate = Delegate.CreateDelegate(typeof(EventHandler<DynamicMenuEventArgs>), openWithMenu, onOpenUrlMethodInfo) as EventHandler<DynamicMenuEventArgs>;
+					if (onOpenUrlDelegate != null)
+					{
+						dynMenu.MenuClick -= onOpenUrlDelegate;
+
+						// Attach our handler
+						dynMenu.MenuClick += mURLDropDownMenu_MenuClick;
+					}
+				}
+			}
+		}
+
+		private void DetachOnClick(OpenWithMenu openWithMenu)
+		{
+			var dynMenu = GetDynamicMenu(openWithMenu);
+			if (dynMenu != null)
+			{
+				// Detach our handler
+				dynMenu.MenuClick -= mURLDropDownMenu_MenuClick;
+			}
+		}
+
+		private DynamicMenu GetDynamicMenu(OpenWithMenu openWithMenu)
+		{
+			var dynMenuFieldInfo = typeof(OpenWithMenu).GetField("m_dynMenu", BindingFlags.Instance | BindingFlags.NonPublic);
+			if (dynMenuFieldInfo != null)
+			{
+				return dynMenuFieldInfo.GetValue(openWithMenu) as DynamicMenu;
+			}
+			return null;
+		}
+
+		private void mURLDropDownMenu_MenuClick(object sender, DynamicMenuEventArgs e)
+		{
+			var filePath = GetFilePath(e.Tag);
+			if (filePath != null && mLastContextMenuUrl != null)
+			{
+				WinUtil.OpenUrlWithApp(mLastContextMenuUrl, Entry, filePath);
+			}
+		}
+
+		private string GetFilePath(object openWithItemTag)
+		{
+			if (openWithItemTag != null)
+			{
+				var openWithItemType = openWithItemTag.GetType();
+				Debug.Assert(openWithItemType.Name == "OpenWithItem");
+				var filePathPropertyInfo = openWithItemType.GetProperty("FilePath", BindingFlags.Public | BindingFlags.Instance);
+				if (filePathPropertyInfo != null)
+				{
+					return filePathPropertyInfo.GetValue(openWithItemTag, null) as string;
+				}
+			}
+
+			return null;
+		}
 		
 		private void mFieldsGrid_HyperlinkClicked(object sender, HyperlinkClickedEventArgs e)
 		{
@@ -162,7 +242,6 @@ namespace KPEnhancedEntryView
 		}
 		#endregion
 
-
 		#region Population
 		private bool mSuspendEntryChangedPopulation;
 		
@@ -202,6 +281,7 @@ namespace KPEnhancedEntryView
 
 			mFieldsGrid.Entry = Entry;
 			mAttachments.Entry = Entry;
+			mAttachments.Database = Database;
 
 			PopulateProperties();
 		}
@@ -263,6 +343,7 @@ namespace KPEnhancedEntryView
 							if (newValue != existingValue)
 							{
 								// Save changes
+								Entry.CreateBackup(Database);
 								Entry.Strings.Set(PwDefs.NotesField, new ProtectedString(Database.MemoryProtection.ProtectNotes, newValue));
 								OnEntryModified(EventArgs.Empty);
 							}
@@ -324,7 +405,7 @@ namespace KPEnhancedEntryView
 
 			if (rowObject == null || rowObject.IsInsertionRow)
 			{
-				mOpenURLCommand.Visible = false;
+				mURLDropDown.Visible = false;
 				mCopyCommand.Enabled = false;
 				mEditFieldCommand.Enabled = false;
 				mProtectFieldCommand.Enabled = false;
@@ -337,7 +418,9 @@ namespace KPEnhancedEntryView
 			}
 			else
 			{
-				mOpenURLCommand.Visible = e.Item.SubItems.Count == 2 && e.Item.GetSubItem(1).Url != null;
+				var url = e.Item.SubItems.Count == 2 ? e.Item.GetSubItem(1).Url : null;
+				mLastContextMenuUrl = url;
+				mURLDropDown.Visible = url != null;
 				mCopyCommand.Enabled = true;
 				mEditFieldCommand.Enabled = true;
 				mProtectFieldCommand.Enabled = true;
@@ -461,6 +544,7 @@ namespace KPEnhancedEntryView
 		{
 			if (Entry != null)
 			{
+				Entry.CreateBackup(Database);
 				Entry.OverrideUrl = mOverrideUrl.Text;
 				OnEntryModified(EventArgs.Empty);
 			}
@@ -470,6 +554,7 @@ namespace KPEnhancedEntryView
 		{
 			if (Entry != null)
 			{
+				Entry.CreateBackup(Database);
 				Entry.Tags.Clear();
 				Entry.Tags.AddRange(StrUtil.StringToTags(mTags.Text));
 				OnEntryModified(EventArgs.Empty);
@@ -490,6 +575,8 @@ namespace KPEnhancedEntryView
 
 			if (iconPicker.ShowDialog() == DialogResult.OK)
 			{
+				Entry.CreateBackup(Database);
+
 				if (iconPicker.ChosenCustomIconUuid != PwUuid.Zero)
 				{
 					Entry.CustomIconUuid = iconPicker.ChosenCustomIconUuid;
@@ -537,5 +624,6 @@ namespace KPEnhancedEntryView
 			mAttachments.AttachFiles();
 		}
 		#endregion
+
 	}
 }

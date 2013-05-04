@@ -61,6 +61,11 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.5
+ Added support for writing history entries when changes are made to entries
+ Added "Link" drop down menu to fields whose values are URL so that they can be opened in
+  alternative browsers.
+
 v0.4
  Packaged as plgx instead of dlls.
 
