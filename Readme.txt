@@ -61,6 +61,11 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.6
+ Fixed support for cmd:// links (and any other non-standard links that were being mangled)
+ Now assumes that the contents of the URL field should always be treaded as a link, even if 
+ it doesn't look like one. Other fields will only be made links if they look like URLs.
+
 v0.5
  Added support for writing history entries when changes are made to entries
  Added "Link" drop down menu to fields whose values are URL so that they can be opened in

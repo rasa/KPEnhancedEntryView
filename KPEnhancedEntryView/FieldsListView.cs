@@ -216,10 +216,12 @@ namespace KPEnhancedEntryView
 			{
 				if (rowObject.Value != null && !rowObject.Value.IsProtected)
 				{
+					var value = rowObject.Value.ReadString();
 					Uri uri;
-					if (Uri.TryCreate(rowObject.Value.ReadString(), UriKind.Absolute, out uri))
+					if (rowObject.FieldName == PwDefs.UrlField || // Assume a URL if in the URL field, even if it doesn't look like one
+						Uri.TryCreate(value, UriKind.Absolute, out uri))
 					{
-						e.Url = uri.AbsoluteUri;
+						e.Url = value;
 					}
 				}
 			}
