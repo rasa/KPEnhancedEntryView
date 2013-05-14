@@ -35,6 +35,7 @@ namespace KPEnhancedEntryView
 			{
 				Name = "m_KPEnhancedEntryView",
 				Dock = DockStyle.Fill,
+				AutoValidate = AutoValidate.Disable // Don't allow our internal validation to bubble upwards to KeePass
 			};
 
 			entryViewContainer.Controls.Add(mEntryView);
@@ -82,6 +83,9 @@ namespace KPEnhancedEntryView
 			mEntryView.Parent.Controls.Add(mOriginalEntryView);
 			mEntryView.Parent.Controls.Remove(mEntryView);
 			mOriginalEntryView = null;
+
+			mEntryView.Dispose();
+			mEntryView = null;
 
 			mHost = null;
 		}

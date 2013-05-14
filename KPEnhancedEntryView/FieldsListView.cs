@@ -116,11 +116,11 @@ namespace KPEnhancedEntryView
 			{
 				var rows = new List<RowObject>();
 
-				// First, the standard fields, in the standard order
-				rows.Add(GetStandardField(PwDefs.TitleField));
-				rows.Add(GetStandardField(PwDefs.UserNameField));
-				rows.Add(GetStandardField(PwDefs.PasswordField));
-				rows.Add(GetStandardField(PwDefs.UrlField));
+				// First, the standard fields, where present, in the standard order
+				AddFieldIfNotEmpty(rows, PwDefs.TitleField);
+				AddFieldIfNotEmpty(rows, PwDefs.UserNameField);
+				AddFieldIfNotEmpty(rows, PwDefs.PasswordField);
+				AddFieldIfNotEmpty(rows, PwDefs.UrlField);
 
 				// Then, all custom strings
 				rows.AddRange(from kvp in Entry.Strings where !IsExcludedField(kvp.Key) select new RowObject(kvp));
@@ -134,15 +134,19 @@ namespace KPEnhancedEntryView
 			}
 		}
 
+		private void AddFieldIfNotEmpty(List<RowObject> rows, string fieldName)
+		{
+			var value = Entry.Strings.Get(fieldName);
+			if (value != null && !value.IsEmpty)
+			{
+				rows.Add(new RowObject(fieldName, value));
+			}
+		}
+
 		private bool IsExcludedField(string fieldName)
 		{
 			return PwDefs.IsStandardField(fieldName) ||  // Exclude standard fields (they are handled separately)
 					fieldName == "KPRPC JSON";			 // Exclude KeyFox's custom field (not intended to be user visible or directly editable)
-		}
-
-		private RowObject GetStandardField(string fieldName)
-		{
-			return new RowObject(fieldName, Entry.Strings.GetSafe(fieldName));
 		}
 		#endregion
 
@@ -283,7 +287,7 @@ namespace KPEnhancedEntryView
 		
 			if (e.Column == mFieldNames)
 			{
-				var newValue = ((FieldNameEditor)e.Control).Text;
+				var newValue = ((FieldNameEditor)e.Control).FieldName;
 				var rowObject = (RowObject)e.RowObject;
 
 				if (newValue != rowObject.FieldName)
@@ -297,6 +301,12 @@ namespace KPEnhancedEntryView
 					}
 					if (PwDefs.IsStandardField(newValue))
 					{
+						// Allow if the standard field on the entry is currently blank
+						if (Entry.Strings.GetSafe(newValue).IsEmpty)
+						{
+							return;
+						}
+
 						ReportValidationFailure(e.Control, KPRes.FieldNameInvalid);
 						e.Cancel = true;
 						return;
@@ -323,7 +333,7 @@ namespace KPEnhancedEntryView
 		
 			if (e.Column == mFieldNames)
 			{
-				e.NewValue = ((FieldNameEditor)e.Control).Text;
+				e.NewValue = ((FieldNameEditor)e.Control).FieldName;
 			}
 
 			SelectedObject = e.RowObject;
@@ -341,9 +351,18 @@ namespace KPEnhancedEntryView
 				Entry.CreateBackup(Database);
 
 				Entry.Strings.Set(rowObject.FieldName, newProtectedString);
-				OnEntryModified(EventArgs.Empty);
 
-				rowObject.Value = newProtectedString;
+				if (newProtectedString.IsEmpty && PwDefs.IsStandardField(rowObject.FieldName))
+				{
+					// Hide empty standard field rows
+					RemoveObject(rowObject);
+				}
+				else
+				{
+					rowObject.Value = newProtectedString;
+				}
+
+				OnEntryModified(EventArgs.Empty);
 			}
 		}
 
@@ -506,15 +525,13 @@ namespace KPEnhancedEntryView
 				var blankValue = new ProtectedString(rowObject.Value.IsProtected, new byte[0]);
 
 				Entry.Strings.Set(rowObject.FieldName, blankValue);
-
-				rowObject.Value = blankValue;
 			}
 			else
 			{
 				Entry.Strings.Remove(rowObject.FieldName);
-
-				RemoveObject(rowObject);
 			}
+
+			RemoveObject(rowObject);
 
 			OnEntryModified(EventArgs.Empty);
 		}

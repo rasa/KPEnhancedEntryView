@@ -139,7 +139,7 @@
 			this.mFieldsGrid.UseCellFormatEvents = true;
 			this.mFieldsGrid.UseCompatibleStateImageBehavior = false;
 			this.mFieldsGrid.UseHyperlinks = true;
-			this.mFieldsGrid.ValidationFailureReporter = null;
+			this.mFieldsGrid.ValidationFailureReporter = this.mValidationFailureReporter;
 			this.mFieldsGrid.View = System.Windows.Forms.View.Details;
 			this.mFieldsGrid.VirtualMode = true;
 			this.mFieldsGrid.EntryModified += new System.EventHandler(this.mFieldsGrid_EntryModified);

@@ -61,6 +61,13 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.7
+ Updates the view less aggressively - the view will only be updated if the entry last-modified
+  timestamp has changed. This should reduce flickering, and prevent loss of edit mode on
+  clipboard clearing.
+ Standard fields (Title, Username, Password, URL) are now not shown when blank. They can be added
+  using the insertion (add new) row in the same way as adding custom fields
+
 v0.6
  Fixed support for cmd:// links (and any other non-standard links that were being mangled)
  Now assumes that the contents of the URL field should always be treaded as a link, even if 

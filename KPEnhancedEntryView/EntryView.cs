@@ -244,15 +244,21 @@ namespace KPEnhancedEntryView
 
 		#region Population
 		private bool mSuspendEntryChangedPopulation;
-		
+
+		private DateTime? mEntryLastModificationTime;
 		private PwEntry mEntry;
 		public PwEntry Entry 
 		{
 			get { return mEntry; }
 			set
 			{
-				mEntry = value;
-				OnEntryChanged(EventArgs.Empty);
+				if (value != mEntry ||
+					(value == null || value.LastModificationTime != mEntryLastModificationTime))
+				{
+					mEntry = value;
+					mEntryLastModificationTime = mEntry == null ? null : (DateTime?)mEntry.LastModificationTime;
+					OnEntryChanged(EventArgs.Empty);
+				}
 			}
 		}
 
