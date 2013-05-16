@@ -141,7 +141,6 @@
 			this.mFieldsGrid.UseHyperlinks = true;
 			this.mFieldsGrid.ValidationFailureReporter = this.mValidationFailureReporter;
 			this.mFieldsGrid.View = System.Windows.Forms.View.Details;
-			this.mFieldsGrid.VirtualMode = true;
 			this.mFieldsGrid.EntryModified += new System.EventHandler(this.mFieldsGrid_EntryModified);
 			this.mFieldsGrid.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mFieldsGrid_CellRightClick);
 			this.mFieldsGrid.HyperlinkClicked += new System.EventHandler<BrightIdeasSoftware.HyperlinkClickedEventArgs>(this.mFieldsGrid_HyperlinkClicked);
@@ -207,7 +206,6 @@
 			this.mAttachments.UseCompatibleStateImageBehavior = false;
 			this.mAttachments.ValidationFailureReporter = this.mValidationFailureReporter;
 			this.mAttachments.View = System.Windows.Forms.View.SmallIcon;
-			this.mAttachments.VirtualMode = true;
 			this.mAttachments.EntryModified += new System.EventHandler(this.mAttachments_EntryModified);
 			this.mAttachments.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mAttachments_CellRightClick);
 			// 

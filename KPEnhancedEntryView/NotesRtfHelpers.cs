@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using KeePass.UI;
+using System.Runtime.InteropServices;
 
 namespace KPEnhancedEntryView
 {
@@ -34,33 +35,183 @@ namespace KPEnhancedEntryView
 			{
 				linkDetector.Text = rtb.Text;
 
-				var textLength = linkDetector.Text.Length;
-				int? currentLinkStart = null;
-				for (int i = 0; i < textLength; i++)
-				{
-					linkDetector.Select(i, 1);
-					var isPartOfLink = UIUtil.RtfIsFirstCharLink(linkDetector);
+				// Optimised search for links - keep splitting the area to find linkless parts
 
-					if (isPartOfLink)
-					{
-						if (!currentLinkStart.HasValue)
-						{
-							currentLinkStart = i;
-						}
-					}
-					else
-					{
-						if (currentLinkStart.HasValue)
-						{
-							rtb.Select(currentLinkStart.Value, i - currentLinkStart.Value);
-							UIUtil.RtfSetSelectionLink(rtb);
-							currentLinkStart = null;
-						}
-					}
+				// Start with a selection of everything, and split until no section is mixed
+				var sections = SplitToSections(new TextSection(linkDetector, 0, linkDetector.TextLength));
+				
+				// Coalesce adjacent sections of the same status
+				sections = CoalesceSections(sections);
+
+				// Linkify sections that are links
+				foreach (var section in sections)
+				{
+					section.LinkifyIfLink(rtb);
 				}
 			}
 			rtb.Select(0, 0);
 		}
+
+		#region TextSection linkification algorithm
+		/// <summary>
+		/// Combines all adjecent sections with the same link status.
+		/// <param name="orderedSections">The sections to coalesce, in order of position within the text</param>
+		/// </summary>
+		private static IEnumerable<TextSection> CoalesceSections(IEnumerable<TextSection> orderedSections)
+		{
+			var sections = new List<TextSection>();
+
+			TextSection currentSection = null;
+			foreach (var section in orderedSections)
+			{
+				if (currentSection == null)
+				{
+					currentSection = section;
+				}
+				else
+				{
+					if (!currentSection.TryCoalesce(section))
+					{
+						// Sections were not adjacent, or not the same link status, so return finish the current one and start a new current
+						sections.Add(currentSection);
+						currentSection = section;
+					}
+				}
+			}
+
+			sections.Add(currentSection);
+			return sections;
+		}
+
+		/// <summary>
+		/// Splits the specified section into descendants where each descendant is either wholly a link, or wholly not a link.
+		/// </summary>
+		private static IEnumerable<TextSection> SplitToSections(TextSection section)
+		{
+			var sections = new List<TextSection>();
+			if (section.IsMixed)
+			{
+				// This is a mixed selection, so split further
+				foreach (var subSection in section.Split())
+				{
+					sections.AddRange(SplitToSections(subSection));
+				}
+			}
+			else
+			{
+				// This is a non-mixed selection, so no need to further split
+				sections.Add(section);
+			}
+			return sections;
+		}
+
+		private class TextSection
+		{
+			private int mStartIndex;
+			private int mEndIndex;
+			private readonly bool? mIsLink;
+			private readonly RichTextBox mRtb;
+
+			public TextSection(RichTextBox rtb, int startIndex, int endIndex)
+			{
+				mStartIndex = startIndex;
+				mEndIndex = endIndex;
+				mRtb = rtb;
+
+				mRtb.Select(mStartIndex, Length);
+				mIsLink = GetSelectionIsLink(mRtb);
+			}
+
+			public bool IsMixed { get { return !mIsLink.HasValue; } }
+
+			private int Length { get { return mEndIndex - mStartIndex; } }
+
+			public IEnumerable<TextSection> Split()
+			{
+				if (Length < 2)
+				{
+					return null;
+				}
+				int splitLength = Length / 2;
+				return new[] { new TextSection(mRtb, mStartIndex, mStartIndex + splitLength),
+							   new TextSection(mRtb, mStartIndex + splitLength, mEndIndex) };
+			}
+
+			/// <summary>
+			/// Attempt to coalesce the specified section into this one. If they aren't suitable for coalescing, return false.
+			/// </summary>
+			/// <param name="section"></param>
+			/// <returns></returns>
+			internal bool TryCoalesce(TextSection section)
+			{
+				System.Diagnostics.Debug.Assert(mRtb == section.mRtb);
+				System.Diagnostics.Debug.Assert(!IsMixed);
+				System.Diagnostics.Debug.Assert(!section.IsMixed);
+
+				if (mIsLink == section.mIsLink && // Only coalesce sections with the same link status
+					mEndIndex == section.mStartIndex) // Only coalesce adjacent sections
+				{
+					mEndIndex = section.mEndIndex; // Coalesce
+					return true;
+				}
+
+				return false;
+			}
+
+			/// <summary>
+			/// If this section is a (non-mixed) link, linkify it in the specified rich text box
+			/// </summary>
+			/// <param name="rtb"></param>
+			internal void LinkifyIfLink(RichTextBox rtb)
+			{
+				if (mIsLink ?? false)
+				{
+					rtb.Select(mStartIndex, Length);
+					UIUtil.RtfSetSelectionLink(rtb);
+				}
+			}
+
+			public override string ToString()
+			{
+				return String.Format("{0} - {1}: {2}", mStartIndex, mEndIndex, mRtb.Text.Substring(mStartIndex, Length));
+			}
+		}
+
+		/// <returns>True if the selection is entirely a link, false if none of it is, null if it is a mix</returns>
+		private static bool? GetSelectionIsLink(RichTextBox rtb)
+		{
+			bool? containsLink = false;
+
+			var cf = new NativeMethods.CHARFORMAT2();
+			cf.cbSize = (uint)Marshal.SizeOf(cf);
+
+			try
+			{
+				IntPtr wParam = (IntPtr)NativeMethods.SCF_SELECTION;
+				IntPtr lParam = Marshal.AllocCoTaskMem(Marshal.SizeOf(cf));
+				Marshal.StructureToPtr(cf, lParam, false);
+
+				NativeMethods.SendMessage(rtb.Handle, NativeMethods.EM_GETCHARFORMAT, wParam, lParam);
+
+				cf = (NativeMethods.CHARFORMAT2)Marshal.PtrToStructure(lParam, typeof(NativeMethods.CHARFORMAT2));
+
+				if ((cf.dwMask & NativeMethods.CFE_LINK) == NativeMethods.CFE_LINK)
+				{
+					containsLink = (cf.dwEffects & NativeMethods.CFM_LINK) == NativeMethods.CFM_LINK;
+				}
+				else
+				{
+					// mixed selection
+					containsLink = null;
+				}
+
+				Marshal.FreeCoTaskMem(lParam);
+			}
+			catch (Exception) { System.Diagnostics.Debug.Assert(false); }
+
+			return containsLink;
+		}
+		#endregion
 
 		public class SaveSelectionState : IDisposable
 		{

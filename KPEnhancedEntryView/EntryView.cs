@@ -26,17 +26,17 @@ namespace KPEnhancedEntryView
 
 		#region Initialisation
 
-		public EntryView() : this(null)
+		public EntryView() : this(null, null)
 		{
 		}
 
-		public EntryView(MainForm mainForm)
+		public EntryView(MainForm mainForm, Options options)
 		{
 			InitializeComponent();
 
 			mMainForm = mainForm;
 
-			mFieldsGrid.Initialise(mMainForm);
+			mFieldsGrid.Initialise(mMainForm, options);
 			
 			if (KeePass.Program.Config.MainWindow.EntryListAlternatingBgColors)
 			{
@@ -273,6 +273,12 @@ namespace KPEnhancedEntryView
 			mFieldsGrid.CancelCellEdit();
 			NotesEditingActive = false;
 
+			mFieldsGrid.Entry = Entry;
+			mAttachments.Entry = Entry;
+			mAttachments.Database = Database;
+
+			PopulateProperties();
+
 			if (Entry == null)
 			{
 				PopulateNotes(null);
@@ -285,11 +291,6 @@ namespace KPEnhancedEntryView
 				}
 			}
 
-			mFieldsGrid.Entry = Entry;
-			mAttachments.Entry = Entry;
-			mAttachments.Database = Database;
-
-			PopulateProperties();
 		}
 		#endregion
 

@@ -61,6 +61,14 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.8
+ Standard field hiding is now optional, see the menu item Tools, Entry View Options,
+  Hide Empty Standard Fields. It's turned off (no hiding) by default.
+ Fixed performance issue with large Notes fields
+ Fixed cosemetic bug where fields were slow to repaint when deleted or switched to or
+  from being protected
+ Enter key (as well as F2) can now be used on insertion row to start insertion
+
 v0.7
  Updates the view less aggressively - the view will only be updated if the entry last-modified
   timestamp has changed. This should reduce flickering, and prevent loss of edit mode on

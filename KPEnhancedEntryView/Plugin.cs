@@ -11,6 +11,7 @@ namespace KPEnhancedEntryView
 		private IPluginHost mHost;
 		private EntryView mEntryView;
 		private RichTextBox mOriginalEntryView;
+		private Options mOptions;
 
 		public override bool Initialize(IPluginHost host)
 		{
@@ -20,6 +21,12 @@ namespace KPEnhancedEntryView
 			Terminate();
 
 			mHost = host;
+
+			// Add an Options menu
+			mOptions = new Options(mHost);
+			mHost.MainWindow.ToolsMenu.DropDownItems.Add(mOptions.Menu);
+
+			mOptions.OptionChanged += mOptions_OptionChanged;
 
 			mOriginalEntryView = FindControl<RichTextBox>("m_richEntryView");
 			var entryViewContainer = mOriginalEntryView.Parent;
@@ -31,7 +38,7 @@ namespace KPEnhancedEntryView
 			}
 
 			// Replace existing entry view with new one
-			mEntryView = new EntryView(mHost.MainWindow)
+			mEntryView = new EntryView(mHost.MainWindow, mOptions)
 			{
 				Name = "m_KPEnhancedEntryView",
 				Dock = DockStyle.Fill,
@@ -57,6 +64,7 @@ namespace KPEnhancedEntryView
 			// Hook events to update the UI when the entry is modified
 			mEntryView.EntryModified += this.mEntryView_EntryModified;
 
+			
 			return true;
 		}
 
@@ -87,6 +95,8 @@ namespace KPEnhancedEntryView
 			mEntryView.Dispose();
 			mEntryView = null;
 
+			mHost.MainWindow.ToolsMenu.DropDownItems.Remove(mOptions.Menu);
+
 			mHost = null;
 		}
 
@@ -100,5 +110,19 @@ namespace KPEnhancedEntryView
 			mHost.MainWindow.UpdateUI(false, null, false, null, false, null, true);
 			mHost.MainWindow.RefreshEntriesList();
 		}
+
+		private void mOptions_OptionChanged(object sender, Options.OptionChangedEventArgs e)
+		{
+			switch (e.OptionName)
+			{
+				case Options.OptionName.HideEmptyFields:
+					// Force a refresh of the entry
+					mEntryView.Entry = null;
+					mEntryView.Entry = mHost.MainWindow.GetSelectedEntry(true);
+					break;
+			}
+		}
+
+		
 	}
 }

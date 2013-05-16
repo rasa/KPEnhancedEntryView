@@ -58,11 +58,46 @@ namespace KPEnhancedEntryView
 			OverlayIndex = 0x000000040,
 		}
 
+		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+		public struct CHARFORMAT2
+		{
+			public UInt32 cbSize;
+			public UInt32 dwMask;
+			public UInt32 dwEffects;
+			public Int32 yHeight;
+			public Int32 yOffset;
+			public UInt32 crTextColor;
+			public Byte bCharSet;
+			public Byte bPitchAndFamily;
+
+			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+			public string szFaceName;
+
+			public UInt16 wWeight;
+			public UInt16 sSpacing;
+			public Int32 crBackColor;
+			public Int32 lcid;
+			public UInt32 dwReserved;
+			public Int16 sStyle;
+			public Int16 wKerning;
+			public Byte bUnderlineType;
+			public Byte bAnimation;
+			public Byte bRevAuthor;
+			public Byte bReserved1;
+		}
+
 		public const int FILE_ATTRIBUTE_NORMAL = 0x80;
 
 		public const int WM_USER = 0x400;  
 		public const int EM_GETSCROLLPOS = WM_USER + 221;
 		public const int EM_SETSCROLLPOS = WM_USER + 222;
+		public const int EM_GETCHARFORMAT = WM_USER + 58;
+		public const int EM_SETCHARFORMAT = WM_USER + 68;
+
+		public const int SCF_SELECTION = 0x0001;
+
+		public const uint CFM_LINK = 0x20;
+		public const uint CFE_LINK = 0x20;
 
 		[DllImport("shell32.dll")]
 		public static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbSizeFileInfo, SHGFI uFlags);
@@ -72,5 +107,9 @@ namespace KPEnhancedEntryView
 
 		[DllImport("user32.dll")]
 		public static extern IntPtr SendMessage(IntPtr hWnd, Int32 wMsg, Int32 wParam, ref System.Drawing.Point lParam);
+
+		[DllImport("User32.dll")]
+		public static extern IntPtr SendMessage(IntPtr hWnd, int nMsg, IntPtr wParam, IntPtr lParam);
+
 	}
 }

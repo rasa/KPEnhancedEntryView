@@ -14,12 +14,13 @@ using KeePassLib.Security;
 
 namespace KPEnhancedEntryView
 {
-	internal class FieldsListView : FastObjectListView
+	internal class FieldsListView : ObjectListView
 	{
 		private readonly BrightIdeasSoftware.OLVColumn mFieldNames;
 		private readonly BrightIdeasSoftware.OLVColumn mFieldValues;
 
 		private MainForm mMainForm;
+		private Options mOptions;
 
 		public FieldsListView() 
 		{
@@ -67,9 +68,10 @@ namespace KPEnhancedEntryView
 		/// <summary>
 		/// Ensure this is called before using the control
 		/// </summary>
-		public void Initialise(MainForm mainForm)
+		public void Initialise(MainForm mainForm, Options options)
 		{
 			mMainForm = mainForm;
+			mOptions = options;
 		}
 
 		private PwDatabase Database { get { return mMainForm.ActiveDatabase; } }
@@ -137,7 +139,7 @@ namespace KPEnhancedEntryView
 		private void AddFieldIfNotEmpty(List<RowObject> rows, string fieldName)
 		{
 			var value = Entry.Strings.Get(fieldName);
-			if (value != null && !value.IsEmpty)
+			if (value != null && (!mOptions.HideEmptyFields || !value.IsEmpty))
 			{
 				rows.Add(new RowObject(fieldName, value));
 			}
@@ -273,7 +275,7 @@ namespace KPEnhancedEntryView
 				}
 				else if (column == mFieldNames)
 				{
-					var editor = new FieldNameEditor(Entry) { Text = rowObject.FieldName };
+					var editor = new FieldNameEditor(Entry, mOptions) { Text = rowObject.FieldName };
 					return editor;
 				}
 			}
@@ -301,8 +303,8 @@ namespace KPEnhancedEntryView
 					}
 					if (PwDefs.IsStandardField(newValue))
 					{
-						// Allow if the standard field on the entry is currently blank
-						if (Entry.Strings.GetSafe(newValue).IsEmpty)
+						// Allow if the standard field on the entry is currently blank and hidden
+						if (mOptions.HideEmptyFields && Entry.Strings.GetSafe(newValue).IsEmpty)
 						{
 							return;
 						}
@@ -352,7 +354,7 @@ namespace KPEnhancedEntryView
 
 				Entry.Strings.Set(rowObject.FieldName, newProtectedString);
 
-				if (newProtectedString.IsEmpty && PwDefs.IsStandardField(rowObject.FieldName))
+				if (mOptions.HideEmptyFields && newProtectedString.IsEmpty && PwDefs.IsStandardField(rowObject.FieldName))
 				{
 					// Hide empty standard field rows
 					RemoveObject(rowObject);
@@ -433,7 +435,15 @@ namespace KPEnhancedEntryView
 					}
 					else if (keyData == Keys.Return)
 					{
-						EditFieldCommand(rowObject);
+						if (rowObject.IsInsertionRow)
+						{
+							// For the insertion row only, start editing the name on Enter
+							AddNewCommand();
+						}
+						else
+						{
+							EditFieldCommand(rowObject);
+						}
 						return true;
 					}
 					else if (keyData == Keys.Delete)
@@ -485,6 +495,7 @@ namespace KPEnhancedEntryView
 		private void ProtectFieldCommand(RowObject rowObject, bool isChecked)
 		{
 			SetFieldValue(rowObject, new ProtectedString(isChecked, rowObject.Value.ReadUtf8()));
+			RefreshObject(rowObject);
 		}
 
 		private void PasswordGeneratorCommand(RowObject rowObject)
@@ -509,6 +520,7 @@ namespace KPEnhancedEntryView
 
 				Entry.Strings.Set(rowObject.FieldName, newPassword);
 				rowObject.Value = newPassword;
+				RefreshObject(rowObject);
 
 				OnEntryModified(EventArgs.Empty);
 			}
@@ -525,13 +537,22 @@ namespace KPEnhancedEntryView
 				var blankValue = new ProtectedString(rowObject.Value.IsProtected, new byte[0]);
 
 				Entry.Strings.Set(rowObject.FieldName, blankValue);
+
+				if (mOptions.HideEmptyFields)
+				{
+					RemoveObject(rowObject);
+				}
+				else
+				{
+					rowObject.Value = blankValue;
+					RefreshObject(rowObject);
+				}
 			}
 			else
 			{
 				Entry.Strings.Remove(rowObject.FieldName);
+				RemoveObject(rowObject);
 			}
-
-			RemoveObject(rowObject);
 
 			OnEntryModified(EventArgs.Empty);
 		}

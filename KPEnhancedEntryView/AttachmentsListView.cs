@@ -18,13 +18,14 @@ using KeePassLib.Utility;
 
 namespace KPEnhancedEntryView
 {
-	internal class AttachmentsListView : FastObjectListView
+	internal class AttachmentsListView : ObjectListView
 	{
 		public AttachmentsListView()
 		{
 			SmallImageList = new ImageList { ColorDepth = ColorDepth.Depth32Bit };
 
 			View = System.Windows.Forms.View.SmallIcon;
+			HeaderStyle = ColumnHeaderStyle.None;
 			Scrollable = true;
 
 			CellEditActivation = CellEditActivateMode.F2Only;

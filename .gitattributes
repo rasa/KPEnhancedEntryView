@@ -13,6 +13,7 @@ KPEnhancedEntryView/KPEnhancedEntryView.csproj -text
 KPEnhancedEntryView/KPEnhancedEntryView.sln -text
 KPEnhancedEntryView/NativeMethods.cs -text
 KPEnhancedEntryView/NotesRtfHelpers.cs -text
+KPEnhancedEntryView/Options.cs -text
 KPEnhancedEntryView/Plugin.cs -text
 KPEnhancedEntryView/Properties/AssemblyInfo.cs -text
 KPEnhancedEntryView/Properties/Resources.Designer.cs -text

@@ -11,14 +11,17 @@ namespace KPEnhancedEntryView
 	public class FieldNameEditor : ComboBox
 	{
 		private static readonly TimeSpan PopulationUIUpdateFrequency = TimeSpan.FromSeconds(0.5);
-		
+
+		private Options mOptions;
 		private Thread mPopulationThread;
 
-		public FieldNameEditor(PwEntry entry)
+		public FieldNameEditor(PwEntry entry, Options options)
 		{
 			AutoCompleteMode = AutoCompleteMode.SuggestAppend;
 			AutoCompleteSource = AutoCompleteSource.ListItems;
 			DropDownStyle = ComboBoxStyle.DropDown;
+
+			mOptions = options;
 			
 			Populate(entry);
 		}
@@ -73,10 +76,13 @@ namespace KPEnhancedEntryView
 			var fieldNamesForPopulation = new List<FieldNameItem>();
 
 			// Add any standard fields that are blank (as they will be hidden)
-			AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.TitleField, KPRes.Title, 0));
-			AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.UserNameField, KPRes.UserName, 1));
-			AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.PasswordField, KPRes.Password, 2));
-			AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.UrlField, KPRes.Url, 3));
+			if (mOptions.HideEmptyFields)
+			{
+				AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.TitleField, KPRes.Title, 0));
+				AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.UserNameField, KPRes.UserName, 1));
+				AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.PasswordField, KPRes.Password, 2));
+				AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.UrlField, KPRes.Url, 3));
+			}
 			
 			// Start with all the field names that are already on this entry
 			fieldNames.UnionWith(entry.Strings.GetKeys());

@@ -185,6 +185,15 @@ namespace KPEnhancedEntryView.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &amp;Hide Empty Standard Fields.
+        /// </summary>
+        internal static string HideEmptyStandardFieldsOptionMenuItem {
+            get {
+                return ResourceManager.GetString("HideEmptyStandardFieldsOptionMenuItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} more attachments.
         /// </summary>
         internal static string MoreAttachments {
@@ -208,6 +217,15 @@ namespace KPEnhancedEntryView.Properties {
         internal static string NewFieldRowName {
             get {
                 return ResourceManager.GetString("NewFieldRowName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &amp;Entry View Options.
+        /// </summary>
+        internal static string OptionsMenuItem {
+            get {
+                return ResourceManager.GetString("OptionsMenuItem", resourceCulture);
             }
         }
         
