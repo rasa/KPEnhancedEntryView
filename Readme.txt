@@ -61,11 +61,17 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.9
+ Standard fields will not be immediately hidden when the value is edited to be blank. They will
+  be hidden next time the entry is viewed. To hide immediately, use the Delete Field context menu
+  command.
+ Fixed crash when attempting to drag a blank value (blank values now simply can't be dragged).
+
 v0.8
  Standard field hiding is now optional, see the menu item Tools, Entry View Options,
   Hide Empty Standard Fields. It's turned off (no hiding) by default.
  Fixed performance issue with large Notes fields
- Fixed cosemetic bug where fields were slow to repaint when deleted or switched to or
+ Fixed cosmetic bug where fields were slow to repaint when deleted or switched to or
   from being protected
  Enter key (as well as F2) can now be used on insertion row to start insertion
 

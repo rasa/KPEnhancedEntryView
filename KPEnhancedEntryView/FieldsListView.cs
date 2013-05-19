@@ -353,16 +353,7 @@ namespace KPEnhancedEntryView
 				Entry.CreateBackup(Database);
 
 				Entry.Strings.Set(rowObject.FieldName, newProtectedString);
-
-				if (mOptions.HideEmptyFields && newProtectedString.IsEmpty && PwDefs.IsStandardField(rowObject.FieldName))
-				{
-					// Hide empty standard field rows
-					RemoveObject(rowObject);
-				}
-				else
-				{
-					rowObject.Value = newProtectedString;
-				}
+				rowObject.Value = newProtectedString;
 
 				OnEntryModified(EventArgs.Empty);
 			}
@@ -578,7 +569,7 @@ namespace KPEnhancedEntryView
 					else
 					{
 						var rowObject = item.RowObject as RowObject;
-						if (rowObject != null)
+						if (rowObject != null && rowObject.Value != null)
 						{
 							dragText = rowObject.Value.ReadString();
 						}
