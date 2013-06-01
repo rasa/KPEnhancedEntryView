@@ -118,6 +118,9 @@
     <Compile Include="ProtectedFieldEditor.Designer.cs">
       <DependentUpon>ProtectedFieldEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="UnprotectedFieldEditor.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ValidationFailureReporter.cs">
       <SubType>Component</SubType>
     </Compile>

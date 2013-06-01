@@ -61,6 +61,14 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.10
+ Disabled non-functional multi-select capability of fields
+ Added support for main window shortcut keys while the entry view has the focus
+ Added support for obeying the column value hiding settings (so Ctrl+H and Ctrl+J will now hide
+  and show the password and username, and custom fields will obey the hiding settings set in the
+  Configure Columns window). Note that KeePass (as of v2.22) will only allow you to set hiding
+  settings for columns that are set to be visible in the entry list.
+
 v0.9
  Standard fields will not be immediately hidden when the value is edited to be blank. They will
   be hidden next time the entry is viewed. To hide immediately, use the Delete Field context menu

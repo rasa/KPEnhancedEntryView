@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 using KeePass.Plugins;
+using KeePassLib;
+using KeePassLib.Utility;
 
 namespace KPEnhancedEntryView
 {
@@ -11,8 +13,9 @@ namespace KPEnhancedEntryView
 		private IPluginHost mHost;
 		private EntryView mEntryView;
 		private RichTextBox mOriginalEntryView;
+		private Control mEntriesListView;
 		private Options mOptions;
-
+		
 		public override bool Initialize(IPluginHost host)
 		{
 			if (host == null) return false;
@@ -58,14 +61,29 @@ namespace KPEnhancedEntryView
 			// Hook UIStateUpdated to watch for current entry changing.
 			mHost.MainWindow.UIStateUpdated += this.OnUIStateUpdated;
 
-			// HACK: UIStateUpdated isn't called when navigating a reference link in the entry view, so grab that too.
-			mOriginalEntryView.LinkClicked += this.OnUIStateUpdated;
-			
+			if (PwDefs.FileVersion64 < StrUtil.ParseVersion("2.22")) // Fixed in KeePass 2.22
+			{
+				// HACK: UIStateUpdated isn't called when navigating a reference link in the entry view, so grab that too.
+				mOriginalEntryView.LinkClicked += this.OnUIStateUpdated;
+			}
+
+			// HACK: UIStateUpdated isn't called when toggling column value hiding on and off, so monitor the entries list for being invalidated
+			mEntriesListView = FindControl<Control>("m_lvEntries");
+			if (mEntriesListView != null)
+			{
+				mEntriesListView.Invalidated += mEntitiesListView_Invalidated;
+			}
+
 			// Hook events to update the UI when the entry is modified
 			mEntryView.EntryModified += this.mEntryView_EntryModified;
-
 			
 			return true;
+		}
+
+		private void mEntitiesListView_Invalidated(object sender, InvalidateEventArgs e)
+		{
+			// Whenever the entities list is invalidated, refresh the items of the entry view too (so that changes like column value hiding get reflected)
+			mEntryView.RefreshItems();
 		}
 
 		private void mOriginalEntryView_FontChanged(object sender, EventArgs e)
@@ -91,6 +109,12 @@ namespace KPEnhancedEntryView
 			mEntryView.Parent.Controls.Add(mOriginalEntryView);
 			mEntryView.Parent.Controls.Remove(mEntryView);
 			mOriginalEntryView = null;
+
+			if (mEntriesListView != null)
+			{
+				mEntriesListView.Invalidated -= mEntitiesListView_Invalidated;
+				mEntriesListView = null;
+			}
 
 			mEntryView.Dispose();
 			mEntryView = null;
@@ -122,7 +146,5 @@ namespace KPEnhancedEntryView
 					break;
 			}
 		}
-
-		
 	}
 }

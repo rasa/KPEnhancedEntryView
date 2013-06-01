@@ -11,6 +11,7 @@ using KeePass.Util;
 using KeePassLib;
 using KeePassLib.Cryptography.PasswordGenerator;
 using KeePassLib.Security;
+using KeePass.App.Configuration;
 
 namespace KPEnhancedEntryView
 {
@@ -28,6 +29,7 @@ namespace KPEnhancedEntryView
 			CellEditTabChangesRows = true;
 			CopySelectionOnControlC = false;
 			FullRowSelect = true;
+			MultiSelect = false;
 			HeaderStyle = ColumnHeaderStyle.Nonclickable;
 			ShowGroups = false;
 			UseCellFormatEvents = true;
@@ -269,7 +271,14 @@ namespace KPEnhancedEntryView
 						return new ProtectedFieldEditor
 						{
 							Value = rowObject.Value,
-							HidePassword = true
+							HidePassword = rowObject.HideValue
+						};
+					}
+					else
+					{
+						return new UnprotectedFieldEditor
+						{
+							Value = rowObject.Value
 						};
 					}
 				}
@@ -601,6 +610,8 @@ namespace KPEnhancedEntryView
 		#region RowObject
 		internal class RowObject
 		{
+			private AceMainWindow mMainWindowConfig = KeePass.Program.Config.MainWindow;
+
 			public static RowObject CreateInsertionRow()
 			{
 				return new RowObject(null, null);
@@ -654,13 +665,42 @@ namespace KPEnhancedEntryView
 						return null;
 					}
 
-					if (Value.IsProtected)
+					if (HideValue)
 					{
 						return PwDefs.HiddenPassword;
 					}
 					else
 					{
 						return Value.ReadString();
+					}
+				}
+			}
+
+			public bool HideValue
+			{
+				get
+				{
+					return (ColumnType == AceColumnType.CustomString && mMainWindowConfig.ShouldHideCustomString(FieldName, Value)) ||
+							mMainWindowConfig.IsColumnHidden(ColumnType);
+				}
+			}
+
+			private AceColumnType ColumnType
+			{
+				get
+				{
+					switch (FieldName)
+					{
+						case PwDefs.TitleField:
+							return AceColumnType.Title;
+						case PwDefs.UserNameField:
+							return AceColumnType.UserName;
+						case PwDefs.PasswordField:
+							return AceColumnType.Password;
+						case PwDefs.UrlField:
+							return AceColumnType.Url;
+						default:
+							return AceColumnType.CustomString;
 					}
 				}
 			}

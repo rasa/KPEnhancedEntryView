@@ -18,6 +18,7 @@ namespace KPEnhancedEntryView
 	public partial class EntryView : UserControl
 	{
 		private readonly MainForm mMainForm;
+		private readonly MethodInfo mHandleMainWindowKeyMessageMethod;
 		private readonly RichTextBoxContextMenu mNotesContextMenu;
 		private readonly OpenWithMenu mURLDropDownMenu;
 
@@ -42,6 +43,14 @@ namespace KPEnhancedEntryView
 			{
 				mFieldsGrid.AlternateRowBackColor = UIUtil.GetAlternateColor(mFieldsGrid.BackColor);
 				mFieldsGrid.UseAlternatingBackColors = true;
+			}
+
+			// HACK: MainForm doesn't expose HandleMainWindowKeyMessage, so grab it via reflection
+			mHandleMainWindowKeyMessageMethod = mMainForm.GetType().GetMethod("HandleMainWindowKeyMessage", BindingFlags.Instance | BindingFlags.NonPublic);
+			if (mHandleMainWindowKeyMessageMethod != null)
+			{
+				mTabs.KeyDown += HandleMainWindowShortcutKeyDown;
+				mTabs.KeyUp += HandleMainWindowShortcutKeyUp;
 			}
 
 			mNotesContextMenu = new RichTextBoxContextMenu();
@@ -291,6 +300,14 @@ namespace KPEnhancedEntryView
 				}
 			}
 
+		}
+
+		public void RefreshItems()
+		{
+			foreach (OLVListItem item in mFieldsGrid.Items)
+			{
+				mFieldsGrid.RefreshItem(item);
+			}
 		}
 		#endregion
 
@@ -632,5 +649,29 @@ namespace KPEnhancedEntryView
 		}
 		#endregion
 
+		#region Keyboard Shortcuts
+		private void HandleMainWindowShortcutKeyDown(object sender, KeyEventArgs e)
+		{
+			HandleMainWindowShortcutKey(e, true);
+		}
+
+		private void HandleMainWindowShortcutKeyUp(object sender, KeyEventArgs e)
+		{
+			HandleMainWindowShortcutKey(e, false);
+		}
+
+		private void HandleMainWindowShortcutKey(KeyEventArgs e, bool keyDown)
+		{
+			try 
+			{
+				mHandleMainWindowKeyMessageMethod.Invoke(mMainForm, new object[] { e, keyDown });
+			}
+			catch (Exception)
+			{
+				// Ignore it
+				Debug.Fail("Could not pass on main window key shortcut");
+			}
+		}
+		#endregion
 	}
 }
