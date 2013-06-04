@@ -15,13 +15,13 @@ using KeePass.App.Configuration;
 
 namespace KPEnhancedEntryView
 {
-	internal class FieldsListView : ObjectListView
+	internal abstract class FieldsListView : ObjectListView
 	{
-		private readonly BrightIdeasSoftware.OLVColumn mFieldNames;
-		private readonly BrightIdeasSoftware.OLVColumn mFieldValues;
+		protected readonly BrightIdeasSoftware.OLVColumn mFieldNames;
+		protected readonly BrightIdeasSoftware.OLVColumn mFieldValues;
 
-		private MainForm mMainForm;
-		private Options mOptions;
+		protected MainForm mMainForm;
+		protected Options mOptions;
 
 		public FieldsListView() 
 		{
@@ -35,6 +35,12 @@ namespace KPEnhancedEntryView
 			UseCellFormatEvents = true;
 			UseHyperlinks = true;
 			DragSource = new FieldValueDragSource();
+
+			if (KeePass.Program.Config.MainWindow.EntryListAlternatingBgColors)
+			{
+				AlternateRowBackColor = UIUtil.GetAlternateColor(BackColor);
+				UseAlternatingBackColors = true;
+			}
 
 			mFieldNames = new OLVColumn
 			{
@@ -55,8 +61,6 @@ namespace KPEnhancedEntryView
 			
 			Columns.Add(mFieldNames);
 			Columns.Add(mFieldValues);
-
-			ObjectListView.EditorRegistry.RegisterFirstChance(GetCellEditor);
 		}
 
 		// Disallow setting of IsSimpleDragSource (as it breaks the file dragging, and is sometimes automatically set by the designer for some reason)
@@ -65,7 +69,6 @@ namespace KPEnhancedEntryView
 			get { return false; }
 			set { }
 		}
-
 
 		/// <summary>
 		/// Ensure this is called before using the control
@@ -76,7 +79,7 @@ namespace KPEnhancedEntryView
 			mOptions = options;
 		}
 
-		private PwDatabase Database { get { return mMainForm.ActiveDatabase; } }
+		protected PwDatabase Database { get { return mMainForm.ActiveDatabase; } }
 
 		#region Disposal
 		protected override void Dispose(bool disposing)
@@ -98,67 +101,33 @@ namespace KPEnhancedEntryView
 		}
 		#endregion
 
-		#region Entry
-		private PwEntry mEntry;
-		public PwEntry Entry
+		public void RefreshItems()
 		{
-			get { return mEntry; }
-			set
+			foreach (OLVListItem item in Items)
 			{
-				mEntry = value;
-				OnEntryChanged(EventArgs.Empty);
+				RefreshItem(item);
 			}
 		}
 
-		protected virtual void OnEntryChanged(EventArgs e)
+		protected void SetRows(IEnumerable<RowObject> rows)
 		{
-			if (Entry == null)
-			{
-				ClearObjects();
-			}
-			else
-			{
-				var rows = new List<RowObject>();
-
-				// First, the standard fields, where present, in the standard order
-				AddFieldIfNotEmpty(rows, PwDefs.TitleField);
-				AddFieldIfNotEmpty(rows, PwDefs.UserNameField);
-				AddFieldIfNotEmpty(rows, PwDefs.PasswordField);
-				AddFieldIfNotEmpty(rows, PwDefs.UrlField);
-
-				// Then, all custom strings
-				rows.AddRange(from kvp in Entry.Strings where !IsExcludedField(kvp.Key) select new RowObject(kvp));
-
-				// Finally, an empty "add new" row
-				rows.Add(RowObject.CreateInsertionRow());
-
-				SetObjects(rows);
-				mFieldNames.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
-				mFieldNames.Width += 10; // Give it a bit of a margin to make it look better
-			}
+			BeginUpdate();
+			SetObjects(rows);
+			mFieldNames.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+			mFieldNames.Width += 10; // Give it a bit of a margin to make it look better
+			EndUpdate();
 		}
 
-		private void AddFieldIfNotEmpty(List<RowObject> rows, string fieldName)
+		protected bool IsExcludedField(string fieldName)
 		{
-			var value = Entry.Strings.Get(fieldName);
-			if (value != null && (!mOptions.HideEmptyFields || !value.IsEmpty))
-			{
-				rows.Add(new RowObject(fieldName, value));
-			}
+			return fieldName == "KPRPC JSON";			 // Exclude KeyFox's custom field (not intended to be user visible or directly editable)
 		}
-
-		private bool IsExcludedField(string fieldName)
-		{
-			return PwDefs.IsStandardField(fieldName) ||  // Exclude standard fields (they are handled separately)
-					fieldName == "KPRPC JSON";			 // Exclude KeyFox's custom field (not intended to be user visible or directly editable)
-		}
-		#endregion
 
 		#region EntryModified event
-		public event EventHandler EntryModified;
-		protected virtual void OnEntryModified(EventArgs e)
+		public event EventHandler Modified;
+		protected virtual void OnModified(EventArgs e)
 		{
-			var temp = EntryModified;
+			var temp = Modified;
 			if (temp != null)
 			{
 				temp(this, e);
@@ -168,8 +137,8 @@ namespace KPEnhancedEntryView
 
 		#region Font and formatting
 
-		private Font mBoldFont = null;
-		private Font mItalicFont = null;
+		protected Font mBoldFont = null;
+		protected Font mItalicFont = null;
 
 		protected override void OnFontChanged(EventArgs e)
 		{
@@ -183,6 +152,8 @@ namespace KPEnhancedEntryView
 
 			// This doesn't inherit automatically, for some reason
 			HyperlinkStyle.Over.Font = Font;
+
+			RefreshItems();
 		}
 
 		protected override void OnFormatCell(FormatCellEventArgs args)
@@ -218,7 +189,7 @@ namespace KPEnhancedEntryView
 
 			e.Url = null;
 
-			var rowObject = (FieldsListView.RowObject)e.Model;
+			var rowObject = (RowObject)e.Model;
 
 			if (e.Column == mFieldValues)
 			{
@@ -258,10 +229,23 @@ namespace KPEnhancedEntryView
 			}
 		}
 
-		private Control GetCellEditor(Object model, OLVColumn column, Object value)
+		protected override void SetControlValue(Control control, object value, string stringValue)
 		{
-			var rowObject = model as RowObject;
+			if (control is ProtectedFieldEditor ||
+				control is UnprotectedFieldEditor ||
+				control is FieldNameEditor)
+			{
+				// These controls will already have had their values set
+				return;
+			}
+			base.SetControlValue(control, value, stringValue);
+		}
 
+		protected override Control GetCellEditor(OLVListItem item, int subItemIndex)
+		{
+			var column = GetColumn(subItemIndex);
+			var rowObject = item.RowObject as RowObject;
+			
 			if (rowObject != null)
 			{
 				if (column == mFieldValues && !rowObject.IsInsertionRow)
@@ -284,13 +268,14 @@ namespace KPEnhancedEntryView
 				}
 				else if (column == mFieldNames)
 				{
-					var editor = new FieldNameEditor(Entry, mOptions) { Text = rowObject.FieldName };
-					return editor;
+					return GetFieldNameEditor(rowObject);
 				}
 			}
 
-			return null;
+			return base.GetCellEditor(item, subItemIndex);
 		}
+
+		protected abstract FieldNameEditor GetFieldNameEditor(RowObject rowObject);
 
 		protected override void OnCellEditorValidating(CellEditEventArgs e)
 		{
@@ -303,38 +288,26 @@ namespace KPEnhancedEntryView
 
 				if (newValue != rowObject.FieldName)
 				{
-					// Logic copied from EditStringForm.ValidateStringName (EditStringForm.cs)
-					if (String.IsNullOrEmpty(newValue))
-					{
-						ReportValidationFailure(e.Control, KPRes.FieldNamePrompt);
-						e.Cancel = true;
-						return;
-					}
-					if (PwDefs.IsStandardField(newValue))
-					{
-						// Allow if the standard field on the entry is currently blank and hidden
-						if (mOptions.HideEmptyFields && Entry.Strings.GetSafe(newValue).IsEmpty)
-						{
-							return;
-						}
-
-						ReportValidationFailure(e.Control, KPRes.FieldNameInvalid);
-						e.Cancel = true;
-						return;
-					}
-					if (newValue.IndexOfAny(new[] { '{', '}' }) >= 0)
-					{
-						ReportValidationFailure(e.Control, KPRes.FieldNameInvalid);
-						e.Cancel = true;
-						return;
-					}
-					if (Entry.Strings.Exists(newValue))
-					{
-						ReportValidationFailure(e.Control, KPRes.FieldNameExistsAlready);
-						e.Cancel = true;
-						return;
-					}
+					ValidateFieldName(e, newValue);
 				}
+			}
+		}
+
+		protected virtual void ValidateFieldName(CellEditEventArgs e, string newValue)
+		{
+			// Logic copied from EditStringForm.ValidateStringName (EditStringForm.cs)
+
+			if (newValue.IndexOfAny(new[] { '{', '}' }) >= 0)
+			{
+				ReportValidationFailure(e.Control, KPRes.FieldNameInvalid);
+				e.Cancel = true;
+				return;
+			}
+			if (String.IsNullOrEmpty(newValue))
+			{
+				ReportValidationFailure(e.Control, KPRes.FieldNamePrompt);
+				e.Cancel = true;
+				return;
 			}
 		}
 
@@ -359,14 +332,11 @@ namespace KPEnhancedEntryView
 				var newProtectedString = newValue as ProtectedString ??
 										 new ProtectedString(rowObject.Value.IsProtected, (string)newValue);
 
-				Entry.CreateBackup(Database);
-
-				Entry.Strings.Set(rowObject.FieldName, newProtectedString);
-				rowObject.Value = newProtectedString;
-
-				OnEntryModified(EventArgs.Empty);
+				SetFieldValueInternal(rowObject, newProtectedString);
 			}
 		}
+
+		protected abstract void SetFieldValueInternal(RowObject rowObject, ProtectedString newValue);
 
 		private void SetFieldName(Object model, Object newValue)
 		{
@@ -375,42 +345,20 @@ namespace KPEnhancedEntryView
 
 			if (rowObject.IsInsertionRow)
 			{
-				// Check if this should be a protected string
-				var isProtected = false; // Default to not protected
-				var fieldOnOtherEntry = (from otherEntry in Entry.ParentGroup.Entries select otherEntry.Strings.Get(newName)).FirstOrDefault();
-				if (fieldOnOtherEntry != null)
-				{
-					isProtected = fieldOnOtherEntry.IsProtected;
-				}
-
-				Entry.CreateBackup(Database);
-
-				rowObject.Value = new ProtectedString(isProtected, new byte[0]);
-				Entry.Strings.Set(newName, rowObject.Value);
-				OnEntryModified(EventArgs.Empty);
-
 				// Create a new insertion row to replace this one
 				AddObject(RowObject.CreateInsertionRow());
 			}
-			else
-			{
-				var fieldValue = Entry.Strings.Get(rowObject.FieldName);
 
-				Entry.CreateBackup(Database);
-
-				Entry.Strings.Remove(rowObject.FieldName);
-				Entry.Strings.Set(newName, fieldValue);
-				OnEntryModified(EventArgs.Empty);
-			}
-
-			rowObject.FieldName = newName;
+			SetFieldNameInternal(rowObject, newName);
 		}
+
+		protected abstract void SetFieldNameInternal(RowObject rowObject, string newName);
 		#endregion
 
 		#region Validation Failure Reporting
 		public ValidationFailureReporter ValidationFailureReporter { get; set; }
 
-		private void ReportValidationFailure(Control control, string message)
+		protected void ReportValidationFailure(Control control, string message)
 		{
 			if (ValidationFailureReporter != null)
 			{
@@ -456,15 +404,15 @@ namespace KPEnhancedEntryView
 			return base.ProcessDialogKey(keyData);
 		}
 
-		public void OpenURLCommand_Click(object sender, EventArgs e) { DoFieldCommand(OpenURLCommand); }
-		public void CopyCommand_Click(object sender, EventArgs e) { DoFieldCommand(CopyCommand); }
-		public void EditFieldCommand_Click(object sender, EventArgs e) { DoFieldCommand(EditFieldCommand); }
-		public void ProtectFieldCommand_Click(object sender, EventArgs e) { DoFieldCommand(rowObject => ProtectFieldCommand(rowObject, ((ToolStripMenuItem)sender).Checked)); }
-		public void PasswordGeneratorCommand_Click(object sender, EventArgs e) { DoFieldCommand(PasswordGeneratorCommand); }
-		public void DeleteFieldCommand_Click(object sender, EventArgs e) { DoFieldCommand(DeleteFieldCommand); }
-		public void AddNewCommand_Click(object sender, EventArgs e) { AddNewCommand(); }
+		public void DoOpenUrl() { DoCommandOnSelected(OpenURLCommand); }
+		public void DoCopy() { DoCommandOnSelected(CopyCommand); }
+		public void DoEditField() { DoCommandOnSelected(EditFieldCommand); }
+		public void DoSetProtected(bool value) { DoCommandOnSelected(rowObject => ProtectFieldCommand(rowObject, value)); }
+		public void DoPasswordGenerator() { DoCommandOnSelected(PasswordGeneratorCommand); }
+		public void DoDeleteField() { DoCommandOnSelected(DeleteFieldCommand); }
+		public void DoAddNew() { AddNewCommand(); }
 
-		private void DoFieldCommand(Action<RowObject> command)
+		private void DoCommandOnSelected(Action<RowObject> command)
 		{
 			var rowObject = (RowObject)SelectedObject;
 
@@ -479,13 +427,7 @@ namespace KPEnhancedEntryView
 			OnHyperlinkClicked(new HyperlinkClickedEventArgs { Url = rowObject.Value.ReadString() });
 		}
 
-		private void CopyCommand(RowObject rowObject)
-		{
-			if (ClipboardUtil.CopyAndMinimize(rowObject.Value, true, mMainForm, Entry, Database))
-			{
-				mMainForm.StartClipboardCountdown();
-			}
-		}
+		protected abstract void CopyCommand(RowObject rowObject);
 
 		private void EditFieldCommand(RowObject rowObject)
 		{
@@ -494,7 +436,7 @@ namespace KPEnhancedEntryView
 
 		private void ProtectFieldCommand(RowObject rowObject, bool isChecked)
 		{
-			SetFieldValue(rowObject, new ProtectedString(isChecked, rowObject.Value.ReadUtf8()));
+			SetFieldValue(rowObject, rowObject.Value.WithProtection(isChecked));
 			RefreshObject(rowObject);
 		}
 
@@ -516,46 +458,15 @@ namespace KPEnhancedEntryView
 				ProtectedString newPassword;
 				PwGenerator.Generate(out newPassword, passwordGenerator.SelectedProfile, entropy, KeePass.Program.PwGeneratorPool);
 
-				Entry.CreateBackup(Database);
-
-				Entry.Strings.Set(rowObject.FieldName, newPassword);
-				rowObject.Value = newPassword;
+				SetFieldValue(rowObject, newPassword);
+				
 				RefreshObject(rowObject);
-
-				OnEntryModified(EventArgs.Empty);
 			}
 
 			UIUtil.DestroyForm(passwordGenerator);
 		}
 
-		private void DeleteFieldCommand(RowObject rowObject)
-		{
-			Entry.CreateBackup(Database);
-
-			if (PwDefs.IsStandardField(rowObject.FieldName))
-			{
-				var blankValue = new ProtectedString(rowObject.Value.IsProtected, new byte[0]);
-
-				Entry.Strings.Set(rowObject.FieldName, blankValue);
-
-				if (mOptions.HideEmptyFields)
-				{
-					RemoveObject(rowObject);
-				}
-				else
-				{
-					rowObject.Value = blankValue;
-					RefreshObject(rowObject);
-				}
-			}
-			else
-			{
-				Entry.Strings.Remove(rowObject.FieldName);
-				RemoveObject(rowObject);
-			}
-
-			OnEntryModified(EventArgs.Empty);
-		}
+		protected abstract void DeleteFieldCommand(RowObject rowObject);
 
 		private void AddNewCommand()
 		{
@@ -564,6 +475,15 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region Drag and drop
+		protected virtual string GetDragValue(RowObject rowObject)
+		{
+			if (rowObject.Value != null)
+			{
+				return rowObject.Value.ReadString();
+			}
+			return null;
+		}
+
 		internal class FieldValueDragSource : IDragSource
 		{
 			public object StartDrag(ObjectListView olv, System.Windows.Forms.MouseButtons button, OLVListItem item)
@@ -578,9 +498,10 @@ namespace KPEnhancedEntryView
 					else
 					{
 						var rowObject = item.RowObject as RowObject;
-						if (rowObject != null && rowObject.Value != null)
+						var fieldsListView = olv as FieldsListView;
+						if (rowObject != null && fieldsListView != null)
 						{
-							dragText = rowObject.Value.ReadString();
+							dragText = fieldsListView.GetDragValue(rowObject);
 						}
 					}
 
@@ -610,8 +531,6 @@ namespace KPEnhancedEntryView
 		#region RowObject
 		internal class RowObject
 		{
-			private AceMainWindow mMainWindowConfig = KeePass.Program.Config.MainWindow;
-
 			public static RowObject CreateInsertionRow()
 			{
 				return new RowObject(null, null);
@@ -680,32 +599,35 @@ namespace KPEnhancedEntryView
 			{
 				get
 				{
-					return (ColumnType == AceColumnType.CustomString && mMainWindowConfig.ShouldHideCustomString(FieldName, Value)) ||
-							mMainWindowConfig.IsColumnHidden(ColumnType);
+					return ShouldHideValue(FieldName, Value);
 				}
 			}
-
-			private AceColumnType ColumnType
-			{
-				get
-				{
-					switch (FieldName)
-					{
-						case PwDefs.TitleField:
-							return AceColumnType.Title;
-						case PwDefs.UserNameField:
-							return AceColumnType.UserName;
-						case PwDefs.PasswordField:
-							return AceColumnType.Password;
-						case PwDefs.UrlField:
-							return AceColumnType.Url;
-						default:
-							return AceColumnType.CustomString;
-					}
-				}
-			}
-
+			
 			public bool IsInsertionRow { get { return FieldName == null; } }
+		}
+
+		protected static bool ShouldHideValue(string fieldName, ProtectedString value)
+		{
+			var columnType = GetColumnType(fieldName);
+			return (columnType == AceColumnType.CustomString && KeePass.Program.Config.MainWindow.ShouldHideCustomString(fieldName, value)) ||
+									KeePass.Program.Config.MainWindow.IsColumnHidden(columnType);
+		}
+
+		private static AceColumnType GetColumnType(string fieldName)
+		{
+			switch (fieldName)
+			{
+				case PwDefs.TitleField:
+					return AceColumnType.Title;
+				case PwDefs.UserNameField:
+					return AceColumnType.UserName;
+				case PwDefs.PasswordField:
+					return AceColumnType.Password;
+				case PwDefs.UrlField:
+					return AceColumnType.Url;
+				default:
+					return AceColumnType.CustomString;
+			}
 		}
 		#endregion
 	}

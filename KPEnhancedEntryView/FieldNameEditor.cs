@@ -15,15 +15,24 @@ namespace KPEnhancedEntryView
 		private Options mOptions;
 		private Thread mPopulationThread;
 
-		public FieldNameEditor(PwEntry entry, Options options)
+		public FieldNameEditor(PwEntry entry, Options options) : this (Enumerable.Repeat(entry, 1), options)
 		{
+		}
+
+		public FieldNameEditor(IEnumerable<PwEntry> entries, Options options)
+		{
+			if (!entries.Any())
+			{
+				throw new ArgumentException("Expecting at least one entry");
+			}
+
 			AutoCompleteMode = AutoCompleteMode.SuggestAppend;
 			AutoCompleteSource = AutoCompleteSource.ListItems;
 			DropDownStyle = ComboBoxStyle.DropDown;
 
 			mOptions = options;
-			
-			Populate(entry);
+
+			Populate(entries);
 		}
 
 		protected override void Dispose(bool disposing)
@@ -61,37 +70,49 @@ namespace KPEnhancedEntryView
 			}
 		}
 
-		private void Populate(PwEntry entry)
+		private void Populate(IEnumerable<PwEntry> entries)
 		{
 			// Do population asynchronously
 			mPopulationThread = new Thread(PopulationWorker) { Name = "PopulationWorker", IsBackground = true };
-			mPopulationThread.Start(entry);
+			mPopulationThread.Start(entries);
 		}
 
 		private void PopulationWorker(object state)
 		{
-			var entry = (PwEntry)state;
+			var entries = (IEnumerable<PwEntry>)state;
+			var multipleEntries = entries.Skip(1).Any();
 
 			var fieldNames = new HashSet<string>();
 			var fieldNamesForPopulation = new List<FieldNameItem>();
 
-			// Add any standard fields that are blank (as they will be hidden)
-			if (mOptions.HideEmptyFields)
+			if (!multipleEntries)
 			{
-				AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.TitleField, KPRes.Title, 0));
-				AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.UserNameField, KPRes.UserName, 1));
-				AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.PasswordField, KPRes.Password, 2));
-				AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.UrlField, KPRes.Url, 3));
+				// Add any standard fields that are blank (as they will be hidden)
+				if (mOptions.HideEmptyFields)
+				{
+					var entry = entries.First();
+					AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.TitleField, KPRes.Title, 0));
+					AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.UserNameField, KPRes.UserName, 1));
+					AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.PasswordField, KPRes.Password, 2));
+					AddFieldNameIfEmpty(entry, fieldNamesForPopulation, new FieldNameItem(PwDefs.UrlField, KPRes.Url, 3));
+				}
 			}
 			
-			// Start with all the field names that are already on this entry
-			fieldNames.UnionWith(entry.Strings.GetKeys());
+			// Start with all the field names that are already on these entries
+			foreach (var entry in entries)
+			{
+				fieldNames.UnionWith(entry.Strings.GetKeys());
+			}
 
 			var populationUpdateUI = new Action<List<FieldNameItem>>(PopulationUpdateUI);
 			
 			// Now find other field names on other entries to suggest
+			var parentGroups = (from entry in entries select entry.ParentGroup).Distinct();
+
 			var lastUIUpdate = DateTime.Now;
-			foreach (var otherEntry in entry.ParentGroup.Entries)
+			foreach (var otherEntry in from parentGroup in parentGroups 
+									   from entry in parentGroup.Entries
+										   select entry)
 			{
 				foreach (var fieldName in otherEntry.Strings.GetKeys())
 				{

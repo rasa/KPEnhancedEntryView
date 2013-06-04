@@ -94,6 +94,12 @@
     <Compile Include="AttachmentsListView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="MultipleEntriesFieldsListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SingleEntryFieldsListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="EntryView.cs">
       <SubType>UserControl</SubType>
     </Compile>

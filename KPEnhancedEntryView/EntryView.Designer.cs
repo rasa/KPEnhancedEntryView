@@ -19,12 +19,12 @@
 			this.mTabs = new System.Windows.Forms.TabControl();
 			this.mFieldsTab = new System.Windows.Forms.TabPage();
 			this.mSplitGridPanels = new System.Windows.Forms.SplitContainer();
-			this.mFieldsGrid = new KPEnhancedEntryView.FieldsListView();
+			this.mFieldsGrid = new KPEnhancedEntryView.SingleEntryFieldsListView();
+			this.mValidationFailureReporter = new KPEnhancedEntryView.ValidationFailureReporter(this.components);
 			this.mSplitNotesAttachements = new System.Windows.Forms.SplitContainer();
 			this.mNotesBorder = new System.Windows.Forms.Panel();
 			this.mNotes = new KeePass.UI.CustomRichTextBoxEx();
 			this.mAttachments = new KPEnhancedEntryView.AttachmentsListView();
-			this.mValidationFailureReporter = new KPEnhancedEntryView.ValidationFailureReporter(this.components);
 			this.mPropertiesTab = new System.Windows.Forms.TabPage();
 			this.mPropertiesTabLayout = new System.Windows.Forms.TableLayoutPanel();
 			this.mOverrideUrl = new System.Windows.Forms.TextBox();
@@ -46,6 +46,8 @@
 			this.m_lblIcon = new System.Windows.Forms.Label();
 			this.m_btnIcon = new System.Windows.Forms.Button();
 			this.mAllTextTab = new System.Windows.Forms.TabPage();
+			this.mMultipleSelectionTab = new System.Windows.Forms.TabPage();
+			this.mMultipleSelectionFields = new KPEnhancedEntryView.MultipleEntriesFieldsListView();
 			this.mDoubleClickTimer = new System.Windows.Forms.Timer(this.components);
 			this.mFieldGridContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.mURLDropDown = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,6 +81,8 @@
 			this.mPropertiesTab.SuspendLayout();
 			this.mPropertiesTabLayout.SuspendLayout();
 			this.mIconPanel.SuspendLayout();
+			this.mMultipleSelectionTab.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.mMultipleSelectionFields)).BeginInit();
 			this.mFieldGridContextMenu.SuspendLayout();
 			this.mAttachmentsContextMenu.SuspendLayout();
 			this.SuspendLayout();
@@ -88,6 +92,7 @@
 			this.mTabs.Controls.Add(this.mFieldsTab);
 			this.mTabs.Controls.Add(this.mPropertiesTab);
 			this.mTabs.Controls.Add(this.mAllTextTab);
+			this.mTabs.Controls.Add(this.mMultipleSelectionTab);
 			this.mTabs.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mTabs.Location = new System.Drawing.Point(0, 0);
 			this.mTabs.Name = "mTabs";
@@ -124,24 +129,28 @@
 			// 
 			// mFieldsGrid
 			// 
+			this.mFieldsGrid.AlternateRowBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(238)))), ((int)(((byte)(255)))));
 			this.mFieldsGrid.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
 			this.mFieldsGrid.CellEditTabChangesRows = true;
 			this.mFieldsGrid.CopySelectionOnControlC = false;
+			this.mFieldsGrid.Cursor = System.Windows.Forms.Cursors.Default;
 			this.mFieldsGrid.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mFieldsGrid.Entry = null;
 			this.mFieldsGrid.FullRowSelect = true;
 			this.mFieldsGrid.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.mFieldsGrid.Location = new System.Drawing.Point(0, 0);
+			this.mFieldsGrid.MultiSelect = false;
 			this.mFieldsGrid.Name = "mFieldsGrid";
 			this.mFieldsGrid.ShowGroups = false;
 			this.mFieldsGrid.Size = new System.Drawing.Size(365, 243);
 			this.mFieldsGrid.TabIndex = 0;
+			this.mFieldsGrid.UseAlternatingBackColors = true;
 			this.mFieldsGrid.UseCellFormatEvents = true;
 			this.mFieldsGrid.UseCompatibleStateImageBehavior = false;
 			this.mFieldsGrid.UseHyperlinks = true;
 			this.mFieldsGrid.ValidationFailureReporter = this.mValidationFailureReporter;
 			this.mFieldsGrid.View = System.Windows.Forms.View.Details;
-			this.mFieldsGrid.EntryModified += new System.EventHandler(this.mFieldsGrid_EntryModified);
+			this.mFieldsGrid.Modified += new System.EventHandler(this.mFieldsGrid_Modified);
 			this.mFieldsGrid.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mFieldsGrid_CellRightClick);
 			this.mFieldsGrid.HyperlinkClicked += new System.EventHandler<BrightIdeasSoftware.HyperlinkClickedEventArgs>(this.mFieldsGrid_HyperlinkClicked);
 			// 
@@ -198,6 +207,7 @@
 			this.mAttachments.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mAttachments.EmptyListMsg = "Attachments";
 			this.mAttachments.Entry = null;
+			this.mAttachments.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.mAttachments.Location = new System.Drawing.Point(0, 0);
 			this.mAttachments.Name = "mAttachments";
 			this.mAttachments.ShowGroups = false;
@@ -453,6 +463,41 @@
 			this.mAllTextTab.TabIndex = 2;
 			this.mAllTextTab.Text = "All Text";
 			// 
+			// mMultipleSelectionTab
+			// 
+			this.mMultipleSelectionTab.Controls.Add(this.mMultipleSelectionFields);
+			this.mMultipleSelectionTab.Location = new System.Drawing.Point(4, 22);
+			this.mMultipleSelectionTab.Name = "mMultipleSelectionTab";
+			this.mMultipleSelectionTab.Size = new System.Drawing.Size(365, 316);
+			this.mMultipleSelectionTab.TabIndex = 3;
+			this.mMultipleSelectionTab.Text = "Multiple Selection";
+			// 
+			// mMultipleSelectionFields
+			// 
+			this.mMultipleSelectionFields.AlternateRowBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(238)))), ((int)(((byte)(255)))));
+			this.mMultipleSelectionFields.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
+			this.mMultipleSelectionFields.CellEditTabChangesRows = true;
+			this.mMultipleSelectionFields.CopySelectionOnControlC = false;
+			this.mMultipleSelectionFields.Cursor = System.Windows.Forms.Cursors.Default;
+			this.mMultipleSelectionFields.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mMultipleSelectionFields.Entries = new KeePassLib.PwEntry[0];
+			this.mMultipleSelectionFields.FullRowSelect = true;
+			this.mMultipleSelectionFields.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+			this.mMultipleSelectionFields.Location = new System.Drawing.Point(0, 0);
+			this.mMultipleSelectionFields.MultiSelect = false;
+			this.mMultipleSelectionFields.Name = "mMultipleSelectionFields";
+			this.mMultipleSelectionFields.ShowGroups = false;
+			this.mMultipleSelectionFields.Size = new System.Drawing.Size(365, 316);
+			this.mMultipleSelectionFields.TabIndex = 1;
+			this.mMultipleSelectionFields.UseAlternatingBackColors = true;
+			this.mMultipleSelectionFields.UseCellFormatEvents = true;
+			this.mMultipleSelectionFields.UseCompatibleStateImageBehavior = false;
+			this.mMultipleSelectionFields.UseHyperlinks = true;
+			this.mMultipleSelectionFields.ValidationFailureReporter = this.mValidationFailureReporter;
+			this.mMultipleSelectionFields.View = System.Windows.Forms.View.Details;
+			this.mMultipleSelectionFields.Modified += new System.EventHandler(this.mMultipleSelectionFields_Modified);
+			this.mMultipleSelectionFields.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mMultipleSelectionFields_CellRightClick);
+			// 
 			// mDoubleClickTimer
 			// 
 			this.mDoubleClickTimer.Tick += new System.EventHandler(this.mDoubleClickTimer_Tick);
@@ -470,7 +515,7 @@
             this.mDeleteFieldCommand,
             this.mAddNewCommand});
 			this.mFieldGridContextMenu.Name = "mFieldGridContextMenu";
-			this.mFieldGridContextMenu.Size = new System.Drawing.Size(221, 192);
+			this.mFieldGridContextMenu.Size = new System.Drawing.Size(221, 170);
 			// 
 			// mURLDropDown
 			// 
@@ -484,8 +529,9 @@
 			// 
 			this.mOpenURLCommand.Image = global::KPEnhancedEntryView.Properties.Resources.B16x16_Browser;
 			this.mOpenURLCommand.Name = "mOpenURLCommand";
-			this.mOpenURLCommand.Size = new System.Drawing.Size(152, 22);
+			this.mOpenURLCommand.Size = new System.Drawing.Size(103, 22);
 			this.mOpenURLCommand.Text = "&Open";
+			this.mOpenURLCommand.Click += new System.EventHandler(this.mOpenURLCommand_Click);
 			// 
 			// mCopyCommand
 			// 
@@ -493,6 +539,7 @@
 			this.mCopyCommand.Name = "mCopyCommand";
 			this.mCopyCommand.Size = new System.Drawing.Size(220, 22);
 			this.mCopyCommand.Text = "Copy {0}";
+			this.mCopyCommand.Click += new System.EventHandler(this.mCopyCommand_Click);
 			// 
 			// toolStripSeparator1
 			// 
@@ -505,6 +552,7 @@
 			this.mEditFieldCommand.Name = "mEditFieldCommand";
 			this.mEditFieldCommand.Size = new System.Drawing.Size(220, 22);
 			this.mEditFieldCommand.Text = "&Edit Field";
+			this.mEditFieldCommand.Click += new System.EventHandler(this.mEditFieldCommand_Click);
 			// 
 			// mProtectFieldCommand
 			// 
@@ -512,6 +560,7 @@
 			this.mProtectFieldCommand.Name = "mProtectFieldCommand";
 			this.mProtectFieldCommand.Size = new System.Drawing.Size(220, 22);
 			this.mProtectFieldCommand.Text = "&Protect Field";
+			this.mProtectFieldCommand.Click += new System.EventHandler(this.mProtectFieldCommand_Click);
 			// 
 			// mPasswordGeneratorCommand
 			// 
@@ -519,6 +568,7 @@
 			this.mPasswordGeneratorCommand.Name = "mPasswordGeneratorCommand";
 			this.mPasswordGeneratorCommand.Size = new System.Drawing.Size(220, 22);
 			this.mPasswordGeneratorCommand.Text = "&Open Password Generator...";
+			this.mPasswordGeneratorCommand.Click += new System.EventHandler(this.mPasswordGeneratorCommand_Click);
 			// 
 			// toolStripSeparator2
 			// 
@@ -531,6 +581,7 @@
 			this.mDeleteFieldCommand.Name = "mDeleteFieldCommand";
 			this.mDeleteFieldCommand.Size = new System.Drawing.Size(220, 22);
 			this.mDeleteFieldCommand.Text = "&Delete Field";
+			this.mDeleteFieldCommand.Click += new System.EventHandler(this.mDeleteFieldCommand_Click);
 			// 
 			// mAddNewCommand
 			// 
@@ -538,6 +589,7 @@
 			this.mAddNewCommand.Name = "mAddNewCommand";
 			this.mAddNewCommand.Size = new System.Drawing.Size(220, 22);
 			this.mAddNewCommand.Text = "&Add New Field";
+			this.mAddNewCommand.Click += new System.EventHandler(this.mAddNewCommand_Click);
 			// 
 			// mAttachmentsContextMenu
 			// 
@@ -617,6 +669,8 @@
 			this.mPropertiesTabLayout.PerformLayout();
 			this.mIconPanel.ResumeLayout(false);
 			this.mIconPanel.PerformLayout();
+			this.mMultipleSelectionTab.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.mMultipleSelectionFields)).EndInit();
 			this.mFieldGridContextMenu.ResumeLayout(false);
 			this.mAttachmentsContextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
@@ -628,7 +682,7 @@
 		private System.Windows.Forms.TabControl mTabs;
 		private System.Windows.Forms.TabPage mFieldsTab;
 		private System.Windows.Forms.TabPage mPropertiesTab;
-		private FieldsListView mFieldsGrid;
+		private SingleEntryFieldsListView mFieldsGrid;
 		private System.Windows.Forms.SplitContainer mSplitGridPanels;
 		private System.Windows.Forms.SplitContainer mSplitNotesAttachements;
 		private KeePass.UI.CustomRichTextBoxEx mNotes;
@@ -674,5 +728,7 @@
 		private System.Windows.Forms.ToolStripMenuItem mRenameBinaryCommand;
 		private System.Windows.Forms.ToolStripMenuItem mURLDropDown;
 		private System.Windows.Forms.ToolStripMenuItem mOpenURLCommand;
+		private System.Windows.Forms.TabPage mMultipleSelectionTab;
+		private MultipleEntriesFieldsListView mMultipleSelectionFields;
 	}
 }

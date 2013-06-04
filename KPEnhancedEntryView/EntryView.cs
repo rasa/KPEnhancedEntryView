@@ -12,6 +12,7 @@ using KeePass.Util;
 using KeePassLib;
 using KeePassLib.Security;
 using KeePassLib.Utility;
+using System.Collections.Generic;
 
 namespace KPEnhancedEntryView
 {
@@ -24,6 +25,9 @@ namespace KPEnhancedEntryView
 
 		/// <summary>When a context menu is shown for a field value with a URL, that URL will be stored in this variable for use with the OpenWith menu</summary>
 		private string mLastContextMenuUrl;
+
+		/// <summary>When a context menu is shown for a fields grid, that grid control is stored here so the commands can act on the appropriate target</summary>
+		private FieldsListView mFieldGridContextMenuTarget;
 
 		#region Initialisation
 
@@ -38,12 +42,7 @@ namespace KPEnhancedEntryView
 			mMainForm = mainForm;
 
 			mFieldsGrid.Initialise(mMainForm, options);
-			
-			if (KeePass.Program.Config.MainWindow.EntryListAlternatingBgColors)
-			{
-				mFieldsGrid.AlternateRowBackColor = UIUtil.GetAlternateColor(mFieldsGrid.BackColor);
-				mFieldsGrid.UseAlternatingBackColors = true;
-			}
+			mMultipleSelectionFields.Initialise(mMainForm, options);
 
 			// HACK: MainForm doesn't expose HandleMainWindowKeyMessage, so grab it via reflection
 			mHandleMainWindowKeyMessageMethod = mMainForm.GetType().GetMethod("HandleMainWindowKeyMessage", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -67,14 +66,6 @@ namespace KPEnhancedEntryView
 			mEditFieldCommand.ShortcutKeyDisplayString = KPRes.KeyboardKeyReturn;
 			mDeleteFieldCommand.ShortcutKeyDisplayString = UIUtil.GetKeysName(Keys.Delete);
 			mCopyCommand.ShortcutKeys = Keys.Control | Keys.C;
-
-			mOpenURLCommand.Click += mFieldsGrid.OpenURLCommand_Click;
-			mCopyCommand.Click += mFieldsGrid.CopyCommand_Click;
-			mEditFieldCommand.Click += mFieldsGrid.EditFieldCommand_Click;
-			mProtectFieldCommand.Click += mFieldsGrid.ProtectFieldCommand_Click;
-			mPasswordGeneratorCommand.Click += mFieldsGrid.PasswordGeneratorCommand_Click;
-			mDeleteFieldCommand.Click += mFieldsGrid.DeleteFieldCommand_Click;
-			mAddNewCommand.Click += mFieldsGrid.AddNewCommand_Click;
 
 			mURLDropDownMenu = new OpenWithMenu(mURLDropDown);
 			CustomizeOnClick(mURLDropDownMenu);
@@ -122,6 +113,12 @@ namespace KPEnhancedEntryView
 				{
 					mURLDropDownMenu.Destroy();
 				}
+
+				// Ensure all tabs are disposed, even if they aren't currentl visible
+				mMultipleSelectionTab.Dispose();
+				mFieldsTab.Dispose();
+				mPropertiesTab.Dispose();
+				mAllTextTab.Dispose();
 			}
 			base.Dispose(disposing);
 		}
@@ -253,10 +250,68 @@ namespace KPEnhancedEntryView
 
 		#region Population
 		private bool mSuspendEntryChangedPopulation;
-
 		private DateTime? mEntryLastModificationTime;
 		private PwEntry mEntry;
-		public PwEntry Entry 
+		private IEnumerable<PwEntry> mEntries;
+
+		/// <summary>
+		/// Gets or sets a multiple selection of entries. If only a single entry is set, then this will set
+		/// <see cref="Entry"/>, otherwise <see cref="Entry"/> will be null.
+		/// </summary>
+		public IEnumerable<PwEntry> Entries
+		{
+			get
+			{
+				if (mEntries == null)
+				{
+					if (Entry == null)
+					{
+						return Enumerable.Empty<PwEntry>();
+					}
+					else
+					{
+						return Enumerable.Repeat(Entry, 1);
+					}
+				}
+				else
+				{
+					return mEntries;
+				}
+			}
+			set
+			{
+				if (value == null)
+				{
+					Entry = null;
+				}
+				else if (value.Count() == 1)
+				{
+					// Single selection
+					Entry = value.First();
+				}
+				else
+				{
+					// Multiple selection
+					mEntry = null;
+					mEntryLastModificationTime = null;
+					mEntries = value;
+
+					// TODO: Extra checking needed to see if this has actually changed?
+					OnEntryChanged(EventArgs.Empty);
+				}
+			}
+		}
+
+		private bool IsMultipleSelection
+		{
+			get { return mEntries != null; }
+		}
+		
+		/// <summary>
+		/// Gets or sets a single selected entry. Will clear any previous value set to <see cref="Entries"/>
+		/// Returns null if a multiple selection has been set using <see cref="Entries"/>
+		/// </summary>
+		public PwEntry Entry
 		{
 			get { return mEntry; }
 			set
@@ -265,6 +320,8 @@ namespace KPEnhancedEntryView
 					(value == null || value.LastModificationTime != mEntryLastModificationTime))
 				{
 					mEntry = value;
+					mEntries = null;
+
 					mEntryLastModificationTime = mEntry == null ? null : (DateTime?)mEntry.LastModificationTime;
 					OnEntryChanged(EventArgs.Empty);
 				}
@@ -282,6 +339,26 @@ namespace KPEnhancedEntryView
 			mFieldsGrid.CancelCellEdit();
 			NotesEditingActive = false;
 
+			if (IsMultipleSelection)
+			{
+				mTabs.SuspendLayout();
+				SetTabVisibility(mMultipleSelectionTab, true);
+				SetTabVisibility(mFieldsTab, false);
+				SetTabVisibility(mPropertiesTab, false);
+				SetTabVisibility(mAllTextTab, false);
+				mTabs.ResumeLayout();
+			}
+			else
+			{
+				mTabs.SuspendLayout();
+				SetTabVisibility(mFieldsTab, true);
+				SetTabVisibility(mPropertiesTab, true);
+				SetTabVisibility(mAllTextTab, true);
+				SetTabVisibility(mMultipleSelectionTab, false);
+				mTabs.ResumeLayout();
+			}
+
+			mMultipleSelectionFields.Entries = mEntries; // Use mEntries rather than Entries, so get the raw null/no entries case when only a single entity is selected - no need to populate in that case.
 			mFieldsGrid.Entry = Entry;
 			mAttachments.Entry = Entry;
 			mAttachments.Database = Database;
@@ -299,15 +376,24 @@ namespace KPEnhancedEntryView
 					PopulateNotes(Entry.Strings.ReadSafe(PwDefs.NotesField));
 				}
 			}
+		}
 
+		private void SetTabVisibility(TabPage tab, bool visible)
+		{
+			if (visible && tab.Parent != mTabs)
+			{
+				mTabs.TabPages.Add(tab);
+			}
+			else if (!visible && tab.Parent == mTabs)
+			{
+				mTabs.TabPages.Remove(tab);
+			}
 		}
 
 		public void RefreshItems()
 		{
-			foreach (OLVListItem item in mFieldsGrid.Items)
-			{
-				mFieldsGrid.RefreshItem(item);
-			}
+			mFieldsGrid.RefreshItems();
+			mMultipleSelectionFields.RefreshItems();
 		}
 		#endregion
 
@@ -456,6 +542,58 @@ namespace KPEnhancedEntryView
 				mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, rowObject.DisplayName);
 			}
 			e.MenuStrip = mFieldGridContextMenu;
+			mFieldGridContextMenuTarget = mFieldsGrid;
+		}
+
+		private void mMultipleSelectionFields_CellRightClick(object sender, CellRightClickEventArgs e)
+		{
+			var rowObject = (FieldsListView.RowObject)e.Model;
+
+			if (rowObject == null || rowObject.IsInsertionRow)
+			{
+				mURLDropDown.Visible = false;
+				mCopyCommand.Enabled = false;
+				mEditFieldCommand.Enabled = false;
+				mProtectFieldCommand.Enabled = false;
+				mPasswordGeneratorCommand.Enabled = false;
+				mDeleteFieldCommand.Enabled = false;
+				mAddNewCommand.Enabled = Entry != null;
+
+				mProtectFieldCommand.Checked = false;
+				mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, Properties.Resources.Field);
+			}
+			else
+			{
+				if (mMultipleSelectionFields.IsMultiValuedField(rowObject))
+				{
+					mURLDropDown.Visible = false;
+					mCopyCommand.Enabled = false;
+					mProtectFieldCommand.Enabled = false;
+					mPasswordGeneratorCommand.Enabled = true;
+
+					mProtectFieldCommand.Checked = false;
+					mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, Properties.Resources.Field);
+				}
+				else
+				{
+					var url = e.Item.SubItems.Count == 2 ? e.Item.GetSubItem(1).Url : null;
+					mLastContextMenuUrl = url;
+					mURLDropDown.Visible = url != null;
+					mCopyCommand.Enabled = true;
+					mProtectFieldCommand.Enabled = true;
+					mPasswordGeneratorCommand.Enabled = true;
+
+					mProtectFieldCommand.Checked = rowObject.Value.IsProtected;
+
+					mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, rowObject.DisplayName);
+				}
+
+				mEditFieldCommand.Enabled = true;
+				mDeleteFieldCommand.Enabled = true;
+				mAddNewCommand.Enabled = true;
+			}
+			e.MenuStrip = mFieldGridContextMenu;
+			mFieldGridContextMenuTarget = mMultipleSelectionFields;
 		}
 
 		private void mAttachments_CellRightClick(object sender, CellRightClickEventArgs e)
@@ -502,7 +640,12 @@ namespace KPEnhancedEntryView
 			OnEntryModified(e);
 		}
 
-		private void mFieldsGrid_EntryModified(object sender, EventArgs e)
+		private void mFieldsGrid_Modified(object sender, EventArgs e)
+		{
+			OnEntryModified(e);
+		}
+
+		private void mMultipleSelectionFields_Modified(object sender, EventArgs e)
 		{
 			OnEntryModified(e);
 		}
@@ -620,6 +763,44 @@ namespace KPEnhancedEntryView
 		}
 		#endregion
 
+		#endregion
+
+		#region Fields Menu Event handlers
+		private void mCopyCommand_Click(object sender, EventArgs e)
+		{
+			mFieldGridContextMenuTarget.DoCopy();
+		}
+
+		private void mEditFieldCommand_Click(object sender, EventArgs e)
+		{
+			mFieldGridContextMenuTarget.DoEditField();
+		}
+
+		private void mProtectFieldCommand_Click(object sender, EventArgs e)
+		{
+			var protect = ((ToolStripMenuItem)sender).Checked;
+			mFieldGridContextMenuTarget.DoSetProtected(protect);
+		}
+
+		private void mPasswordGeneratorCommand_Click(object sender, EventArgs e)
+		{
+			mFieldGridContextMenuTarget.DoPasswordGenerator();
+		}
+
+		private void mDeleteFieldCommand_Click(object sender, EventArgs e)
+		{
+			mFieldGridContextMenuTarget.DoDeleteField();
+		}
+
+		private void mAddNewCommand_Click(object sender, EventArgs e)
+		{
+			mFieldGridContextMenuTarget.DoAddNew();
+		}
+
+		private void mOpenURLCommand_Click(object sender, EventArgs e)
+		{
+			mFieldGridContextMenuTarget.DoOpenUrl();
+		}
 		#endregion
 
 		#region Attachments Menu Event Handlers

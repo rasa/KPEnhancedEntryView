@@ -126,7 +126,7 @@ namespace KPEnhancedEntryView
 
 		private void OnUIStateUpdated(object sender, EventArgs e)
 		{
-			mEntryView.Entry = mHost.MainWindow.GetSelectedEntry(true);
+			mEntryView.Entries = mHost.MainWindow.GetSelectedEntries();
 		}
 
 		private void mEntryView_EntryModified(object sender, EventArgs e)
@@ -142,7 +142,7 @@ namespace KPEnhancedEntryView
 				case Options.OptionName.HideEmptyFields:
 					// Force a refresh of the entry
 					mEntryView.Entry = null;
-					mEntryView.Entry = mHost.MainWindow.GetSelectedEntry(true);
+					OnUIStateUpdated(null, EventArgs.Empty);
 					break;
 			}
 		}

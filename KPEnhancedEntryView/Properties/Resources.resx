@@ -184,4 +184,16 @@
   <data name="OptionsMenuItem" xml:space="preserve">
     <value>&amp;Entry View Options</value>
   </data>
+  <data name="MultipleValues" xml:space="preserve">
+    <value>Multiple Values</value>
+  </data>
+  <data name="MultipleEntryFieldDeleteQuestion" xml:space="preserve">
+    <value>Are you sure you want to delete the field '{0}' from all selected entries?</value>
+  </data>
+  <data name="MultipleEntryFieldSetValueQuestion" xml:space="preserve">
+    <value>Are you sure you want to set the value of the field '{0}' on all selected entries?</value>
+  </data>
+  <data name="MultpleEntryFieldSetValueCommand" xml:space="preserve">
+    <value>Apply</value>
+  </data>
 </root>

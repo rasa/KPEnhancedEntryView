@@ -13,6 +13,7 @@ Features
  * Attachments can be dragged and dropped to and from files in Windows Explorer
  * Metadata properties shown on a separate tab to details field
  * Original textual entry view still available, through the "All Text" tab
+ * Multiple selected entries can be edited together to perform mass changes
 
 
 Installation
@@ -53,6 +54,35 @@ To get back to the old textual entry view, select the All Text tab
 All other operations are available through the context (right-click) menus.
 
 
+Mass editing of multiple selected entries
+-----------------------------------------
+
+Multiple entries can be edited simultaneously. If you make a multiple selection then
+the entry view will show a combined fields list. Notes and Attachments can not be
+edited on a multiple selection, but other fields can be. Where fields have differing
+values, or are not present on all entries in a selection, they will be displayed
+greyed with the text "Multiple Values". These cannot be copied or dragged and dropped.
+You can still delete or edit them, but a warning will be given first as this will be
+making a modification to all the selected entries, overwriting any value they already
+had for that field. Adding new fields works normally, and will add the new field and
+value to all the selected entries.
+
+Where all entries have the same value for a field, that is displayed normally and
+can be edited and deleted without further warning.
+
+Note: Where a field, such as Password, is set to show hidden (as asterisks) then its
+values are always considered different to each other. A hidden field will always be
+shown as ******* and treated as having multiple values. This avoids the need to read
+the values out of protected memory to compare them, and avoids information about the
+hidden passwords from being revealed to an observer. 
+
+For example, if an entry with a known password was in a multiple selection with an 
+entry with an unknown password then having the field show differently depending on
+whether the passwords were the same or not could leak the information to an observer
+that the unknown password was the same as the known one, even though both passwords
+remained hidden.
+
+
 Bug Reporting, Questions, Comments, Feedback
 --------------------------------------------
 Please use the SourceForge project page: <http://sourceforge.net/projects/kpenhentryview>
@@ -61,6 +91,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.11
+ Added multiple selection mass entry editing functionality
+
 v0.10
  Disabled non-functional multi-select capability of fields
  Added support for main window shortcut keys while the entry view has the focus

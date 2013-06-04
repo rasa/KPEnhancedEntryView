@@ -11,6 +11,7 @@ KPEnhancedEntryView/FieldsListView.cs -text
 KPEnhancedEntryView/IconHelper.cs -text
 KPEnhancedEntryView/KPEnhancedEntryView.csproj -text
 KPEnhancedEntryView/KPEnhancedEntryView.sln -text
+KPEnhancedEntryView/MultipleEntriesFieldsListView.cs -text
 KPEnhancedEntryView/NativeMethods.cs -text
 KPEnhancedEntryView/NotesRtfHelpers.cs -text
 KPEnhancedEntryView/Options.cs -text
@@ -32,6 +33,7 @@ KPEnhancedEntryView/Resources/Nuvola/B16x16_KGPG_Info.png -text svneol=unset#uns
 KPEnhancedEntryView/Resources/Nuvola/B16x16_KGPG_Sign.png -text svneol=unset#unset
 KPEnhancedEntryView/Resources/Nuvola_Derived/B16x16_DeleteEntry.png -text svneol=unset#unset
 KPEnhancedEntryView/Resources/Nuvola_Derived/B16x16_Key_New.png -text svneol=unset#unset
+KPEnhancedEntryView/SingleEntryFieldsListView.cs -text
 KPEnhancedEntryView/UnprotectedFieldEditor.cs -text
 KPEnhancedEntryView/ValidationFailureReporter.cs -text
 KPEnhancedEntryView/VirtualFileDataObject.cs -text

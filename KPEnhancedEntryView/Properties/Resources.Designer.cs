@@ -203,6 +203,42 @@ namespace KPEnhancedEntryView.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete the field &apos;{0}&apos; from all selected entries?.
+        /// </summary>
+        internal static string MultipleEntryFieldDeleteQuestion {
+            get {
+                return ResourceManager.GetString("MultipleEntryFieldDeleteQuestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to set the value of the field &apos;{0}&apos; on all selected entries?.
+        /// </summary>
+        internal static string MultipleEntryFieldSetValueQuestion {
+            get {
+                return ResourceManager.GetString("MultipleEntryFieldSetValueQuestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Multiple Values.
+        /// </summary>
+        internal static string MultipleValues {
+            get {
+                return ResourceManager.GetString("MultipleValues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apply.
+        /// </summary>
+        internal static string MultpleEntryFieldSetValueCommand {
+            get {
+                return ResourceManager.GetString("MultpleEntryFieldSetValueCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>
         internal static string Name {
