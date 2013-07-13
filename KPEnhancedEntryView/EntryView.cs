@@ -569,8 +569,7 @@ namespace KPEnhancedEntryView
 					mURLDropDown.Visible = false;
 					mCopyCommand.Enabled = false;
 					mProtectFieldCommand.Enabled = false;
-					mPasswordGeneratorCommand.Enabled = true;
-
+					
 					mProtectFieldCommand.Checked = false;
 					mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, Properties.Resources.Field);
 				}
@@ -581,14 +580,14 @@ namespace KPEnhancedEntryView
 					mURLDropDown.Visible = url != null;
 					mCopyCommand.Enabled = true;
 					mProtectFieldCommand.Enabled = true;
-					mPasswordGeneratorCommand.Enabled = true;
-
+					
 					mProtectFieldCommand.Checked = rowObject.Value.IsProtected;
 
 					mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, rowObject.DisplayName);
 				}
 
 				mEditFieldCommand.Enabled = true;
+				mPasswordGeneratorCommand.Enabled = true;
 				mDeleteFieldCommand.Enabled = true;
 				mAddNewCommand.Enabled = true;
 			}

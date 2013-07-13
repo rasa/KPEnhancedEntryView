@@ -480,7 +480,6 @@
 			this.mMultipleSelectionFields.CopySelectionOnControlC = false;
 			this.mMultipleSelectionFields.Cursor = System.Windows.Forms.Cursors.Default;
 			this.mMultipleSelectionFields.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mMultipleSelectionFields.Entries = new KeePassLib.PwEntry[0];
 			this.mMultipleSelectionFields.FullRowSelect = true;
 			this.mMultipleSelectionFields.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.mMultipleSelectionFields.Location = new System.Drawing.Point(0, 0);

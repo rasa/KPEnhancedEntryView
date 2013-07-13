@@ -138,8 +138,15 @@ namespace KPEnhancedEntryView
 				var rows = new List<RowObject>(unionOfFields.Count + 1);
 				
 				// Add all the fields, in the right order
-				rows.AddRange(from fieldName in fieldOrder select new RowObject(fieldName, unionOfFields[fieldName]));
-
+				foreach (var fieldName in fieldOrder)
+				{
+					ProtectedString value;
+					if (unionOfFields.TryGetValue(fieldName, out value))
+					{
+						rows.Add(new RowObject(fieldName, value));
+					}
+				}
+				
 				// Then add an empty "add new" row
 				rows.Add(RowObject.CreateInsertionRow());
 
@@ -228,8 +235,19 @@ namespace KPEnhancedEntryView
 				return;
 			}
 
-			// Disallow the field name if it already exists on *any* of the entries
-			foreach (var entry in Entries)
+			var rowObject = (RowObject)e.RowObject;
+			IEnumerable<PwEntry> entriesWithField;
+			if (rowObject.IsInsertionRow)
+			{
+				entriesWithField = Entries;
+			}
+			else
+			{
+				entriesWithField = Entries.Where(entry => entry.Strings.Exists(rowObject.FieldName));
+			}
+			
+			// Disallow the field name if it already exists on any of the entries which have that field
+			foreach (var entry in entriesWithField)
 			{
 				if (entry.Strings.Exists(newValue))
 				{

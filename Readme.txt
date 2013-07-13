@@ -91,6 +91,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.12
+ Fixed crash that could occur when multiply-selecting entries that had missing standard fields.
+
 v0.11
  Added multiple selection mass entry editing functionality
 
