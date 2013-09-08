@@ -1,5 +1,5 @@
 @echo off
-set version=0.12
+set version=0.13
 set output=%~dp0v%version%\
 set zipfile="%output%KPEnhancedEntryView-v%version%.zip"
 set buildoutputs="%~dp0Build Outputs"

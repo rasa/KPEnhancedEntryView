@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Windows.Forms;
 using BrightIdeasSoftware;
-using KeePass.Forms;
 using KeePass.Resources;
-using KeePass.UI;
 using KeePass.Util;
+using KeePass.Util.Spr;
 using KeePassLib;
-using KeePassLib.Cryptography.PasswordGenerator;
 using KeePassLib.Security;
-using KeePass.App.Configuration;
 
 namespace KPEnhancedEntryView
 {
@@ -62,9 +57,9 @@ namespace KPEnhancedEntryView
 		private void AddFieldIfNotEmpty(List<RowObject> rows, string fieldName)
 		{
 			var value = Entry.Strings.Get(fieldName);
-			if (value != null && (!mOptions.HideEmptyFields || !value.IsEmpty))
+			if (!mOptions.HideEmptyFields || (value != null && !value.IsEmpty))
 			{
-				rows.Add(new RowObject(fieldName, value));
+				rows.Add(new RowObject(fieldName, value ?? ProtectedString.Empty));
 			}
 		}
 		#endregion
@@ -181,9 +176,12 @@ namespace KPEnhancedEntryView
 			OnModified(EventArgs.Empty);
 		}
 
-		private void AddNewCommand()
+		#endregion
+
+		#region Field dereferencing
+		protected override string GetDisplayValue(ProtectedString value)
 		{
-			StartCellEdit(GetLastItemInDisplayOrder(), 0);
+			return SprEngine.Compile(value.ReadString(), new SprContext(Entry, Database, SprCompileFlags.All));
 		}
 		#endregion
 	}

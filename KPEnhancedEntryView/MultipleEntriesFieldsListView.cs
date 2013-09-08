@@ -8,6 +8,7 @@ using KeePass.Forms;
 using KeePass.Resources;
 using KeePass.UI;
 using KeePass.Util;
+using KeePass.Util.Spr;
 using KeePassLib;
 using KeePassLib.Cryptography.PasswordGenerator;
 using KeePassLib.Security;
@@ -377,11 +378,6 @@ namespace KPEnhancedEntryView
 			OnModified(EventArgs.Empty);
 		}
 
-		private void AddNewCommand()
-		{
-			StartCellEdit(GetLastItemInDisplayOrder(), 0);
-		}
-
 		private bool ConfirmOperationOnAllEntries(string question, string command, PwEntry[] entries)
 		{
 			VistaTaskDialog dlg = new VistaTaskDialog();
@@ -404,14 +400,21 @@ namespace KPEnhancedEntryView
 		}
 		#endregion
 
+		#region Field dereferencing
 		protected override string GetDragValue(RowObject rowObject)
 		{
 			if (IsMultiValuedField(rowObject))
 			{
 				return null;
 			}
-
+			
 			return base.GetDragValue(rowObject);
 		}
+
+		protected override string GetDisplayValue(ProtectedString value)
+		{
+			return SprEngine.Compile(value.ReadString(), new SprContext(null, Database, SprCompileFlags.All));
+		}
+		#endregion
 	}
 }

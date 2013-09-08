@@ -116,7 +116,7 @@ namespace KPEnhancedEntryView
 			{
 				foreach (var fieldName in otherEntry.Strings.GetKeys())
 				{
-					if (fieldNames.Add(fieldName))
+					if (!PwDefs.IsStandardField(fieldName) && fieldNames.Add(fieldName))
 					{
 						// This is a new field name, add it to the list to be added
 						fieldNamesForPopulation.Add(new FieldNameItem(fieldName, fieldName, 4));

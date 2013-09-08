@@ -7,7 +7,6 @@ using BrightIdeasSoftware;
 using KeePass.Forms;
 using KeePass.Resources;
 using KeePass.UI;
-using KeePass.Util;
 using KeePassLib;
 using KeePassLib.Cryptography.PasswordGenerator;
 using KeePassLib.Security;
@@ -55,7 +54,7 @@ namespace KPEnhancedEntryView
 				AutoCompleteEditor = false,
 				FillsFreeSpace = true,
 				Hyperlink = true,
-				AspectGetter = rowObject => ((RowObject)rowObject).DisplayValue,
+				AspectGetter = rowObject => ((RowObject)rowObject).GetDisplayValue(this),
 				AspectPutter = SetFieldValue
 			};
 			
@@ -103,9 +102,12 @@ namespace KPEnhancedEntryView
 
 		public void RefreshItems()
 		{
-			foreach (OLVListItem item in Items)
+			if (Database.IsOpen)
 			{
-				RefreshItem(item);
+				foreach (OLVListItem item in Items)
+				{
+					RefreshItem(item);
+				}
 			}
 		}
 
@@ -475,13 +477,15 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region Drag and drop
+
 		protected virtual string GetDragValue(RowObject rowObject)
 		{
-			if (rowObject.Value != null)
+			if (rowObject.Value == null)
 			{
-				return rowObject.Value.ReadString();
+				return null;
 			}
-			return null;
+			
+			return GetDisplayValue(rowObject.Value);
 		}
 
 		internal class FieldValueDragSource : IDragSource
@@ -575,23 +579,20 @@ namespace KPEnhancedEntryView
 				}
 			}
 
-			public string DisplayValue
+			public string GetDisplayValue(FieldsListView listView)
 			{
-				get
+				if (Value == null)
 				{
-					if (Value == null)
-					{
-						return null;
-					}
+					return null;
+				}
 
-					if (HideValue)
-					{
-						return PwDefs.HiddenPassword;
-					}
-					else
-					{
-						return Value.ReadString();
-					}
+				if (HideValue)
+				{
+					return PwDefs.HiddenPassword;
+				}
+				else
+				{
+					return listView.GetDisplayValue(Value);
 				}
 			}
 
@@ -628,6 +629,11 @@ namespace KPEnhancedEntryView
 				default:
 					return AceColumnType.CustomString;
 			}
+		}
+
+		protected virtual string GetDisplayValue(ProtectedString value)
+		{
+			return value.ReadString();
 		}
 		#endregion
 	}
