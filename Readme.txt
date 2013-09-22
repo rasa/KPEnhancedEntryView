@@ -91,6 +91,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.14
+ Fixed bug where all custom fields may be displayed as hidden data (asterisks)
+
 v0.13
  Added support for dereferencing field references.
  In the rare case where standard fields are missing (usually from imported data), they are now

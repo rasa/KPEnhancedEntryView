@@ -610,8 +610,14 @@ namespace KPEnhancedEntryView
 		protected static bool ShouldHideValue(string fieldName, ProtectedString value)
 		{
 			var columnType = GetColumnType(fieldName);
-			return (columnType == AceColumnType.CustomString && KeePass.Program.Config.MainWindow.ShouldHideCustomString(fieldName, value)) ||
-									KeePass.Program.Config.MainWindow.IsColumnHidden(columnType);
+			if (columnType == AceColumnType.CustomString)
+			{
+				return KeePass.Program.Config.MainWindow.ShouldHideCustomString(fieldName, value);
+			}
+			else
+			{
+				return KeePass.Program.Config.MainWindow.IsColumnHidden(columnType);
+			}
 		}
 
 		private static AceColumnType GetColumnType(string fieldName)
