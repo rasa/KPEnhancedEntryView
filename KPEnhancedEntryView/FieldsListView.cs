@@ -174,7 +174,94 @@ namespace KPEnhancedEntryView
 					args.SubItem.Font = mBoldFont;
 				}
 			}
+			else
+			{
+				if (rowObject.HideValue)
+				{
+					if (rowObject.RevealValue)
+					{
+						args.SubItem.Decoration = EyeDecoration;						
+					}
+					else
+					{
+						args.SubItem.Decoration = EyeGreyDecoration;						
+					}
+				}
+				else
+				{
+					args.SubItem.Decoration = null;
+				}
+			}
 		}
+		#endregion
+
+		#region Reveal
+
+		private const int EyePadding = 5;
+		private static readonly int EyeRegionWidth = Properties.Resources.Reveal.Width + EyePadding;
+		private static readonly ImageDecoration EyeGreyDecoration = new ImageDecoration(Properties.Resources.RevealGrey, ContentAlignment.MiddleRight) { Offset = new Size(-EyePadding, 0) };
+		private static readonly ImageDecoration EyeDecoration = new ImageDecoration(Properties.Resources.Reveal, ContentAlignment.MiddleRight) { Offset = new Size(-EyePadding, 0) };
+
+		private bool mMouseInReveal;
+		protected override void OnCellOver(CellOverEventArgs args)
+		{
+			bool invalidate = false;
+			if (args.Item != null && 
+				((RowObject)args.Item.RowObject).HideValue &&
+				args.Location.X > args.Item.Bounds.Width - EyeRegionWidth)
+			{
+				mMouseInReveal = true;
+				Cursor = Cursors.Hand;
+				args.SubItem.Decoration = EyeDecoration;
+				invalidate = true;
+			}
+			else if (mMouseInReveal)
+			{
+				mMouseInReveal = false;
+				Cursor = Cursors.Default;
+				if (!((RowObject)args.Item.RowObject).RevealValue)
+				{
+					args.SubItem.Decoration = EyeGreyDecoration;
+				}
+				invalidate = true;
+			}
+
+			if (invalidate)
+			{
+				var bounds = args.Item.Bounds;
+				bounds.X = bounds.Width - EyeRegionWidth;
+				bounds.Width = EyeRegionWidth;
+				Invalidate(bounds);
+			}
+			base.OnCellOver(args);
+		}
+
+		protected override void OnMouseLeave(EventArgs e)
+		{
+			if (mMouseInReveal)
+			{
+				mMouseInReveal = false;
+				Cursor = Cursors.Default;
+			}
+			base.OnMouseLeave(e);
+		}
+
+		protected override void OnCellClick(CellClickEventArgs args)
+		{
+			if (args.Item != null && args.Location.X > args.Item.Bounds.Width - EyeRegionWidth)
+			{
+				var rowObject = (RowObject)args.Model;
+				if (rowObject.HideValue)
+				{
+					rowObject.RevealValue = !rowObject.RevealValue;
+					
+					RefreshObject(rowObject);
+					args.Handled = true;
+				}
+			}
+			base.OnCellClick(args);
+		}
+
 		#endregion
 
 		#region Hyperlinks
@@ -257,7 +344,7 @@ namespace KPEnhancedEntryView
 						return new ProtectedFieldEditor
 						{
 							Value = rowObject.Value,
-							HidePassword = rowObject.HideValue
+							HidePassword = rowObject.HideValue && !rowObject.RevealValue
 						};
 					}
 					else
@@ -316,10 +403,23 @@ namespace KPEnhancedEntryView
 		protected override void OnCellEditFinishing(CellEditEventArgs e)
 		{
 			base.OnCellEditFinishing(e);
-		
+
 			if (e.Column == mFieldNames)
 			{
 				e.NewValue = ((FieldNameEditor)e.Control).FieldName;
+			}
+			else
+			{
+				var rowObject = (RowObject)e.RowObject;
+				if (rowObject.Value.IsProtected)
+				{
+					var editor = e.Control as ProtectedFieldEditor;
+					if (editor != null)
+					{
+						rowObject.RevealValue = !editor.HidePassword;
+						RefreshObject(rowObject);
+					}
+				}
 			}
 
 			SelectedObject = e.RowObject;
@@ -586,7 +686,7 @@ namespace KPEnhancedEntryView
 					return null;
 				}
 
-				if (HideValue)
+				if (!RevealValue && HideValue)
 				{
 					return PwDefs.HiddenPassword;
 				}
@@ -605,6 +705,11 @@ namespace KPEnhancedEntryView
 			}
 			
 			public bool IsInsertionRow { get { return FieldName == null; } }
+			
+			/// <summary>
+			/// If true, the password should be temporarily revealed, even though HideValue remains true.
+			/// </summary>
+			public bool RevealValue { get; set; }
 		}
 
 		protected static bool ShouldHideValue(string fieldName, ProtectedString value)

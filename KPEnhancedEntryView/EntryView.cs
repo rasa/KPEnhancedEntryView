@@ -22,6 +22,7 @@ namespace KPEnhancedEntryView
 		private readonly MethodInfo mHandleMainWindowKeyMessageMethod;
 		private readonly RichTextBoxContextMenu mNotesContextMenu;
 		private readonly OpenWithMenu mURLDropDownMenu;
+		private readonly bool mShowAccessTime;
 
 		/// <summary>When a context menu is shown for a field value with a URL, that URL will be stored in this variable for use with the OpenWith menu</summary>
 		private string mLastContextMenuUrl;
@@ -44,6 +45,11 @@ namespace KPEnhancedEntryView
 			mFieldsGrid.Initialise(mMainForm, options);
 			mMultipleSelectionFields.Initialise(mMainForm, options);
 
+			// KeePass 2.24 and above deprecates last access time
+			mShowAccessTime = (PwDefs.FileVersion64 < 0x0002002400000000UL);
+		
+			mAccessTimeLabel.Visible = mAccessTime.Visible = mShowAccessTime;
+			
 			// HACK: MainForm doesn't expose HandleMainWindowKeyMessage, so grab it via reflection
 			mHandleMainWindowKeyMessageMethod = mMainForm.GetType().GetMethod("HandleMainWindowKeyMessage", BindingFlags.Instance | BindingFlags.NonPublic);
 			if (mHandleMainWindowKeyMessageMethod != null)
@@ -57,7 +63,10 @@ namespace KPEnhancedEntryView
 			mNotes.SimpleTextOnly = true;
 
 			SetLabel(mCreationTimeLabel, KPRes.CreationTime);
-			SetLabel(mAccessTimeLabel, KPRes.LastAccessTime);
+			if (mShowAccessTime)
+			{
+				SetLabel(mAccessTimeLabel, KPRes.LastAccessTime);
+			}
 			SetLabel(mModificationTimeLabel, KPRes.LastModificationTime);
 			SetLabel(mExpiryTimeLabel, KPRes.ExpiryTime);
 			SetLabel(mTagsLabel, KPRes.Tags);
@@ -665,7 +674,10 @@ namespace KPEnhancedEntryView
 				UIUtil.SetButtonImage(m_btnIcon, GetImage(Entry.CustomIconUuid, Entry.IconId), true);
 
 				mCreationTime.Text = TimeUtil.ToDisplayString(Entry.CreationTime);
-				mAccessTime.Text = TimeUtil.ToDisplayString(Entry.LastAccessTime);
+				if (mShowAccessTime)
+				{
+					mAccessTime.Text = TimeUtil.ToDisplayString(Entry.LastAccessTime);
+				}
 				mModificationTime.Text = TimeUtil.ToDisplayString(Entry.LastModificationTime);
 
 				if (Entry.Expires)

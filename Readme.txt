@@ -91,6 +91,11 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.15
+ If KeePass is version 2.24 or later, hides the Last Access Time field (which is deprecated)
+ Added a password reveal button to the right hand edge of protected fields. Click this to
+  temporarily display the password in that field. Click again to conceal it.
+
 v0.14
  Fixed bug where all custom fields may be displayed as hidden data (asterisks)
 
