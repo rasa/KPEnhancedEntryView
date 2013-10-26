@@ -119,13 +119,17 @@
 			// mSplitGridPanels.Panel1
 			// 
 			this.mSplitGridPanels.Panel1.Controls.Add(this.mFieldsGrid);
+			this.mSplitGridPanels.Panel1MinSize = 0;
 			// 
 			// mSplitGridPanels.Panel2
 			// 
 			this.mSplitGridPanels.Panel2.Controls.Add(this.mSplitNotesAttachements);
+			this.mSplitGridPanels.Panel2MinSize = 0;
 			this.mSplitGridPanels.Size = new System.Drawing.Size(365, 316);
 			this.mSplitGridPanels.SplitterDistance = 243;
 			this.mSplitGridPanels.TabIndex = 2;
+			this.mSplitGridPanels.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.mSplitGridPanels_SplitterMoving);
+			this.mSplitGridPanels.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.mSplitGridPanels_SplitterMoved);
 			// 
 			// mFieldsGrid
 			// 
@@ -163,13 +167,17 @@
 			// mSplitNotesAttachements.Panel1
 			// 
 			this.mSplitNotesAttachements.Panel1.Controls.Add(this.mNotesBorder);
+			this.mSplitNotesAttachements.Panel1MinSize = 0;
 			// 
 			// mSplitNotesAttachements.Panel2
 			// 
 			this.mSplitNotesAttachements.Panel2.Controls.Add(this.mAttachments);
+			this.mSplitNotesAttachements.Panel2MinSize = 0;
 			this.mSplitNotesAttachements.Size = new System.Drawing.Size(365, 69);
 			this.mSplitNotesAttachements.SplitterDistance = 254;
 			this.mSplitNotesAttachements.TabIndex = 0;
+			this.mSplitNotesAttachements.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.mSplitNotesAttachements_SplitterMoving);
+			this.mSplitNotesAttachements.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.mSplitNotesAttachements_SplitterMoved);
 			// 
 			// mNotesBorder
 			// 
@@ -480,6 +488,7 @@
 			this.mMultipleSelectionFields.CopySelectionOnControlC = false;
 			this.mMultipleSelectionFields.Cursor = System.Windows.Forms.Cursors.Default;
 			this.mMultipleSelectionFields.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mMultipleSelectionFields.Entries = new KeePassLib.PwEntry[0];
 			this.mMultipleSelectionFields.FullRowSelect = true;
 			this.mMultipleSelectionFields.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.mMultipleSelectionFields.Location = new System.Drawing.Point(0, 0);

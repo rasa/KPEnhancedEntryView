@@ -91,6 +91,11 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.16
+ Improved splitter behaviour - it is now possible to move the splitters so that any of the three
+  panels (fields, notes, attachments) is completely hidden. The positions of the splitters are
+  now persisted after closing and re-opening KeePass.
+
 v0.15
  If KeePass is version 2.24 or later, hides the Last Access Time field (which is deprecated)
  Added a password reveal button to the right hand edge of protected fields. Click this to

@@ -19,6 +19,7 @@ namespace KPEnhancedEntryView
 	public partial class EntryView : UserControl
 	{
 		private readonly MainForm mMainForm;
+		private readonly Options mOptions;
 		private readonly MethodInfo mHandleMainWindowKeyMessageMethod;
 		private readonly RichTextBoxContextMenu mNotesContextMenu;
 		private readonly OpenWithMenu mURLDropDownMenu;
@@ -41,9 +42,10 @@ namespace KPEnhancedEntryView
 			InitializeComponent();
 
 			mMainForm = mainForm;
+			mOptions = options;
 
-			mFieldsGrid.Initialise(mMainForm, options);
-			mMultipleSelectionFields.Initialise(mMainForm, options);
+			mFieldsGrid.Initialise(mMainForm, mOptions);
+			mMultipleSelectionFields.Initialise(mMainForm, mOptions);
 
 			// KeePass 2.24 and above deprecates last access time
 			mShowAccessTime = (PwDefs.FileVersion64 < 0x0002002400000000UL);
@@ -78,6 +80,9 @@ namespace KPEnhancedEntryView
 
 			mURLDropDownMenu = new OpenWithMenu(mURLDropDown);
 			CustomizeOnClick(mURLDropDownMenu);
+
+			SetSplitPosition(mSplitGridPanels, (int)mOptions.FieldsNotesSplitPosition);
+			SetSplitPosition(mSplitNotesAttachements, (int)mOptions.NotesAttachmentsSplitPosition);
 		}
 
 		private static void SetLabel(Label label, string text)
@@ -406,6 +411,115 @@ namespace KPEnhancedEntryView
 		}
 		#endregion
 
+		#region Splitters
+
+		private const int MinFieldsGridHeight = 50;
+		private const int MinNotesWidth = 50;
+		private const long SplitRatioPrecision = 10000000;
+
+		private void mSplitGridPanels_SplitterMoving(object sender, SplitterCancelEventArgs e)
+		{
+			mSplitGridPanels.Tag = SnapSplitter(mSplitGridPanels, e, MinFieldsGridHeight);
+		}
+
+		private void mSplitNotesAttachements_SplitterMoving(object sender, SplitterCancelEventArgs e)
+		{
+			mSplitNotesAttachements.Tag = SnapSplitter(mSplitNotesAttachements, e, MinNotesWidth);
+		}
+
+		private void mSplitGridPanels_SplitterMoved(object sender, SplitterEventArgs e)
+		{
+			// Apply snap if required
+			ApplyTaggedSplit(mSplitGridPanels);
+
+			// Special case as fields grid does *not* like being small
+			if (mSplitGridPanels.SplitterDistance < MinFieldsGridHeight)
+			{
+				mSplitGridPanels.SplitterDistance = 0;
+				mFieldsGrid.Visible = false;
+			}
+			else
+			{
+				mFieldsGrid.Visible = true;
+			}
+
+			mOptions.FieldsNotesSplitPosition = GetSplitRatio(mSplitGridPanels, MinFieldsGridHeight);
+		}
+
+		private void mSplitNotesAttachements_SplitterMoved(object sender, SplitterEventArgs e)
+		{
+			// Apply snap if required
+			ApplyTaggedSplit(mSplitNotesAttachements);
+
+			mOptions.NotesAttachmentsSplitPosition = GetSplitRatio(mSplitNotesAttachements, MinNotesWidth);
+		}
+
+		private void ApplyTaggedSplit(SplitContainer splitter)
+		{
+			if (splitter.Tag is int)
+			{
+				splitter.SplitterDistance = (int)splitter.Tag;
+				splitter.Tag = null;
+			}
+		}
+
+		private static int GetMaxSplit(SplitContainer splitter)
+		{
+			var splitBoundsMax = splitter.Orientation == Orientation.Horizontal ? splitter.Height : splitter.Width;
+			var maxSplit = splitBoundsMax - splitter.SplitterWidth;
+			return maxSplit;
+		}
+
+		private int SnapSplitter(SplitContainer splitter, SplitterCancelEventArgs splitEventArgs, int minSplitSize)
+		{
+			var maxSplit = GetMaxSplit(splitter);
+			var split = GetSplit(splitter, splitEventArgs);
+
+			if (split < minSplitSize)
+			{
+				return (split < (minSplitSize / 2)) ? 0 : minSplitSize;
+			}
+			
+			if (split > maxSplit - minSplitSize)
+			{
+				return (split > maxSplit - (minSplitSize / 2)) ? maxSplit : maxSplit - minSplitSize;
+			}
+
+			return split;
+		}
+
+		private int GetSplit(SplitContainer splitter, SplitterCancelEventArgs splitEventArgs)
+		{
+			return splitter.Orientation == Orientation.Horizontal ? splitEventArgs.SplitY : splitEventArgs.SplitX;
+		}
+
+		private long GetSplitRatio(SplitContainer splitter, int minSplitSize)
+		{
+			var maxSplit = GetMaxSplit(splitter);
+
+			if (splitter.SplitterDistance < minSplitSize)
+			{
+				return 0;
+			}
+			
+			if (splitter.SplitterDistance > maxSplit - minSplitSize)
+			{
+				return SplitRatioPrecision;
+			}
+			
+			var ratio = (splitter.SplitterDistance / (double)maxSplit) * SplitRatioPrecision;
+			return (long)ratio;
+		}
+
+		private void SetSplitPosition(SplitContainer splitter, long splitRatio)
+		{
+			if (splitRatio >= 0)
+			{
+				splitter.SplitterDistance = (int)(((double)splitRatio/SplitRatioPrecision)*GetMaxSplit(splitter));
+			}
+		}
+		#endregion
+
 		#region Notes
 		private void PopulateNotes(string value)
 		{
@@ -434,6 +548,7 @@ namespace KPEnhancedEntryView
 		}
 
 		private bool mNotesEditingActive;
+		
 		private bool NotesEditingActive
 		{
 			get { return mNotesEditingActive; }

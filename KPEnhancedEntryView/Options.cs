@@ -13,6 +13,8 @@ namespace KPEnhancedEntryView
 		public static class OptionName
 		{
 			public const string HideEmptyFields = "HideEmptyFields";
+			public const string FieldNotesSplit = "FieldNotesSplit";
+			public const string NotesAttachmentsSplit = "NotesAttachmentsSplit";
 		}
 
 		private readonly IPluginHost mHost;
@@ -63,6 +65,17 @@ namespace KPEnhancedEntryView
 		private void SetOption(string option, bool value)
 		{
 			mHost.CustomConfig.SetBool(OptionsConfigRoot + option, value);
+			OnOptionChanged(option);
+		}
+
+		private void SetOption(string option, long value)
+		{
+			mHost.CustomConfig.SetLong(OptionsConfigRoot + option, value);
+			OnOptionChanged(option);
+		}
+
+		private void OnOptionChanged(string option)
+		{
 			var temp = OptionChanged;
 			if (temp != null)
 			{
@@ -75,8 +88,25 @@ namespace KPEnhancedEntryView
 			return mHost.CustomConfig.GetBool(OptionsConfigRoot + option, defaultValue);
 		}
 
+		private long GetOption(string option, long defaultValue)
+		{
+			return mHost.CustomConfig.GetLong(OptionsConfigRoot + option, defaultValue);
+		}
+
 		#region Options
 		public bool HideEmptyFields { get { return GetOption(OptionName.HideEmptyFields, false); } }
+
+		public long FieldsNotesSplitPosition
+		{
+			get { return GetOption(OptionName.FieldNotesSplit, -1L); }
+			set { SetOption(OptionName.FieldNotesSplit, value);}
+		}
+
+		public long NotesAttachmentsSplitPosition
+		{
+			get { return GetOption(OptionName.NotesAttachmentsSplit, -1L); }
+			set { SetOption(OptionName.NotesAttachmentsSplit, value); }
+		}
 		#endregion
 	}
 }
