@@ -91,6 +91,14 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.18
+ Fixed bug where clicks were registered on mouse up without corresponding initial mouse down
+ Fixed bug where drag cursor was not displayed within the fields list itself
+ Last Access Time visibility now respects the UIFlags setting for KeePass 2.24 and above
+
+v0.17
+ Fixed bug with saving while editing notes.
+
 v0.16
  Improved splitter behaviour - it is now possible to move the splitters so that any of the three
   panels (fields, notes, attachments) is completely hidden. The positions of the splitters are

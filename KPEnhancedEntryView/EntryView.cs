@@ -18,6 +18,8 @@ namespace KPEnhancedEntryView
 {
 	public partial class EntryView : UserControl
 	{
+		private const uint ShowLastAccessTimeUIFlag = 0x20000;
+
 		private readonly MainForm mMainForm;
 		private readonly Options mOptions;
 		private readonly MethodInfo mHandleMainWindowKeyMessageMethod;
@@ -48,7 +50,7 @@ namespace KPEnhancedEntryView
 			mMultipleSelectionFields.Initialise(mMainForm, mOptions);
 
 			// KeePass 2.24 and above deprecates last access time
-			mShowAccessTime = (PwDefs.FileVersion64 < 0x0002002400000000UL);
+			mShowAccessTime = (PwDefs.FileVersion64 < 0x0002001800000000UL) || ((KeePass.Program.Config.UI.UIFlags & 0x20000) != 0);
 		
 			mAccessTimeLabel.Visible = mAccessTime.Visible = mShowAccessTime;
 			
@@ -521,6 +523,12 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region Notes
+
+		public void FinishEditingNotes()
+		{
+			NotesEditingActive = false;
+		}
+
 		private void PopulateNotes(string value)
 		{
 			Debug.Assert(!mNotesEditingActive, "Can't populate while editing!");
@@ -554,7 +562,9 @@ namespace KPEnhancedEntryView
 			get { return mNotesEditingActive; }
 			set
 			{
-				if (Entry == null)
+				var entry = Entry;
+				
+				if (entry == null)
 				{
 					value = false; // Can't edit if no entry
 				}
@@ -564,29 +574,38 @@ namespace KPEnhancedEntryView
 					{
 						if (value)
 						{
-							mNotes.Text = Entry.Strings.ReadSafe(PwDefs.NotesField);
+							mNotes.Text = entry.Strings.ReadSafe(PwDefs.NotesField);
 							mNotes.ReadOnly = false;
-							mNotesBorder.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+							mNotesBorder.BorderStyle = BorderStyle.Fixed3D;
 							mNotesBorder.Padding = new Padding(0);
 							mNotesEditingActive = true;
 						}
 						else
 						{
-							var existingValue = Entry.Strings.ReadSafe(PwDefs.NotesField);
-							var newValue = mNotes.Text;
-							if (newValue != existingValue)
+							mNotesEditingActive = false;
+
+							if (entry == null)
 							{
-								// Save changes
-								Entry.CreateBackup(Database);
-								Entry.Strings.Set(PwDefs.NotesField, new ProtectedString(Database.MemoryProtection.ProtectNotes, newValue));
-								OnEntryModified(EventArgs.Empty);
+								PopulateNotes(null);
+							}
+							else
+							{
+								var existingValue = entry.Strings.ReadSafe(PwDefs.NotesField);
+								var newValue = mNotes.Text;
+								if (newValue != existingValue)
+								{
+									// Save changes
+									entry.CreateBackup(Database);
+									entry.Strings.Set(PwDefs.NotesField, new ProtectedString(Database.MemoryProtection.ProtectNotes, newValue));
+									OnEntryModified(EventArgs.Empty);
+								}
+
+								PopulateNotes(newValue);
 							}
 
-							mNotesEditingActive = false;
-							PopulateNotes(newValue);
 							mNotes.ReadOnly = true;
 							mNotesBorder.Padding = new Padding(1);
-							mNotesBorder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+							mNotesBorder.BorderStyle = BorderStyle.FixedSingle;
 						}
 					}
 				}

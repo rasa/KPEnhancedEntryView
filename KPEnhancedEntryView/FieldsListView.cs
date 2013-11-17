@@ -238,6 +238,8 @@ namespace KPEnhancedEntryView
 
 		protected override void OnMouseLeave(EventArgs e)
 		{
+			mLastMouseDownLocation = null;
+				
 			if (mMouseInReveal)
 			{
 				mMouseInReveal = false;
@@ -578,6 +580,21 @@ namespace KPEnhancedEntryView
 
 		#region Drag and drop
 
+		private bool IsDragging { get; set; }
+
+		public override Cursor Cursor
+		{
+			get { return base.Cursor; }
+			set
+			{
+				if (!IsDragging)
+				{
+					base.Cursor = value;
+				}
+			}
+		}
+
+
 		protected virtual string GetDragValue(RowObject rowObject)
 		{
 			if (rowObject.Value == null)
@@ -590,6 +607,8 @@ namespace KPEnhancedEntryView
 
 		internal class FieldValueDragSource : IDragSource
 		{
+			private FieldsListView mFieldListView;
+
 			public object StartDrag(ObjectListView olv, System.Windows.Forms.MouseButtons button, OLVListItem item)
 			{
 				if (button == MouseButtons.Left)
@@ -611,6 +630,12 @@ namespace KPEnhancedEntryView
 
 					if (!String.IsNullOrEmpty(dragText))
 					{
+						mFieldListView = olv as FieldsListView;
+						if (mFieldListView != null)
+						{
+							mFieldListView.IsDragging = true;
+						}
+
 						var dataObject = new DataObject();
 						dataObject.SetText(dragText);
 
@@ -628,8 +653,51 @@ namespace KPEnhancedEntryView
 
 			public void EndDrag(object dragObject, System.Windows.Forms.DragDropEffects effect)
 			{
+				if (mFieldListView != null)
+				{
+					mFieldListView.IsDragging = false;
+					mFieldListView.Cursor = Cursors.Default;
+					mFieldListView = null;
+				}
 			}
 		}
+		#endregion
+
+		#region Mouse click fixing
+		// ObjectListView reports a click whenever the mouse goes up, regardless of where it went down. Fix that
+		private Point? mLastMouseDownLocation;
+
+		protected override void OnMouseDown(MouseEventArgs e)
+		{
+			mLastMouseDownLocation = e.Location;
+			base.OnMouseDown(e);
+		}
+
+		protected override void OnMouseUp(MouseEventArgs e)
+		{
+			if (mLastMouseDownLocation.HasValue &&
+			    (Math.Abs(e.X - mLastMouseDownLocation.Value.X) <= (SystemInformation.DragSize.Width/2) ||
+			     Math.Abs(e.Y - mLastMouseDownLocation.Value.Y) <= (SystemInformation.DragSize.Height/2)))
+			{
+				// Mouse is still within click zone, so process click
+				base.OnMouseUp(e);
+			}
+		}
+
+		protected override void OnMouseMove(MouseEventArgs e)
+		{
+			if (mLastMouseDownLocation.HasValue &&
+				(Math.Abs(e.X - mLastMouseDownLocation.Value.X) > (SystemInformation.DragSize.Width/2) ||
+			     Math.Abs(e.Y - mLastMouseDownLocation.Value.Y) > (SystemInformation.DragSize.Height/2)))
+			{
+				// Moved out of click zone, cancel possible click
+				mLastMouseDownLocation = null;
+			}
+			base.OnMouseMove(e);
+		}
+
+		// See also OnMouseLeave
+
 		#endregion
 
 		#region RowObject

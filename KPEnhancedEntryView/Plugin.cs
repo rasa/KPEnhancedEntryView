@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
+using KeePass.Forms;
 using KeePass.Plugins;
 using KeePassLib;
 using KeePassLib.Utility;
@@ -60,6 +61,9 @@ namespace KPEnhancedEntryView
 
 			// Hook UIStateUpdated to watch for current entry changing.
 			mHost.MainWindow.UIStateUpdated += this.OnUIStateUpdated;
+
+			// Database may be saved while in the middle of editing Notes. Watch for that and commit the current edit if that happens
+			mHost.MainWindow.FileSaving += this.OnFileSaving;
 
 			if (PwDefs.FileVersion64 < StrUtil.ParseVersion("2.22")) // Fixed in KeePass 2.22
 			{
@@ -127,6 +131,11 @@ namespace KPEnhancedEntryView
 		private void OnUIStateUpdated(object sender, EventArgs e)
 		{
 			mEntryView.Entries = mHost.MainWindow.GetSelectedEntries();
+		}
+
+		private void OnFileSaving(object sender, FileSavingEventArgs e)
+		{
+			mEntryView.FinishEditingNotes();
 		}
 
 		private void mEntryView_EntryModified(object sender, EventArgs e)
