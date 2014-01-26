@@ -91,6 +91,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.19
+ Fixed bug where attchements weren't updated immediately after editing
+
 v0.18
  Fixed bug where clicks were registered on mouse up without corresponding initial mouse down
  Fixed bug where drag cursor was not displayed within the fields list itself

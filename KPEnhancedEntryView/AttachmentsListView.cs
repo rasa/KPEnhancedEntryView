@@ -404,6 +404,8 @@ namespace KPEnhancedEntryView
 					Entry.CreateBackup(Database);
 
 					Entry.Binaries.Set(name, new ProtectedBinary(binary.IsProtected, editor.EditedBinaryData));
+
+					RefreshObjectsFromEntry();
 					OnEntryModified(EventArgs.Empty);
 				}
 
