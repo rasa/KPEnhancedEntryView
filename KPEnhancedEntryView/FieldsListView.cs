@@ -60,6 +60,8 @@ namespace KPEnhancedEntryView
 			
 			Columns.Add(mFieldNames);
 			Columns.Add(mFieldValues);
+
+			ShowItemToolTips = true;
 		}
 
 		// Disallow setting of IsSimpleDragSource (as it breaks the file dragging, and is sometimes automatically set by the designer for some reason)

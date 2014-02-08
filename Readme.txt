@@ -40,6 +40,9 @@ Drag and drop files from Windows Explorer into the Attachments pane to attach th
 Drag and drop files from the Attachments pane to Windows Explorer to extract them.
 To rename an attachment, select it and press F2.
 To delete attachments, select them and press Delete
+To view an attachment, double click it. When using KeePass 2.25 or above, if it's a
+file type that is not supported by the internal editor, it will be extracted and an
+external editor used.
 
 To edit the Notes for an item, click in the Notes pane and start editing. It will
 enter edit mode automatically. Edit mode is indicated by a sunken border. To exit
@@ -91,6 +94,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.20
+ Added support for KeePass 2.25 feature for editing attachments with an external application
+
 v0.19
  Fixed bug where attchements weren't updated immediately after editing
 
