@@ -86,6 +86,26 @@ that the unknown password was the same as the known one, even though both passwo
 remained hidden.
 
 
+URL recognition
+---------------
+
+Most common URLs will automatically be recognised correctly, however if using a custom
+scheme or protocol, or spaces within the URL, it may be necessary to wrap it in <> to
+make it treated as a link.
+
+The value of the URL standard field will always be treated
+as a URL. To force the value of any other field to be treated as a link, enclose the
+whole value in <>. It is not possible to treat only part of a field value as a link - 
+only the Notes for an entry can contain multiple links.
+
+For the Notes, any text enclosed within <> is treated as a link.
+
+When creating links with spaces in them, be aware that KeePass treats spaces as the
+delimeters between the program name and arguments for links starting with "cmd://" or 
+"\\" (network paths). So, to create a link to a network share with a space in it, you
+would need to enclose it in quotes too: <"\\server\share name">
+
+
 Bug Reporting, Questions, Comments, Feedback
 --------------------------------------------
 Please use the SourceForge project page: <http://sourceforge.net/projects/kpenhentryview>
@@ -94,6 +114,13 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.21
+ Field values which reference the password field now hide the referenced value, in the same way
+  as the old textual entry view does.
+ URLs can now be wrapped in < > to force detection as a URL. For example, <cmd://notepad.exe> or
+  <"\\server\share name"> will be made into clickable links.
+ Collapse toggle button added to splitters
+
 v0.20
  Added support for KeePass 2.25 feature for editing attachments with an external application
 

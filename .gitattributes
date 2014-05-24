@@ -3,6 +3,7 @@
 /CreatePlgX.bat -text
 /Development.txt -text
 KPEnhancedEntryView/AttachmentsListView.cs -text
+KPEnhancedEntryView/CollapsibleSplitContainer.cs -text
 KPEnhancedEntryView/EntryView.Designer.cs -text
 KPEnhancedEntryView/EntryView.cs -text
 KPEnhancedEntryView/EntryView.resx -text

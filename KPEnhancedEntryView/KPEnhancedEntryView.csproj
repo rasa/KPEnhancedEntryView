@@ -94,6 +94,9 @@
     <Compile Include="AttachmentsListView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="CollapsibleSplitContainer.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MultipleEntriesFieldsListView.cs">
       <SubType>Component</SubType>
     </Compile>

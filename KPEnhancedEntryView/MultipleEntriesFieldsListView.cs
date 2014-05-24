@@ -411,9 +411,9 @@ namespace KPEnhancedEntryView
 			return base.GetDragValue(rowObject);
 		}
 
-		protected override string GetDisplayValue(ProtectedString value)
+		protected override string GetDisplayValue(ProtectedString value, bool revealValues)
 		{
-			return SprEngine.Compile(value.ReadString(), new SprContext(null, Database, SprCompileFlags.All));
+			return SprEngine.Compile(value.ReadString(), new SprContext(null, Database, SprCompileFlags.All) { ForcePlainTextPasswords = revealValues });
 		}
 		#endregion
 	}

@@ -18,10 +18,10 @@
 			this.components = new System.ComponentModel.Container();
 			this.mTabs = new System.Windows.Forms.TabControl();
 			this.mFieldsTab = new System.Windows.Forms.TabPage();
-			this.mSplitGridPanels = new System.Windows.Forms.SplitContainer();
+			this.mSplitGridPanels = new KPEnhancedEntryView.CollapsibleSplitContainer();
 			this.mFieldsGrid = new KPEnhancedEntryView.SingleEntryFieldsListView();
 			this.mValidationFailureReporter = new KPEnhancedEntryView.ValidationFailureReporter(this.components);
-			this.mSplitNotesAttachements = new System.Windows.Forms.SplitContainer();
+			this.mSplitNotesAttachements = new KPEnhancedEntryView.CollapsibleSplitContainer();
 			this.mNotesBorder = new System.Windows.Forms.Panel();
 			this.mNotes = new KeePass.UI.CustomRichTextBoxEx();
 			this.mAttachments = new KPEnhancedEntryView.AttachmentsListView();
@@ -113,6 +113,7 @@
 			// 
 			this.mSplitGridPanels.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mSplitGridPanels.Location = new System.Drawing.Point(0, 0);
+			this.mSplitGridPanels.MinimumSplitSize = 50;
 			this.mSplitGridPanels.Name = "mSplitGridPanels";
 			this.mSplitGridPanels.Orientation = System.Windows.Forms.Orientation.Horizontal;
 			// 
@@ -126,9 +127,9 @@
 			this.mSplitGridPanels.Panel2.Controls.Add(this.mSplitNotesAttachements);
 			this.mSplitGridPanels.Panel2MinSize = 0;
 			this.mSplitGridPanels.Size = new System.Drawing.Size(365, 316);
+			this.mSplitGridPanels.SplitRatio = ((long)(7788461));
 			this.mSplitGridPanels.SplitterDistance = 243;
 			this.mSplitGridPanels.TabIndex = 2;
-			this.mSplitGridPanels.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.mSplitGridPanels_SplitterMoving);
 			this.mSplitGridPanels.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.mSplitGridPanels_SplitterMoved);
 			// 
 			// mFieldsGrid
@@ -146,6 +147,7 @@
 			this.mFieldsGrid.MultiSelect = false;
 			this.mFieldsGrid.Name = "mFieldsGrid";
 			this.mFieldsGrid.ShowGroups = false;
+			this.mFieldsGrid.ShowItemToolTips = true;
 			this.mFieldsGrid.Size = new System.Drawing.Size(365, 243);
 			this.mFieldsGrid.TabIndex = 0;
 			this.mFieldsGrid.UseAlternatingBackColors = true;
@@ -160,8 +162,10 @@
 			// 
 			// mSplitNotesAttachements
 			// 
+			this.mSplitNotesAttachements.ButtonSize = 42;
 			this.mSplitNotesAttachements.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mSplitNotesAttachements.Location = new System.Drawing.Point(0, 0);
+			this.mSplitNotesAttachements.MinimumSplitSize = 50;
 			this.mSplitNotesAttachements.Name = "mSplitNotesAttachements";
 			// 
 			// mSplitNotesAttachements.Panel1
@@ -174,9 +178,9 @@
 			this.mSplitNotesAttachements.Panel2.Controls.Add(this.mAttachments);
 			this.mSplitNotesAttachements.Panel2MinSize = 0;
 			this.mSplitNotesAttachements.Size = new System.Drawing.Size(365, 69);
+			this.mSplitNotesAttachements.SplitRatio = ((long)(7036011));
 			this.mSplitNotesAttachements.SplitterDistance = 254;
 			this.mSplitNotesAttachements.TabIndex = 0;
-			this.mSplitNotesAttachements.SplitterMoving += new System.Windows.Forms.SplitterCancelEventHandler(this.mSplitNotesAttachements_SplitterMoving);
 			this.mSplitNotesAttachements.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.mSplitNotesAttachements_SplitterMoved);
 			// 
 			// mNotesBorder
@@ -495,6 +499,7 @@
 			this.mMultipleSelectionFields.MultiSelect = false;
 			this.mMultipleSelectionFields.Name = "mMultipleSelectionFields";
 			this.mMultipleSelectionFields.ShowGroups = false;
+			this.mMultipleSelectionFields.ShowItemToolTips = true;
 			this.mMultipleSelectionFields.Size = new System.Drawing.Size(365, 316);
 			this.mMultipleSelectionFields.TabIndex = 1;
 			this.mMultipleSelectionFields.UseAlternatingBackColors = true;
@@ -691,8 +696,8 @@
 		private System.Windows.Forms.TabPage mFieldsTab;
 		private System.Windows.Forms.TabPage mPropertiesTab;
 		private SingleEntryFieldsListView mFieldsGrid;
-		private System.Windows.Forms.SplitContainer mSplitGridPanels;
-		private System.Windows.Forms.SplitContainer mSplitNotesAttachements;
+		private CollapsibleSplitContainer mSplitGridPanels;
+		private CollapsibleSplitContainer mSplitNotesAttachements;
 		private KeePass.UI.CustomRichTextBoxEx mNotes;
 		private AttachmentsListView mAttachments;
 		private System.Windows.Forms.Panel mNotesBorder;

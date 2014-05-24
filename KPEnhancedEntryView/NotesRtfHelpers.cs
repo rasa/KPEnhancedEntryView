@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Net.Mime;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using KeePass.UI;
 using System.Runtime.InteropServices;
@@ -43,8 +46,15 @@ namespace KPEnhancedEntryView
 				// Coalesce adjacent sections of the same status
 				sections = CoalesceSections(sections);
 
+				// Also linkify specially marked links (between < >)
+				var markedSections = new List<TextSection>();
+				foreach (Match linkMatch in EntryView.MarkedLinkRegex.Matches(rtb.Text))
+				{
+					markedSections.Add(new TextSection(linkDetector, linkMatch.Index + 1, linkMatch.Index + linkMatch.Length - 1, true));
+				}
+				
 				// Linkify sections that are links
-				foreach (var section in sections)
+				foreach (var section in sections.Concat(markedSections))
 				{
 					section.LinkifyIfLink(rtb);
 				}
@@ -57,7 +67,7 @@ namespace KPEnhancedEntryView
 		/// Combines all adjecent sections with the same link status.
 		/// <param name="orderedSections">The sections to coalesce, in order of position within the text</param>
 		/// </summary>
-		private static IEnumerable<TextSection> CoalesceSections(IEnumerable<TextSection> orderedSections)
+		private static List<TextSection> CoalesceSections(IEnumerable<TextSection> orderedSections)
 		{
 			var sections = new List<TextSection>();
 
@@ -86,7 +96,7 @@ namespace KPEnhancedEntryView
 		/// <summary>
 		/// Splits the specified section into descendants where each descendant is either wholly a link, or wholly not a link.
 		/// </summary>
-		private static IEnumerable<TextSection> SplitToSections(TextSection section)
+		private static List<TextSection> SplitToSections(TextSection section)
 		{
 			var sections = new List<TextSection>();
 			if (section.IsMixed)
@@ -112,20 +122,24 @@ namespace KPEnhancedEntryView
 			private readonly bool? mIsLink;
 			private readonly RichTextBox mRtb;
 
-			public TextSection(RichTextBox rtb, int startIndex, int endIndex)
+			public TextSection(RichTextBox rtb, int startIndex, int endIndex) : this(rtb, startIndex, endIndex, null)
+			{
+				mRtb.Select(mStartIndex, Length);
+				mIsLink = GetSelectionIsLink(mRtb);
+			}
+			public TextSection(RichTextBox rtb, int startIndex, int endIndex, bool? isLink)
 			{
 				mStartIndex = startIndex;
 				mEndIndex = endIndex;
 				mRtb = rtb;
 
-				mRtb.Select(mStartIndex, Length);
-				mIsLink = GetSelectionIsLink(mRtb);
+				mIsLink = isLink;
 			}
 
 			public bool IsMixed { get { return !mIsLink.HasValue; } }
-
+		
 			private int Length { get { return mEndIndex - mStartIndex; } }
-
+			
 			public IEnumerable<TextSection> Split()
 			{
 				if (Length < 2)

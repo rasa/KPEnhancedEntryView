@@ -7,6 +7,7 @@ using BrightIdeasSoftware;
 using KeePass.Forms;
 using KeePass.Resources;
 using KeePass.UI;
+using KeePass.Util.Spr;
 using KeePassLib;
 using KeePassLib.Cryptography.PasswordGenerator;
 using KeePassLib.Security;
@@ -178,7 +179,7 @@ namespace KPEnhancedEntryView
 			}
 			else
 			{
-				if (rowObject.HideValue)
+				if (rowObject.CanRevealValue)
 				{
 					if (rowObject.RevealValue)
 					{
@@ -209,7 +210,7 @@ namespace KPEnhancedEntryView
 		{
 			bool invalidate = false;
 			if (args.Item != null && 
-				((RowObject)args.Item.RowObject).HideValue &&
+				((RowObject)args.Item.RowObject).CanRevealValue &&
 				args.Location.X > args.Item.Bounds.Width - EyeRegionWidth)
 			{
 				mMouseInReveal = true;
@@ -235,6 +236,7 @@ namespace KPEnhancedEntryView
 				bounds.Width = EyeRegionWidth;
 				Invalidate(bounds);
 			}
+
 			base.OnCellOver(args);
 		}
 
@@ -255,7 +257,7 @@ namespace KPEnhancedEntryView
 			if (args.Item != null && args.Location.X > args.Item.Bounds.Width - EyeRegionWidth)
 			{
 				var rowObject = (RowObject)args.Model;
-				if (rowObject.HideValue)
+				if (rowObject.CanRevealValue)
 				{
 					rowObject.RevealValue = !rowObject.RevealValue;
 					
@@ -290,14 +292,20 @@ namespace KPEnhancedEntryView
 				{
 					var value = rowObject.Value.ReadString();
 					Uri uri;
-					if (rowObject.FieldName == PwDefs.UrlField || // Assume a URL if in the URL field, even if it doesn't look like one
-						Uri.TryCreate(value, UriKind.Absolute, out uri))
+					var match = EntryView.MarkedLinkRegex.Match(value);
+					if (match.Success && match.Length == value.Length) // It's a URL if the whole thing matches marked link syntax (< > wrapped)
+					{
+						e.Url = value.Substring(1, value.Length - 2);
+					}
+					else if (rowObject.FieldName == PwDefs.UrlField || // Assume a URL if in the URL field, even if it doesn't look like one
+					    Uri.TryCreate(value, UriKind.Absolute, out uri))
 					{
 						e.Url = value;
 					}
 				}
 			}
 		}
+
 		#endregion
 
 		#region Cell Editing
@@ -604,7 +612,7 @@ namespace KPEnhancedEntryView
 				return null;
 			}
 			
-			return GetDisplayValue(rowObject.Value);
+			return GetDisplayValue(rowObject.Value, true);
 		}
 
 		internal class FieldValueDragSource : IDragSource
@@ -762,7 +770,7 @@ namespace KPEnhancedEntryView
 				}
 				else
 				{
-					return listView.GetDisplayValue(Value);
+					return listView.GetDisplayValue(Value, RevealValue);
 				}
 			}
 
@@ -771,6 +779,28 @@ namespace KPEnhancedEntryView
 				get
 				{
 					return ShouldHideValue(FieldName, Value);
+				}
+			}
+
+			public bool CanRevealValue
+			{
+				get 
+				{
+					if (HideValue)
+					{
+						return true;
+					}
+
+					// Otherwise, check for reference to password field (which is the only thing which is hidden in references)
+					if (Value != null)
+					{
+						var rawValue = Value.ReadString();
+						return KeePass.Program.Config.MainWindow.IsColumnHidden(AceColumnType.Password) &&
+								(rawValue.IndexOf("{" + PwDefs.PasswordField + "}", StringComparison.OrdinalIgnoreCase) >= 0 ||  // Direct password reference
+								 rawValue.IndexOf("{REF:P@", StringComparison.OrdinalIgnoreCase) >= 0); // Reference to password in another entry
+
+					}
+					return false;
 				}
 			}
 			
@@ -812,7 +842,7 @@ namespace KPEnhancedEntryView
 			}
 		}
 
-		protected virtual string GetDisplayValue(ProtectedString value)
+		protected virtual string GetDisplayValue(ProtectedString value, bool revealValue)
 		{
 			return value.ReadString();
 		}
