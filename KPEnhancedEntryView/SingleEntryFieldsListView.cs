@@ -52,6 +52,8 @@ namespace KPEnhancedEntryView
 
 				SetRows(rows);
 			}
+
+			AllowCreateHistoryNow = true; // Whenever the entry is replaced, it counts as not having been edited yet (so the first edit is always given a history backup)
 		}
 
 		private void AddFieldIfNotEmpty(List<RowObject> rows, string fieldName)
@@ -98,43 +100,49 @@ namespace KPEnhancedEntryView
 
 		protected override void SetFieldValueInternal(RowObject rowObject, ProtectedString newValue)
 		{
-			Entry.CreateBackup(Database);
+			if (newValue.ReadString() != rowObject.Value.ReadString())
+			{
+				CreateHistoryEntry();
 
-			Entry.Strings.Set(rowObject.FieldName, newValue);
-			rowObject.Value = newValue;
+				Entry.Strings.Set(rowObject.FieldName, newValue);
+				rowObject.Value = newValue;
 
-			OnModified(EventArgs.Empty);
+				OnModified(EventArgs.Empty);
+			}
 		}
 
 		protected override void SetFieldNameInternal(RowObject rowObject, string newName)
 		{
-			Entry.CreateBackup(Database);
-
-			if (rowObject.IsInsertionRow)
+			if (newName != rowObject.FieldName)
 			{
-				// Check if this should be a protected string
-				var isProtected = false; // Default to not protected
-				var fieldOnOtherEntry = (from otherEntry in Entry.ParentGroup.Entries select otherEntry.Strings.Get(newName)).FirstOrDefault();
-				if (fieldOnOtherEntry != null)
+				CreateHistoryEntry();
+
+				if (rowObject.IsInsertionRow)
 				{
-					isProtected = fieldOnOtherEntry.IsProtected;
+					// Check if this should be a protected string
+					var isProtected = false; // Default to not protected
+					var fieldOnOtherEntry = (from otherEntry in Entry.ParentGroup.Entries select otherEntry.Strings.Get(newName)).FirstOrDefault();
+					if (fieldOnOtherEntry != null)
+					{
+						isProtected = fieldOnOtherEntry.IsProtected;
+					}
+
+					rowObject.Value = new ProtectedString(isProtected, new byte[0]);
+				}
+				else
+				{
+					// Ensure value is up to date
+					rowObject.Value = Entry.Strings.Get(rowObject.FieldName);
+
+					// Remove existing value
+					Entry.Strings.Remove(rowObject.FieldName);
 				}
 
-				rowObject.Value = new ProtectedString(isProtected, new byte[0]);
+				Entry.Strings.Set(newName, rowObject.Value);
+				OnModified(EventArgs.Empty);
+
+				rowObject.FieldName = newName;
 			}
-			else
-			{
-				// Ensure value is up to date
-				rowObject.Value = Entry.Strings.Get(rowObject.FieldName);
-
-				// Remove existing value
-				Entry.Strings.Remove(rowObject.FieldName);
-			}
-
-			Entry.Strings.Set(newName, rowObject.Value);
-			OnModified(EventArgs.Empty);
-
-			rowObject.FieldName = newName;
 		}
 		#endregion
 
@@ -149,7 +157,7 @@ namespace KPEnhancedEntryView
 
 		protected override void DeleteFieldCommand(RowObject rowObject)
 		{
-			Entry.CreateBackup(Database);
+			CreateHistoryEntry();
 
 			if (PwDefs.IsStandardField(rowObject.FieldName))
 			{
@@ -182,6 +190,16 @@ namespace KPEnhancedEntryView
 		protected override string GetDisplayValue(ProtectedString value, bool revealValues)
 		{
 			return SprEngine.Compile(value.ReadString(), new SprContext(Entry, Database, SprCompileFlags.All) { ForcePlainTextPasswords = revealValues });
+		}
+		#endregion
+
+		#region History Backup
+		private void CreateHistoryEntry()
+		{
+			if (AllowCreateHistoryNow)
+			{
+				Entry.CreateBackup(Database);
+			}
 		}
 		#endregion
 	}

@@ -84,6 +84,11 @@ namespace KPEnhancedEntryView
 			return true;
 		}
 
+		public override string UpdateUrl
+		{
+			get { return "sourceforge-version://KPEnhancedEntryView/kpenhentryview?-v(%5B%5Cd.%5D%2B)%5C.zip"; }
+		}
+
 		private void mEntitiesListView_Invalidated(object sender, InvalidateEventArgs e)
 		{
 			// Whenever the entities list is invalidated, refresh the items of the entry view too (so that changes like column value hiding get reflected)

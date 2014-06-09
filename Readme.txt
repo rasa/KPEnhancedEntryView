@@ -106,6 +106,13 @@ delimeters between the program name and arguments for links starting with "cmd:/
 would need to enclose it in quotes too: <"\\server\share name">
 
 
+Checking for updates
+--------------------
+If you want to use the KeePass Check for Updates function to check for updates to this plugin
+then it requires the SourceForgeUpdateChecker plugin to be installed too:
+http://sourceforge.net/projects/kpsfupdatechecker
+
+
 Bug Reporting, Questions, Comments, Feedback
 --------------------------------------------
 Please use the SourceForge project page: <http://sourceforge.net/projects/kpenhentryview>
@@ -114,6 +121,12 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.22
+ Reduces creation of multiple History records when editing entries.
+ In-progress cell edits will now be committed rather than discarded when selecting a different
+  entry. To cancel an edit, click Escape.
+ Added support for update checking, using SourceForgeUpdateChecker
+
 v0.21
  Field values which reference the password field now hide the referenced value, in the same way
   as the old textual entry view does.

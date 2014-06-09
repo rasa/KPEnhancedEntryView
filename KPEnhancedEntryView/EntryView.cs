@@ -354,9 +354,14 @@ namespace KPEnhancedEntryView
 				return;
 			}
 
+			// Attempt to complete any current editing
+			mAttachments.PossibleFinishCellEditing();
+			mFieldsGrid.PossibleFinishCellEditing();
+			NotesEditingActive = false;
+
+			// If validation failed, then cancel the edit regardless
 			mAttachments.CancelCellEdit();
 			mFieldsGrid.CancelCellEdit();
-			NotesEditingActive = false;
 
 			if (IsMultipleSelection)
 			{
@@ -918,15 +923,5 @@ namespace KPEnhancedEntryView
 			}
 		}
 		#endregion
-
-		private void mSplitNotesAttachements_SplitterMoving(object sender, SplitterCancelEventArgs e)
-		{
-
-		}
-
-		private void mSplitGridPanels_SplitterMoving(object sender, SplitterCancelEventArgs e)
-		{
-
-		}
 	}
 }

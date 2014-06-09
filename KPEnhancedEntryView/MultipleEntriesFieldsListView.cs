@@ -156,6 +156,7 @@ namespace KPEnhancedEntryView
 					if (Object.ReferenceEquals(entries, mEntries)) // Final guard against repopulation
 					{
 						SetRows(rows);
+						AllowCreateHistoryNow = true; // Whenever the entries are replaced, it counts as not having been edited yet (so the first edit is always given a history backup)
 					}
 				}));
 			}
@@ -265,9 +266,13 @@ namespace KPEnhancedEntryView
 			if (!IsMultiValuedField(rowObject) || // No need to confirm to change the value of a field that isn't multi-valued
 				ConfirmOperationOnAllEntries(String.Format(Properties.Resources.MultipleEntryFieldSetValueQuestion, rowObject.DisplayName), Properties.Resources.MultpleEntryFieldSetValueCommand, allEntries))
 			{
+				var createBackups = AllowCreateHistoryNow;
 				foreach (var entry in allEntries)
 				{
-					entry.CreateBackup(Database);
+					if (createBackups)
+					{
+						entry.CreateBackup(Database);
+					}
 
 					entry.Strings.Set(rowObject.FieldName, newValue); // ProtectedStrings are immutable, so OK to assign the same one to all entries
 				}
@@ -305,9 +310,13 @@ namespace KPEnhancedEntryView
 				entriesWithField = Entries.Where(entry => entry.Strings.Exists(rowObject.FieldName));
 			}
 
+			var createBackups = AllowCreateHistoryNow;
 			foreach (var entry in entriesWithField)
 			{
-				entry.CreateBackup(Database);
+				if (createBackups)
+				{
+					entry.CreateBackup(Database);
+				}
 
 				ProtectedString value;
 				if (rowObject.IsInsertionRow)
@@ -349,10 +358,14 @@ namespace KPEnhancedEntryView
 			if (ConfirmOperationOnAllEntries(String.Format(Properties.Resources.MultipleEntryFieldDeleteQuestion, rowObject.DisplayName), KPRes.Delete, entriesWithField))
 			{
 				var blankValue = new ProtectedString(rowObject.Value.IsProtected, new byte[0]); // ProtectedStrings are immutable, so OK to assign the same one to all entries
-						
+
+				var createBackups = AllowCreateHistoryNow;
 				foreach (var entry in entriesWithField)
 				{
-					entry.CreateBackup(Database);
+					if (createBackups)
+					{
+						entry.CreateBackup(Database);
+					}
 
 					if (isStandardField)
 					{

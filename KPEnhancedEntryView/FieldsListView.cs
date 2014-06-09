@@ -132,6 +132,8 @@ namespace KPEnhancedEntryView
 		public event EventHandler Modified;
 		protected virtual void OnModified(EventArgs e)
 		{
+			AllowCreateHistoryNow = false; // Don't allow a new history record for 1 minute from this modification
+
 			var temp = Modified;
 			if (temp != null)
 			{
@@ -846,6 +848,34 @@ namespace KPEnhancedEntryView
 		{
 			return value.ReadString();
 		}
+		#endregion
+
+		#region History Backup
+
+		// Do not allow a history backup to be made if less than one minute has passed since the last time the entry was edited
+		private static readonly TimeSpan MinimumHistoryCreationPeriod = TimeSpan.FromMinutes(1);
+		private DateTime? mLastEdited;
+
+		protected bool AllowCreateHistoryNow
+		{
+			get
+			{
+				return !mLastEdited.HasValue ||
+					   DateTime.UtcNow - mLastEdited > MinimumHistoryCreationPeriod;
+			}
+			set
+			{
+				if (value)
+				{
+					mLastEdited = null;
+				}
+				else
+				{
+					mLastEdited = DateTime.UtcNow;
+				}
+			}
+		}
+
 		#endregion
 	}
 }
