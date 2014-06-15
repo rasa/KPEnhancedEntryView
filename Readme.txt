@@ -121,6 +121,8 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+ Fixed issue with clicking on URLs containing placeholders
+
 v0.22
  Reduces creation of multiple History records when editing entries.
  In-progress cell edits will now be committed rather than discarded when selecting a different
