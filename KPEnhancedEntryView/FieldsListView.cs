@@ -856,7 +856,7 @@ namespace KPEnhancedEntryView
 		private static readonly TimeSpan MinimumHistoryCreationPeriod = TimeSpan.FromMinutes(1);
 		private DateTime? mLastEdited;
 
-		protected bool AllowCreateHistoryNow
+		public bool AllowCreateHistoryNow
 		{
 			get
 			{

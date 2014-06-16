@@ -6,12 +6,14 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using BrightIdeasSoftware;
+using KeePass;
 using KeePass.Forms;
 using KeePass.Resources;
 using KeePass.UI;
 using KeePass.Util;
 using KeePassLib;
 using KeePassLib.Security;
+using KeePassLib.Translation;
 using KeePassLib.Utility;
 using System.Collections.Generic;
 
@@ -78,6 +80,9 @@ namespace KPEnhancedEntryView
 			SetLabel(mExpiryTimeLabel, KPRes.ExpiryTime);
 			SetLabel(mTagsLabel, KPRes.Tags);
 			SetLabel(mOverrideUrlLabel, KPRes.UrlOverride);
+			SetLabel(mUUIDLabel, KPRes.Uuid);
+
+			TranslatePwEntryFormControls(m_lblIcon, m_cbCustomForegroundColor, m_cbCustomBackgroundColor);
 
 			mEditFieldCommand.ShortcutKeyDisplayString = KPRes.KeyboardKeyReturn;
 			mDeleteFieldCommand.ShortcutKeyDisplayString = UIUtil.GetKeysName(Keys.Delete);
@@ -93,6 +98,24 @@ namespace KPEnhancedEntryView
 		private static void SetLabel(Label label, string text)
 		{
 			label.Text = text + ":";
+		}
+
+		private static void TranslatePwEntryFormControls(params Control[] controls)
+		{
+			var namedControls = controls.ToDictionary(c => c.Name);
+			var pwEntryFormTranslation = Program.Translation.Forms.SingleOrDefault(form => form.FullName == typeof(PwEntryForm).FullName);
+			if (pwEntryFormTranslation != null)
+			{
+				foreach (var controlTranslation in pwEntryFormTranslation.Controls)
+				{
+					Control control;
+					if (!String.IsNullOrEmpty(controlTranslation.Text) &&
+						namedControls.TryGetValue(controlTranslation.Name, out control))
+					{
+						control.Text = controlTranslation.Text;
+					}
+				}
+			}
 		}
 
 		public Control AllTextControl 
@@ -519,7 +542,7 @@ namespace KPEnhancedEntryView
 								if (newValue != existingValue)
 								{
 									// Save changes
-									entry.CreateBackup(Database);
+									CreateHistoryEntry();
 									entry.Strings.Set(PwDefs.NotesField, new ProtectedString(Database.MemoryProtection.ProtectNotes, newValue));
 									OnEntryModified(EventArgs.Empty);
 								}
@@ -722,7 +745,7 @@ namespace KPEnhancedEntryView
 		{
 			if (Entry == null)
 			{
-				mPropertiesTabLayout.Visible = false;
+				mPropertiesTabScrollPanel.Visible = false;
 			}
 			else
 			{
@@ -749,10 +772,29 @@ namespace KPEnhancedEntryView
 					mExpiryTimeLabel.Visible = mExpiryTime.Visible = false;
 				}
 
+				SetCustomColourControls(m_cbCustomForegroundColor, m_btnPickFgColor, Entry.ForegroundColor);
+				SetCustomColourControls(m_cbCustomBackgroundColor, m_btnPickBgColor, Entry.BackgroundColor);
+
 				mOverrideUrl.Text = Entry.OverrideUrl;
 				mTags.Text = StrUtil.TagsToString(Entry.Tags, true);
 
-				mPropertiesTabLayout.Visible = true;
+				mUUID.Text = Entry.Uuid.ToHexString();
+
+				mPropertiesTabScrollPanel.Visible = true;
+			}
+		}
+
+		private void SetCustomColourControls(CheckBox checkBox, Button colourPicker, Color color)
+		{
+			if (color == Color.Empty)
+			{
+				checkBox.Checked = false;
+				colourPicker.Tag = null; // Don't re-use squirreled colours from previous entries
+			}
+			else
+			{
+				checkBox.Checked = true;
+				colourPicker.BackColor = color;
 			}
 		}
 
@@ -780,7 +822,7 @@ namespace KPEnhancedEntryView
 		{
 			if (Entry != null)
 			{
-				Entry.CreateBackup(Database);
+				CreateHistoryEntry();
 				Entry.OverrideUrl = mOverrideUrl.Text;
 				OnEntryModified(EventArgs.Empty);
 			}
@@ -790,7 +832,7 @@ namespace KPEnhancedEntryView
 		{
 			if (Entry != null)
 			{
-				Entry.CreateBackup(Database);
+				CreateHistoryEntry();
 				Entry.Tags.Clear();
 				Entry.Tags.AddRange(StrUtil.StringToTags(mTags.Text));
 				OnEntryModified(EventArgs.Empty);
@@ -811,7 +853,7 @@ namespace KPEnhancedEntryView
 
 			if (iconPicker.ShowDialog() == DialogResult.OK)
 			{
-				Entry.CreateBackup(Database);
+				CreateHistoryEntry();
 
 				if (iconPicker.ChosenCustomIconUuid != PwUuid.Zero)
 				{
@@ -829,6 +871,85 @@ namespace KPEnhancedEntryView
 			}
 
 			UIUtil.DestroyForm(iconPicker);
+		}
+		#endregion
+
+		#region Custom Colour Picking
+		
+		private void m_cbCustomForegroundColor_CheckedChanged(object sender, EventArgs e)
+		{
+			UpdateColourPickerState(m_cbCustomForegroundColor.Checked, m_btnPickFgColor);
+		}
+
+		private void m_cbCustomBackgroundColor_CheckedChanged(object sender, EventArgs e)
+		{
+			UpdateColourPickerState(m_cbCustomBackgroundColor.Checked, m_btnPickBgColor);
+		}
+
+		private void UpdateColourPickerState(bool checkBoxChecked, Button colourPicker)
+		{
+			if (checkBoxChecked)
+			{
+				colourPicker.Enabled = true;
+				colourPicker.BackColor = (colourPicker.Tag as Color?).GetValueOrDefault(SystemColors.Control);
+			}
+			else
+			{
+				colourPicker.Enabled = false;
+				colourPicker.Tag = (Color?)colourPicker.BackColor; // Squirrel back colour for later restore
+				colourPicker.BackColor = SystemColors.Control;
+			}
+		}
+
+		private void m_btnPickFgColor_Click(object sender, EventArgs e)
+		{
+			SetPickedColor(Entry.ForegroundColor, m_cbCustomForegroundColor, m_btnPickFgColor, 
+					  c => Entry.ForegroundColor = c);
+		}
+
+		private void m_btnPickBgColor_Click(object sender, EventArgs e)
+		{
+			SetPickedColor(Entry.BackgroundColor, m_cbCustomBackgroundColor, m_btnPickBgColor,
+					  c => Entry.BackgroundColor = c);
+		}
+
+		private void SetPickedColor(Color currentColour, CheckBox checkBox, Button colourPicker, Action<Color> setEntryColor)
+		{
+			var pickedColour = UIUtil.ShowColorDialog(currentColour);
+			if (pickedColour.HasValue)
+			{
+				checkBox.Checked = true;
+
+				CreateHistoryEntry();
+				setEntryColor(pickedColour.Value);
+				colourPicker.BackColor = pickedColour.Value;
+
+				OnEntryModified(EventArgs.Empty);
+			}
+		}
+
+		private void m_cbCustomBackgroundColor_Click(object sender, EventArgs e)
+		{
+			// Respond to user unchecking by clearing the custom colour. Other responses (to both user and code-initiated changes) are in _CheckedChanged
+			if (!m_cbCustomForegroundColor.Checked)
+			{
+				CreateHistoryEntry();
+				Entry.BackgroundColor = Color.Empty;
+
+				OnEntryModified(EventArgs.Empty);
+			}
+		}
+
+		private void m_cbCustomForegroundColor_Click(object sender, EventArgs e)
+		{
+			// Respond to user unchecking by clearing the custom colour. Other responses (to both user and code-initiated changes) are in _CheckedChanged
+			if (!m_cbCustomForegroundColor.Checked)
+			{
+				CreateHistoryEntry();
+				Entry.ForegroundColor = Color.Empty;
+
+				OnEntryModified(EventArgs.Empty);
+			}
 		}
 		#endregion
 
@@ -921,6 +1042,26 @@ namespace KPEnhancedEntryView
 				// Ignore it
 				Debug.Fail("Could not pass on main window key shortcut");
 			}
+		}
+		#endregion
+
+		private void mUUID_Enter(object sender, EventArgs e)
+		{
+			BeginInvoke(new Action(() => mUUID.SelectAll())); // Invoke async so that it selects all after the focus is got, not before.
+		}
+
+		#region History Backup
+		/// <summary>
+		/// If editing a single entry, creates a history record sharing the same timeout rules as the single entry editor grid
+		/// </summary>
+		private void CreateHistoryEntry()
+		{
+			if (Entry != null && mFieldsGrid.AllowCreateHistoryNow)
+			{
+				Entry.CreateBackup(Database);
+			}
+
+			mFieldsGrid.AllowCreateHistoryNow = false; // Don't allow a new history record for 1 minute from this modification
 		}
 		#endregion
 	}

@@ -23,7 +23,7 @@ namespace KPEnhancedEntryView
 		private readonly ProtectedString mMultipleValues = new ProtectedString(false, Properties.Resources.MultipleValues);
 		private readonly ProtectedString mMultipleProtectedValues = new ProtectedString(true, Properties.Resources.MultipleValues);
 
-		public MultipleEntriesFieldsListView() 
+		public MultipleEntriesFieldsListView()
 		{
 		}
 
@@ -58,7 +58,7 @@ namespace KPEnhancedEntryView
 			if (entries.Any())
 			{
 				var unionOfFields = new Dictionary<string, ProtectedString>();
-				var fieldOrder = new List<string>( new[] { PwDefs.TitleField, PwDefs.UserNameField, PwDefs.PasswordField, PwDefs.UrlField } ); // Prepopulate order with fields that should appear first. Other fields will be added in the order in which they are encountered
+				var fieldOrder = new List<string>(new[] { PwDefs.TitleField, PwDefs.UserNameField, PwDefs.PasswordField, PwDefs.UrlField }); // Prepopulate order with fields that should appear first. Other fields will be added in the order in which they are encountered
 
 				var firstEntry = true;
 				foreach (var entry in entries)
@@ -85,7 +85,7 @@ namespace KPEnhancedEntryView
 								}
 								else
 								{
-									unionOfFields.Add(field.Key, field.Value); 
+									unionOfFields.Add(field.Key, field.Value);
 								}
 								if (!PwDefs.IsStandardField(field.Key))
 								{
@@ -133,11 +133,11 @@ namespace KPEnhancedEntryView
 						unionOfFields[absentField.Key] = absentField.Value;
 					}
 
-					firstEntry = false;					
+					firstEntry = false;
 				}
 
 				var rows = new List<RowObject>(unionOfFields.Count + 1);
-				
+
 				// Add all the fields, in the right order
 				foreach (var fieldName in fieldOrder)
 				{
@@ -147,7 +147,7 @@ namespace KPEnhancedEntryView
 						rows.Add(new RowObject(fieldName, value));
 					}
 				}
-				
+
 				// Then add an empty "add new" row
 				rows.Add(RowObject.CreateInsertionRow());
 
@@ -247,7 +247,7 @@ namespace KPEnhancedEntryView
 			{
 				entriesWithField = Entries.Where(entry => entry.Strings.Exists(rowObject.FieldName));
 			}
-			
+
 			// Disallow the field name if it already exists on any of the entries which have that field
 			foreach (var entry in entriesWithField)
 			{
@@ -292,9 +292,9 @@ namespace KPEnhancedEntryView
 				// Check if this should be a protected string
 				var isProtected = false; // Default to not protected
 				var fieldOnOtherEntry = (from entry in Entries
-										 from groupEntry in entry.ParentGroup.Entries 
+										 from groupEntry in entry.ParentGroup.Entries
 											select groupEntry.Strings.Get(newName)).FirstOrDefault();
-				
+
 				if (fieldOnOtherEntry != null)
 				{
 					isProtected = fieldOnOtherEntry.IsProtected;
@@ -420,7 +420,7 @@ namespace KPEnhancedEntryView
 			{
 				return null;
 			}
-			
+
 			return base.GetDragValue(rowObject);
 		}
 

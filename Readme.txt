@@ -121,7 +121,10 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
- Fixed issue with clicking on URLs containing placeholders
+v0.23
+ Notes field and Properties tab now participate in the History record creation reduction system
+ Added custom colours and UUID to the Properties tab for entries
+ Fixed issue with highlighting and clicking on URLs containing placeholders
 
 v0.22
  Reduces creation of multiple History records when editing entries.
