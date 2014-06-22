@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using KeePass.Forms;
 using KeePass.Plugins;
@@ -89,10 +90,53 @@ namespace KPEnhancedEntryView
 			get { return "sourceforge-version://KPEnhancedEntryView/kpenhentryview?-v(%5B%5Cd.%5D%2B)%5C.zip"; }
 		}
 
+		private static readonly TimeSpan EntitiesListViewInvalidationTimeout = TimeSpan.FromMilliseconds(250); // Consolidate any Invalidated events that occur within 250ms of each other
+		private readonly object mEntitiesListViewInvalidationTimerLock = new object();
+		private Stopwatch mEntitiesListViewInvalidationTimer;
+		
 		private void mEntitiesListView_Invalidated(object sender, InvalidateEventArgs e)
 		{
 			// Whenever the entities list is invalidated, refresh the items of the entry view too (so that changes like column value hiding get reflected)
-			mEntryView.RefreshItems();
+
+			// For performance, throttle refreshes to consume multiple invalidated events that occur within a short space of each other.
+			lock (mEntitiesListViewInvalidationTimerLock)
+			{
+				if (mEntitiesListViewInvalidationTimer == null)
+				{
+					mEntitiesListViewInvalidationTimer = Stopwatch.StartNew();
+					ThreadPool.QueueUserWorkItem(o => ConsolidateEntitiesListViewInvaidatedEvents());
+				}
+				else
+				{
+					// There's already a timer running, so just reset it counting from 0 again
+					mEntitiesListViewInvalidationTimer.Reset();
+					mEntitiesListViewInvalidationTimer.Start();
+				}
+			}
+		}
+
+		private void ConsolidateEntitiesListViewInvaidatedEvents()
+		{
+			// Wait for timeout to expire
+			do
+			{
+				TimeSpan remainingTime;
+				lock (mEntitiesListViewInvalidationTimerLock)
+				{
+					remainingTime = EntitiesListViewInvalidationTimeout - mEntitiesListViewInvalidationTimer.Elapsed;
+
+					if (remainingTime <= TimeSpan.Zero)
+					{
+						// Discard the timer - subsequent Invalidated events will create a new one
+						mEntitiesListViewInvalidationTimer = null;
+						break;
+					}
+				}
+				
+				Thread.Sleep(remainingTime);
+			} while (true);
+
+			mEntryView.BeginInvoke(new Action(mEntryView.RefreshItems));
 		}
 
 		private void mOriginalEntryView_FontChanged(object sender, EventArgs e)

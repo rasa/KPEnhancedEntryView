@@ -63,8 +63,10 @@ namespace KPEnhancedEntryView
 			mHandleMainWindowKeyMessageMethod = mMainForm.GetType().GetMethod("HandleMainWindowKeyMessage", BindingFlags.Instance | BindingFlags.NonPublic);
 			if (mHandleMainWindowKeyMessageMethod != null)
 			{
-				mTabs.KeyDown += HandleMainWindowShortcutKeyDown;
-				mTabs.KeyUp += HandleMainWindowShortcutKeyUp;
+				mSingleEntryTabs.KeyDown += HandleMainWindowShortcutKeyDown;
+				mSingleEntryTabs.KeyUp += HandleMainWindowShortcutKeyUp;
+				mMultipleEntriesTabs.KeyDown += HandleMainWindowShortcutKeyDown;
+				mMultipleEntriesTabs.KeyUp += HandleMainWindowShortcutKeyUp;
 			}
 
 			mNotesContextMenu = new RichTextBoxContextMenu();
@@ -388,21 +390,13 @@ namespace KPEnhancedEntryView
 
 			if (IsMultipleSelection)
 			{
-				mTabs.SuspendLayout();
-				SetTabVisibility(mMultipleSelectionTab, true);
-				SetTabVisibility(mFieldsTab, false);
-				SetTabVisibility(mPropertiesTab, false);
-				SetTabVisibility(mAllTextTab, false);
-				mTabs.ResumeLayout();
+				mMultipleEntriesTabs.Visible = true;
+				mSingleEntryTabs.Visible = false;
 			}
 			else
 			{
-				mTabs.SuspendLayout();
-				SetTabVisibility(mFieldsTab, true);
-				SetTabVisibility(mPropertiesTab, true);
-				SetTabVisibility(mAllTextTab, true);
-				SetTabVisibility(mMultipleSelectionTab, false);
-				mTabs.ResumeLayout();
+				mSingleEntryTabs.Visible = true;
+				mMultipleEntriesTabs.Visible = false;
 			}
 
 			mMultipleSelectionFields.Entries = mEntries; // Use mEntries rather than Entries, so get the raw null/no entries case when only a single entity is selected - no need to populate in that case.
@@ -418,22 +412,10 @@ namespace KPEnhancedEntryView
 			}
 			else
 			{
-				using (var selection = new NotesRtfHelpers.SaveSelectionState(mNotes, true))
+				using (new NotesRtfHelpers.SaveSelectionState(mNotes, true))
 				{
 					PopulateNotes(Entry.Strings.ReadSafe(PwDefs.NotesField));
 				}
-			}
-		}
-
-		private void SetTabVisibility(TabPage tab, bool visible)
-		{
-			if (visible && tab.Parent != mTabs)
-			{
-				mTabs.TabPages.Add(tab);
-			}
-			else if (!visible && tab.Parent == mTabs)
-			{
-				mTabs.TabPages.Remove(tab);
 			}
 		}
 

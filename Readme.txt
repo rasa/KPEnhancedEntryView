@@ -121,6 +121,10 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.24
+ Performance enhancements when editing entries in large groups
+ Fixed bug where entry view would steal focus switching between single and multiple selection
+
 v0.23
  Notes field and Properties tab now participate in the History record creation reduction system
  Added custom colours and UUID to the Properties tab for entries

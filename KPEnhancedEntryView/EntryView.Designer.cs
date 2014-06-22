@@ -16,7 +16,7 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			this.mTabs = new System.Windows.Forms.TabControl();
+			this.mSingleEntryTabs = new System.Windows.Forms.TabControl();
 			this.mFieldsTab = new System.Windows.Forms.TabPage();
 			this.mSplitGridPanels = new KPEnhancedEntryView.CollapsibleSplitContainer();
 			this.mFieldsGrid = new KPEnhancedEntryView.SingleEntryFieldsListView();
@@ -76,7 +76,8 @@
 			this.mDeleteBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.mAttachBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
-			this.mTabs.SuspendLayout();
+			this.mMultipleEntriesTabs = new System.Windows.Forms.TabControl();
+			this.mSingleEntryTabs.SuspendLayout();
 			this.mFieldsTab.SuspendLayout();
 			this.mSplitGridPanels.Panel1.SuspendLayout();
 			this.mSplitGridPanels.Panel2.SuspendLayout();
@@ -97,20 +98,20 @@
 			((System.ComponentModel.ISupportInitialize)(this.mMultipleSelectionFields)).BeginInit();
 			this.mFieldGridContextMenu.SuspendLayout();
 			this.mAttachmentsContextMenu.SuspendLayout();
+			this.mMultipleEntriesTabs.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// mTabs
+			// mSingleEntryTabs
 			// 
-			this.mTabs.Controls.Add(this.mFieldsTab);
-			this.mTabs.Controls.Add(this.mPropertiesTab);
-			this.mTabs.Controls.Add(this.mAllTextTab);
-			this.mTabs.Controls.Add(this.mMultipleSelectionTab);
-			this.mTabs.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mTabs.Location = new System.Drawing.Point(0, 0);
-			this.mTabs.Name = "mTabs";
-			this.mTabs.SelectedIndex = 0;
-			this.mTabs.Size = new System.Drawing.Size(373, 342);
-			this.mTabs.TabIndex = 1;
+			this.mSingleEntryTabs.Controls.Add(this.mFieldsTab);
+			this.mSingleEntryTabs.Controls.Add(this.mPropertiesTab);
+			this.mSingleEntryTabs.Controls.Add(this.mAllTextTab);
+			this.mSingleEntryTabs.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mSingleEntryTabs.Location = new System.Drawing.Point(0, 0);
+			this.mSingleEntryTabs.Name = "mSingleEntryTabs";
+			this.mSingleEntryTabs.SelectedIndex = 0;
+			this.mSingleEntryTabs.Size = new System.Drawing.Size(373, 342);
+			this.mSingleEntryTabs.TabIndex = 1;
 			// 
 			// mFieldsTab
 			// 
@@ -146,6 +147,7 @@
 			// 
 			// mFieldsGrid
 			// 
+			this.mFieldsGrid.AllowCreateHistoryNow = true;
 			this.mFieldsGrid.AlternateRowBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(238)))), ((int)(((byte)(255)))));
 			this.mFieldsGrid.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
 			this.mFieldsGrid.CellEditTabChangesRows = true;
@@ -622,6 +624,7 @@
 			// 
 			// mMultipleSelectionFields
 			// 
+			this.mMultipleSelectionFields.AllowCreateHistoryNow = true;
 			this.mMultipleSelectionFields.AlternateRowBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(238)))), ((int)(((byte)(255)))));
 			this.mMultipleSelectionFields.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
 			this.mMultipleSelectionFields.CellEditTabChangesRows = true;
@@ -795,14 +798,26 @@
 			this.mAttachBinaryCommand.Text = "Attach &File(s)...";
 			this.mAttachBinaryCommand.Click += new System.EventHandler(this.mAttachBinaryCommand_Click);
 			// 
+			// mMultipleEntriesTabs
+			// 
+			this.mMultipleEntriesTabs.Controls.Add(this.mMultipleSelectionTab);
+			this.mMultipleEntriesTabs.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mMultipleEntriesTabs.Location = new System.Drawing.Point(0, 0);
+			this.mMultipleEntriesTabs.Name = "mMultipleEntriesTabs";
+			this.mMultipleEntriesTabs.SelectedIndex = 0;
+			this.mMultipleEntriesTabs.Size = new System.Drawing.Size(373, 342);
+			this.mMultipleEntriesTabs.TabIndex = 2;
+			this.mMultipleEntriesTabs.Visible = false;
+			// 
 			// EntryView
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.mTabs);
+			this.Controls.Add(this.mSingleEntryTabs);
+			this.Controls.Add(this.mMultipleEntriesTabs);
 			this.Name = "EntryView";
 			this.Size = new System.Drawing.Size(373, 342);
-			this.mTabs.ResumeLayout(false);
+			this.mSingleEntryTabs.ResumeLayout(false);
 			this.mFieldsTab.ResumeLayout(false);
 			this.mSplitGridPanels.Panel1.ResumeLayout(false);
 			this.mSplitGridPanels.Panel2.ResumeLayout(false);
@@ -828,13 +843,14 @@
 			((System.ComponentModel.ISupportInitialize)(this.mMultipleSelectionFields)).EndInit();
 			this.mFieldGridContextMenu.ResumeLayout(false);
 			this.mAttachmentsContextMenu.ResumeLayout(false);
+			this.mMultipleEntriesTabs.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
 
 		#endregion
 
-		private System.Windows.Forms.TabControl mTabs;
+		private System.Windows.Forms.TabControl mSingleEntryTabs;
 		private System.Windows.Forms.TabPage mFieldsTab;
 		private System.Windows.Forms.TabPage mPropertiesTab;
 		private SingleEntryFieldsListView mFieldsGrid;
@@ -894,5 +910,6 @@
 		private System.Windows.Forms.CheckBox m_cbCustomForegroundColor;
 		private System.Windows.Forms.CheckBox m_cbCustomBackgroundColor;
 		private System.Windows.Forms.Button m_btnPickBgColor;
+		private System.Windows.Forms.TabControl mMultipleEntriesTabs;
 	}
 }
