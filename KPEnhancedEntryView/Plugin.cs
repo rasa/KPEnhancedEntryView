@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using KeePass.Forms;
 using KeePass.Plugins;
+using KeePass.UI;
 using KeePassLib;
 using KeePassLib.Utility;
 
@@ -15,7 +17,7 @@ namespace KPEnhancedEntryView
 		private IPluginHost mHost;
 		private EntryView mEntryView;
 		private RichTextBox mOriginalEntryView;
-		private Control mEntriesListView;
+		private ListView mEntriesListView;
 		private Options mOptions;
 		
 		public override bool Initialize(IPluginHost host)
@@ -73,7 +75,7 @@ namespace KPEnhancedEntryView
 			}
 
 			// HACK: UIStateUpdated isn't called when toggling column value hiding on and off, so monitor the entries list for being invalidated
-			mEntriesListView = FindControl<Control>("m_lvEntries");
+			mEntriesListView = FindControl<ListView>("m_lvEntries");
 			if (mEntriesListView != null)
 			{
 				mEntriesListView.Invalidated += mEntitiesListView_Invalidated;
@@ -179,7 +181,19 @@ namespace KPEnhancedEntryView
 
 		private void OnUIStateUpdated(object sender, EventArgs e)
 		{
-			mEntryView.Entries = mHost.MainWindow.GetSelectedEntries();
+			IEnumerable<PwEntry> selectedEntries;
+
+			// Don't use MainForm.GetSSelectedEntries, it has perf issues.
+			if (mEntriesListView != null)
+			{
+				selectedEntries = from ListViewItem lvi in mEntriesListView.SelectedItems select ((PwListItem)lvi.Tag).Entry;
+			}
+			else
+			{
+				// Fall back on GetSelectedEntries - can't read from list view directly
+				selectedEntries = mHost.MainWindow.GetSelectedEntries();
+			}
+			mEntryView.Entries = selectedEntries;
 		}
 
 		private void OnFileSaving(object sender, FileSavingEventArgs e)

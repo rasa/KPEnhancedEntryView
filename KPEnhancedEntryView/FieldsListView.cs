@@ -17,6 +17,9 @@ namespace KPEnhancedEntryView
 {
 	internal abstract class FieldsListView : ObjectListView
 	{
+		protected const SprCompileFlags DisplayValueSprCompileFlags = SprCompileFlags.NonActive;
+		protected const SprCompileFlags DragValueSprCompileFlags = SprCompileFlags.All & ~SprCompileFlags.UIInteractive; // Don't do any UI actions, as that would interrupt the drag
+
 		protected readonly BrightIdeasSoftware.OLVColumn mFieldNames;
 		protected readonly BrightIdeasSoftware.OLVColumn mFieldValues;
 
@@ -127,6 +130,11 @@ namespace KPEnhancedEntryView
 		{
 			return fieldName == "KPRPC JSON";			 // Exclude KeyFox's custom field (not intended to be user visible or directly editable)
 		}
+
+		/// <summary>
+		/// Re-read the current selection from the database, and re-display it
+		/// </summary>
+		protected abstract void Repopulate();
 
 		#region EntryModified event
 		public event EventHandler Modified;
@@ -606,7 +614,6 @@ namespace KPEnhancedEntryView
 			}
 		}
 
-
 		protected virtual string GetDragValue(RowObject rowObject)
 		{
 			if (rowObject.Value == null)
@@ -614,7 +621,9 @@ namespace KPEnhancedEntryView
 				return null;
 			}
 			
-			return GetDisplayValue(rowObject.Value, true);
+			var dragValue = GetDisplayValue(rowObject.Value, true, DragValueSprCompileFlags);
+			BeginInvoke(new Action(Repopulate)); // As DragValueSprCompileFlags includes active (state changing) operations, it's possible that other values will have been updated, so refresh them.
+			return dragValue;
 		}
 
 		internal class FieldValueDragSource : IDragSource
@@ -844,7 +853,7 @@ namespace KPEnhancedEntryView
 			}
 		}
 
-		protected virtual string GetDisplayValue(ProtectedString value, bool revealValue)
+		protected virtual string GetDisplayValue(ProtectedString value, bool revealValue, SprCompileFlags compileFlags = DisplayValueSprCompileFlags)
 		{
 			return value.ReadString();
 		}

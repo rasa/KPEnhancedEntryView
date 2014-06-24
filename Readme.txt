@@ -106,6 +106,19 @@ delimeters between the program name and arguments for links starting with "cmd:/
 would need to enclose it in quotes too: <"\\server\share name">
 
 
+Placeholders
+------------
+
+When displaying field values, only a limited set of placeholders are evaluated. This matches
+the substitutions displayed in the original textual entry view. When Copying a field value, all
+placeholders are evaluated, including active ones such as {NEWPASSWORD} and {HMACOTP} that may
+alter the entry.
+
+When performing a drag and drop, most placeholders are evaluated in the same way as Copying,
+however placeholders which require UI interaction (like PickChars) are not evaluated, as it's
+impossible to interact with them while continuing the drag operation.
+
+
 Checking for updates
 --------------------
 If you want to use the KeePass Check for Updates function to check for updates to this plugin
@@ -121,6 +134,11 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.25
+ Further performance enhancements when dealing with very large groups
+ Placeholders substitution for display now matches KeePass behaviour, no active subsititutions
+  will be made. (Substitution for Copy or Drag and Drop still perform active substitutions)
+
 v0.24
  Performance enhancements when editing entries in large groups
  Fixed bug where entry view would steal focus switching between single and multiple selection

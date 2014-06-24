@@ -47,23 +47,35 @@ namespace KPEnhancedEntryView
 		{
 			ClearObjects();
 
-			// Perform population on separate thread
-			ThreadPool.QueueUserWorkItem(Populate, mEntries);
+			// Perform population on separate thread (but must perform enumeration of mEntries on main thread)
+			ThreadPool.QueueUserWorkItem(Populate, new PopulateState(mEntries));
+		}
+
+		private struct PopulateState
+		{
+			public readonly object EntriesChangedCheckObject;
+			public readonly PwEntry[] Entries;
+
+			public PopulateState(IEnumerable<PwEntry> entries)
+			{
+				EntriesChangedCheckObject = entries;
+				Entries = entries.ToArray();
+			}
 		}
 
 		private void Populate(object state)
 		{
-			var entries = mEntries;
+			var populateState = (PopulateState)state;
 
-			if (entries.Any())
+			if (populateState.Entries.Any())
 			{
 				var unionOfFields = new Dictionary<string, ProtectedString>();
 				var fieldOrder = new List<string>(new[] { PwDefs.TitleField, PwDefs.UserNameField, PwDefs.PasswordField, PwDefs.UrlField }); // Prepopulate order with fields that should appear first. Other fields will be added in the order in which they are encountered
 
 				var firstEntry = true;
-				foreach (var entry in entries)
+				foreach (var entry in populateState.Entries)
 				{
-					if (!Object.ReferenceEquals(entries, mEntries))
+					if (!Object.ReferenceEquals(populateState.EntriesChangedCheckObject, mEntries))
 					{
 						// Entries has changed, so abort this population
 						return;
@@ -153,13 +165,18 @@ namespace KPEnhancedEntryView
 
 				BeginInvoke(new Action(delegate
 				{
-					if (Object.ReferenceEquals(entries, mEntries)) // Final guard against repopulation
+					if (Object.ReferenceEquals(populateState.EntriesChangedCheckObject, mEntries)) // Final guard against repopulation
 					{
 						SetRows(rows);
 						AllowCreateHistoryNow = true; // Whenever the entries are replaced, it counts as not having been edited yet (so the first edit is always given a history backup)
 					}
 				}));
 			}
+		}
+
+		protected override void Repopulate()
+		{
+			ThreadPool.QueueUserWorkItem(Populate, new PopulateState(mEntries));
 		}
 		#endregion
 
@@ -344,10 +361,13 @@ namespace KPEnhancedEntryView
 		#region Commands
 		protected override void CopyCommand(RowObject rowObject)
 		{
-			if (!IsMultiValuedField(rowObject) &&
-				ClipboardUtil.CopyAndMinimize(rowObject.Value, true, mMainForm, Entries.First(), Database))
+			if (!IsMultiValuedField(rowObject))
 			{
-				mMainForm.StartClipboardCountdown();
+				if (ClipboardUtil.CopyAndMinimize(rowObject.Value, true, mMainForm, Entries.First(), Database))
+				{
+					mMainForm.StartClipboardCountdown();
+				}
+				Repopulate();
 			}
 		}
 
@@ -424,9 +444,9 @@ namespace KPEnhancedEntryView
 			return base.GetDragValue(rowObject);
 		}
 
-		protected override string GetDisplayValue(ProtectedString value, bool revealValues)
+		protected override string GetDisplayValue(ProtectedString value, bool revealValues, SprCompileFlags compileFlags = DisplayValueSprCompileFlags)
 		{
-			return SprEngine.Compile(value.ReadString(), new SprContext(null, Database, SprCompileFlags.All) { ForcePlainTextPasswords = revealValues });
+			return SprEngine.Compile(value.ReadString(), new SprContext(null, Database, compileFlags) { ForcePlainTextPasswords = revealValues });
 		}
 		#endregion
 	}

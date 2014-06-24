@@ -179,12 +179,15 @@ namespace KPEnhancedEntryView
 			{
 				mMouseDownInButton = false;
 
-				var isCollapsed = SplitRatio == 0 || SplitRatio == SplitRatioMax;
-
-				if (isCollapsed)
+				if (SplitRatio == 0)
 				{
 					// Uncollapse it
-					SplitRatio = SplitRatioMax / 2;
+					SplitRatio = (long)(SplitRatioMax * 0.45);
+				}
+				else if (SplitRatio == SplitRatioMax)
+				{
+					// Uncollapse it
+					SplitRatio = (long)(SplitRatioMax * 0.55);
 				}
 				else
 				{

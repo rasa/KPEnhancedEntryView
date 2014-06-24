@@ -64,6 +64,12 @@ namespace KPEnhancedEntryView
 				rows.Add(new RowObject(fieldName, value ?? ProtectedString.Empty));
 			}
 		}
+
+		protected override void Repopulate()
+		{
+			OnEntryChanged(EventArgs.Empty);
+		}
+
 		#endregion
 
 		#region Cell Editing
@@ -153,6 +159,7 @@ namespace KPEnhancedEntryView
 			{
 				mMainForm.StartClipboardCountdown();
 			}
+			Repopulate();
 		}
 
 		protected override void DeleteFieldCommand(RowObject rowObject)
@@ -187,9 +194,9 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region Field dereferencing
-		protected override string GetDisplayValue(ProtectedString value, bool revealValues)
+		protected override string GetDisplayValue(ProtectedString value, bool revealValues, SprCompileFlags compileFlags = DisplayValueSprCompileFlags)
 		{
-			return SprEngine.Compile(value.ReadString(), new SprContext(Entry, Database, SprCompileFlags.All) { ForcePlainTextPasswords = revealValues });
+			return SprEngine.Compile(value.ReadString(), new SprContext(Entry, Database, compileFlags) { ForcePlainTextPasswords = revealValues });
 		}
 		#endregion
 
