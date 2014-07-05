@@ -28,16 +28,12 @@ namespace KPEnhancedEntryView
 		}
 
 		#region Entry
-		private IEnumerable<PwEntry> mEntries;
-		public IEnumerable<PwEntry> Entries
+		private PwEntry[] mEntries;
+		public PwEntry[] Entries
 		{
 			get { return mEntries; }
 			set
 			{
-				if (value == null)
-				{
-					value = Enumerable.Empty<PwEntry>();
-				}
 				mEntries = value;
 				OnEntriesChanged(EventArgs.Empty);
 			}
@@ -47,35 +43,28 @@ namespace KPEnhancedEntryView
 		{
 			ClearObjects();
 
-			// Perform population on separate thread (but must perform enumeration of mEntries on main thread)
-			ThreadPool.QueueUserWorkItem(Populate, new PopulateState(mEntries));
+			// Perform population on separate thread
+			ThreadPool.QueueUserWorkItem(Populate, mEntries);
 		}
 
-		private struct PopulateState
+		protected override void Repopulate()
 		{
-			public readonly object EntriesChangedCheckObject;
-			public readonly PwEntry[] Entries;
-
-			public PopulateState(IEnumerable<PwEntry> entries)
-			{
-				EntriesChangedCheckObject = entries;
-				Entries = entries.ToArray();
-			}
+			ThreadPool.QueueUserWorkItem(Populate, mEntries);
 		}
 
 		private void Populate(object state)
 		{
-			var populateState = (PopulateState)state;
+			var entries = (PwEntry[])state;
 
-			if (populateState.Entries.Any())
+			if (entries != null && entries.Length > 0)
 			{
 				var unionOfFields = new Dictionary<string, ProtectedString>();
 				var fieldOrder = new List<string>(new[] { PwDefs.TitleField, PwDefs.UserNameField, PwDefs.PasswordField, PwDefs.UrlField }); // Prepopulate order with fields that should appear first. Other fields will be added in the order in which they are encountered
 
 				var firstEntry = true;
-				foreach (var entry in populateState.Entries)
+				foreach (var entry in entries)
 				{
-					if (!Object.ReferenceEquals(populateState.EntriesChangedCheckObject, mEntries))
+					if (!Object.ReferenceEquals(entries, mEntries))
 					{
 						// Entries has changed, so abort this population
 						return;
@@ -165,18 +154,13 @@ namespace KPEnhancedEntryView
 
 				BeginInvoke(new Action(delegate
 				{
-					if (Object.ReferenceEquals(populateState.EntriesChangedCheckObject, mEntries)) // Final guard against repopulation
+					if (Object.ReferenceEquals(entries, mEntries)) // Final guard against repopulation
 					{
 						SetRows(rows);
 						AllowCreateHistoryNow = true; // Whenever the entries are replaced, it counts as not having been edited yet (so the first edit is always given a history backup)
 					}
 				}));
 			}
-		}
-
-		protected override void Repopulate()
-		{
-			ThreadPool.QueueUserWorkItem(Populate, new PopulateState(mEntries));
 		}
 		#endregion
 

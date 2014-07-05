@@ -183,7 +183,7 @@ namespace KPEnhancedEntryView
 		{
 			IEnumerable<PwEntry> selectedEntries;
 
-			// Don't use MainForm.GetSSelectedEntries, it has perf issues.
+			// Don't use MainForm.GetSSelectedEntries, it has perf issues on versions of KeePass 2.26 and below
 			if (mEntriesListView != null)
 			{
 				selectedEntries = from ListViewItem lvi in mEntriesListView.SelectedItems select ((PwListItem)lvi.Tag).Entry;

@@ -134,6 +134,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.26
+ Fixed bug with Protect Field command
+
 v0.25
  Further performance enhancements when dealing with very large groups
  Placeholders substitution for display now matches KeePass behaviour, no active subsititutions

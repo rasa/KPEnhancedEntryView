@@ -296,7 +296,7 @@ namespace KPEnhancedEntryView
 		private bool mSuspendEntryChangedPopulation;
 		private DateTime? mEntryLastModificationTime;
 		private PwEntry mEntry;
-		private IEnumerable<PwEntry> mEntries;
+		private PwEntry[] mEntries;
 
 		/// <summary>
 		/// Gets or sets a multiple selection of entries. If only a single entry is set, then this will set
@@ -328,20 +328,29 @@ namespace KPEnhancedEntryView
 				{
 					Entry = null;
 				}
-				else if (value.Count() == 1)
-				{
-					// Single selection
-					Entry = value.First();
-				}
 				else
 				{
-					// Multiple selection
-					mEntry = null;
-					mEntryLastModificationTime = null;
-					mEntries = value;
+					// If it isn't already an array, enumerate it once into an array.
+					var valueArray = value as PwEntry[] ?? value.ToArray();
+					if (valueArray.Length == 0)
+					{
+						Entry = null;
+					}
+					else if (valueArray.Length == 1)
+					{
+						// Single selection
+						Entry = valueArray[0];
+					}
+					else
+					{
+						// Multiple selection
+						mEntry = null;
+						mEntryLastModificationTime = null;
+						mEntries = valueArray;
 
-					// TODO: Extra checking needed to see if this has actually changed?
-					OnEntryChanged(EventArgs.Empty);
+						// TODO: Extra checking needed to see if this has actually changed?
+						OnEntryChanged(EventArgs.Empty);
+					}
 				}
 			}
 		}
@@ -590,7 +599,7 @@ namespace KPEnhancedEntryView
 				mURLDropDown.Visible = false;
 				mCopyCommand.Enabled = false;
 				mEditFieldCommand.Enabled = false;
-				mProtectFieldCommand.Enabled = false;
+				mProtectFieldCommand.Visible = false;
 				mPasswordGeneratorCommand.Enabled = false;
 				mDeleteFieldCommand.Enabled = false;
 				mAddNewCommand.Enabled = Entry != null;
@@ -605,7 +614,7 @@ namespace KPEnhancedEntryView
 				mURLDropDown.Visible = url != null;
 				mCopyCommand.Enabled = true;
 				mEditFieldCommand.Enabled = true;
-				mProtectFieldCommand.Enabled = true;
+				mProtectFieldCommand.Visible = !PwDefs.IsStandardField(rowObject.FieldName); // Changing the protection of standard fields has no visible effect, so don't allow it
 				mPasswordGeneratorCommand.Enabled = true;
 				mDeleteFieldCommand.Enabled = true;
 				mAddNewCommand.Enabled = true;

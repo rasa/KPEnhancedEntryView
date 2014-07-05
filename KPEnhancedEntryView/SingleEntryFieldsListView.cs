@@ -106,7 +106,8 @@ namespace KPEnhancedEntryView
 
 		protected override void SetFieldValueInternal(RowObject rowObject, ProtectedString newValue)
 		{
-			if (newValue.ReadString() != rowObject.Value.ReadString())
+			if (newValue.ReadString() != rowObject.Value.ReadString() ||
+				newValue.IsProtected != rowObject.Value.IsProtected)
 			{
 				CreateHistoryEntry();
 
