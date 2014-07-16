@@ -298,22 +298,41 @@ namespace KPEnhancedEntryView
 
 			if (e.Column == mFieldValues)
 			{
-				if (rowObject.Value != null && !rowObject.Value.IsProtected)
+				e.Url = GetUrl(rowObject);
+			}
+		}
+
+		public override string GetCellToolTip(int columnIndex, int rowIndex)
+		{
+			var tooltip = base.GetCellToolTip(columnIndex, rowIndex);
+			if (tooltip == EntryView.UrlOpenAsEntryUrl)
+			{
+				return null; // Don't show the special placeholder string in the tooltip
+			}
+			return tooltip;
+		}
+
+		private string GetUrl(RowObject rowObject)
+		{
+			if (rowObject.Value != null && !rowObject.Value.IsProtected)
+			{
+				var value = GetDisplayValue(rowObject.Value, true);
+				Uri uri;
+				var match = EntryView.MarkedLinkRegex.Match(value);
+				if (rowObject.FieldName == PwDefs.UrlField) // Assume a URL if in the URL field, even if it doesn't look like one
 				{
-					var value = GetDisplayValue(rowObject.Value, true);
-					Uri uri;
-					var match = EntryView.MarkedLinkRegex.Match(value);
-					if (match.Success && match.Length == value.Length) // It's a URL if the whole thing matches marked link syntax (< > wrapped)
-					{
-						e.Url = value.Substring(1, value.Length - 2);
-					}
-					else if (rowObject.FieldName == PwDefs.UrlField || // Assume a URL if in the URL field, even if it doesn't look like one
-					    Uri.TryCreate(value, UriKind.Absolute, out uri))
-					{
-						e.Url = value;
-					}
+					return EntryView.UrlOpenAsEntryUrl; // Ignore the URL that's actually in the field, and open the Entry URL (including overrides etc.) instead.
+				}
+				else if (match.Success && match.Length == value.Length) // It's a URL if the whole thing matches marked link syntax (< > wrapped)
+				{
+					return value.Substring(1, value.Length - 2);
+				}
+				else if (Uri.TryCreate(value, UriKind.Absolute, out uri))
+				{
+					return value;
 				}
 			}
+			return null;
 		}
 
 		#endregion
@@ -548,7 +567,7 @@ namespace KPEnhancedEntryView
 
 		private void OpenURLCommand(RowObject rowObject)
 		{
-			OnHyperlinkClicked(new HyperlinkClickedEventArgs { Url = GetDisplayValue(rowObject.Value, true) });
+			OnHyperlinkClicked(new HyperlinkClickedEventArgs { Url = GetUrl(rowObject) });
 		}
 
 		protected abstract void CopyCommand(RowObject rowObject);

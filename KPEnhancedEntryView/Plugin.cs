@@ -138,7 +138,13 @@ namespace KPEnhancedEntryView
 				Thread.Sleep(remainingTime);
 			} while (true);
 
-			mEntryView.BeginInvoke(new Action(mEntryView.RefreshItems));
+			mEntryView.BeginInvoke(new Action(delegate
+			{
+				if (mEntryView != null)
+				{
+					mEntryView.RefreshItems();
+				}
+			}));
 		}
 
 		private void mOriginalEntryView_FontChanged(object sender, EventArgs e)

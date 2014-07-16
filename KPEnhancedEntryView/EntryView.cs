@@ -13,7 +13,6 @@ using KeePass.UI;
 using KeePass.Util;
 using KeePassLib;
 using KeePassLib.Security;
-using KeePassLib.Translation;
 using KeePassLib.Utility;
 using System.Collections.Generic;
 
@@ -23,7 +22,7 @@ namespace KPEnhancedEntryView
 	{
 		public static Regex MarkedLinkRegex = new Regex(@"<[^<>\s](?:[^<>\s]| )*[^<>\s]>", RegexOptions.Singleline);
 
-		private const uint ShowLastAccessTimeUIFlag = 0x20000;
+		internal const string UrlOpenAsEntryUrl = ":EntryURL:";
 
 		private readonly MainForm mMainForm;
 		private readonly Options mOptions;
@@ -95,6 +94,13 @@ namespace KPEnhancedEntryView
 
 			mSplitGridPanels.SplitRatio = mOptions.FieldsNotesSplitPosition;
 			mSplitNotesAttachements.SplitRatio = mOptions.NotesAttachmentsSplitPosition;
+
+			// Code copied from PwEntryForm.cs
+			System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+				try { InitOverridesBox(); }
+				catch (Exception) { Debug.Assert(false); }
+			});
 		}
 
 		private static void SetLabel(Label label, string text)
@@ -158,13 +164,27 @@ namespace KPEnhancedEntryView
 					mURLDropDownMenu.Destroy();
 				}
 
-				// Ensure all tabs are disposed, even if they aren't currentl visible
+				DisposeOverideUrlIcons();
+
+				// Ensure all tabs are disposed, even if they aren't currently visible
 				mMultipleSelectionTab.Dispose();
 				mFieldsTab.Dispose();
 				mPropertiesTab.Dispose();
 				mAllTextTab.Dispose();
 			}
 			base.Dispose(disposing);
+		}
+
+		private void DisposeOverideUrlIcons()
+		{
+			// Clean up URL Override drop down (code copied from PwEntryForm.cs)
+
+			m_cmbOverrideUrl.OrderedImageList = null;
+			foreach (Image img in m_lOverrideUrlIcons)
+			{
+				if (img != null) img.Dispose();
+			}
+			m_lOverrideUrlIcons.Clear();
 		}
 		#endregion
 
@@ -259,7 +279,14 @@ namespace KPEnhancedEntryView
 				mClickedUrl = null;
 				if (url != null)
 				{
-					WinUtil.OpenUrl(url, Entry);
+					if (url == UrlOpenAsEntryUrl)
+					{
+						WinUtil.OpenEntryUrl(Entry);
+					}
+					else
+					{
+						WinUtil.OpenUrl(url, Entry);
+					}
 				}
 			}
 		}
@@ -766,7 +793,7 @@ namespace KPEnhancedEntryView
 				SetCustomColourControls(m_cbCustomForegroundColor, m_btnPickFgColor, Entry.ForegroundColor);
 				SetCustomColourControls(m_cbCustomBackgroundColor, m_btnPickBgColor, Entry.BackgroundColor);
 
-				mOverrideUrl.Text = Entry.OverrideUrl;
+				m_cmbOverrideUrl.Text = Entry.OverrideUrl;
 				mTags.Text = StrUtil.TagsToString(Entry.Tags, true);
 
 				mUUID.Text = Entry.Uuid.ToHexString();
@@ -809,19 +836,19 @@ namespace KPEnhancedEntryView
 			return image;
 		}
 
-		private void mOverrideUrl_Validated(object sender, EventArgs e)
+		private void m_cmbOverrideUrl_LostFocus(object sender, EventArgs e)
 		{
-			if (Entry != null)
+			if (Entry != null && Entry.OverrideUrl != m_cmbOverrideUrl.Text)
 			{
 				CreateHistoryEntry();
-				Entry.OverrideUrl = mOverrideUrl.Text;
+				Entry.OverrideUrl = m_cmbOverrideUrl.Text;
 				OnEntryModified(EventArgs.Empty);
 			}
 		}
 
-		private void mTags_Validated(object sender, EventArgs e)
+		private void mTags_LostFocus(object sender, EventArgs e)
 		{
-			if (Entry != null)
+			if (Entry != null && mTags.Text != StrUtil.TagsToString(Entry.Tags, true))
 			{
 				CreateHistoryEntry();
 				Entry.Tags.Clear();
@@ -944,6 +971,62 @@ namespace KPEnhancedEntryView
 		}
 		#endregion
 
+		#region Override URL DropDown
+		// Code copied from PwEntryForm.cs
+		private List<Image> m_lOverrideUrlIcons = new List<Image>();
+		private void InitOverridesBox()
+		{
+			List<KeyValuePair<string, Image>> l = new List<KeyValuePair<string, Image>>();
+
+			AddOverrideUrlItem(l, "cmd://{INTERNETEXPLORER} \"{URL}\"",
+				AppLocator.InternetExplorerPath);
+			AddOverrideUrlItem(l, "cmd://{FIREFOX} \"{URL}\"",
+				AppLocator.FirefoxPath);
+			AddOverrideUrlItem(l, "cmd://{OPERA} \"{URL}\"",
+				AppLocator.OperaPath);
+			AddOverrideUrlItem(l, "cmd://{GOOGLECHROME} \"{URL}\"",
+				AppLocator.ChromePath);
+			AddOverrideUrlItem(l, "cmd://{SAFARI} \"{URL}\"",
+				AppLocator.SafariPath);
+
+			Debug.Assert(m_cmbOverrideUrl.InvokeRequired);
+			Action f = delegate()
+			{
+				try
+				{
+					Debug.Assert(!m_cmbOverrideUrl.InvokeRequired);
+					foreach(KeyValuePair<string, Image> kvp in l)
+					{
+						m_cmbOverrideUrl.Items.Add(kvp.Key);
+						m_lOverrideUrlIcons.Add(kvp.Value);
+					}
+
+					m_cmbOverrideUrl.OrderedImageList = m_lOverrideUrlIcons;
+				}
+				catch(Exception) { Debug.Assert(false); }
+			};
+			m_cmbOverrideUrl.Invoke(f);
+		}
+
+		private void AddOverrideUrlItem(List<KeyValuePair<string, Image>> l,
+			string strOverride, string strIconPath)
+		{
+			if(string.IsNullOrEmpty(strOverride)) { Debug.Assert(false); return; }
+
+			const int qSize = 16;
+
+			Image img = null;
+			string str = UrlUtil.GetQuotedAppPath(strIconPath ?? string.Empty);
+			str = str.Trim();
+			if(str.Length > 0) img = UIUtil.GetFileIcon(str, qSize, qSize);
+
+			if(img == null)
+				img = UIUtil.CreateScaledImage(mMainForm.ClientIcons.Images[
+					(int)PwIcon.Console], qSize, qSize);
+
+			l.Add(new KeyValuePair<string, Image>(strOverride, img));
+		}
+		#endregion
 		#endregion
 
 		#region Fields Menu Event handlers

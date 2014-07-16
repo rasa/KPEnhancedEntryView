@@ -31,7 +31,7 @@
 			this.mUUID = new System.Windows.Forms.TextBox();
 			this.mUUIDLabel = new System.Windows.Forms.Label();
 			this.mOverrideUrlLabel = new System.Windows.Forms.Label();
-			this.mOverrideUrl = new System.Windows.Forms.TextBox();
+			this.m_cmbOverrideUrl = new KeePass.UI.ImageComboBoxEx();
 			this.mTagsLabel = new System.Windows.Forms.Label();
 			this.mTags = new System.Windows.Forms.TextBox();
 			this.mCustomColoursLayout = new System.Windows.Forms.TableLayoutPanel();
@@ -277,7 +277,7 @@
 			this.mTextPropertiesLayout.Controls.Add(this.mUUID, 1, 2);
 			this.mTextPropertiesLayout.Controls.Add(this.mUUIDLabel, 0, 2);
 			this.mTextPropertiesLayout.Controls.Add(this.mOverrideUrlLabel, 0, 1);
-			this.mTextPropertiesLayout.Controls.Add(this.mOverrideUrl, 1, 1);
+			this.mTextPropertiesLayout.Controls.Add(this.m_cmbOverrideUrl, 1, 1);
 			this.mTextPropertiesLayout.Controls.Add(this.mTagsLabel, 0, 0);
 			this.mTextPropertiesLayout.Controls.Add(this.mTags, 1, 0);
 			this.mTextPropertiesLayout.Dock = System.Windows.Forms.DockStyle.Top;
@@ -322,14 +322,14 @@
 			this.mOverrideUrlLabel.TabIndex = 2;
 			this.mOverrideUrlLabel.Text = "<dynamic text>";
 			// 
-			// mOverrideUrl
+			// m_cmbOverrideUrl
 			// 
-			this.mOverrideUrl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mOverrideUrl.Location = new System.Drawing.Point(87, 32);
-			this.mOverrideUrl.Name = "mOverrideUrl";
-			this.mOverrideUrl.Size = new System.Drawing.Size(275, 20);
-			this.mOverrideUrl.TabIndex = 3;
-			this.mOverrideUrl.Validated += new System.EventHandler(this.mOverrideUrl_Validated);
+			this.m_cmbOverrideUrl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_cmbOverrideUrl.Location = new System.Drawing.Point(87, 32);
+			this.m_cmbOverrideUrl.Name = "m_cmbOverrideUrl";
+			this.m_cmbOverrideUrl.Size = new System.Drawing.Size(275, 20);
+			this.m_cmbOverrideUrl.TabIndex = 3;
+			this.m_cmbOverrideUrl.LostFocus += new System.EventHandler(this.m_cmbOverrideUrl_LostFocus);
 			// 
 			// mTagsLabel
 			// 
@@ -350,7 +350,7 @@
 			this.mTags.Name = "mTags";
 			this.mTags.Size = new System.Drawing.Size(275, 20);
 			this.mTags.TabIndex = 1;
-			this.mTags.Validated += new System.EventHandler(this.mTags_Validated);
+			this.mTags.LostFocus += new System.EventHandler(this.mTags_LostFocus);
 			// 
 			// mCustomColoursLayout
 			// 
@@ -876,7 +876,7 @@
 		private System.Windows.Forms.Label mSeparator2;
 		private System.Windows.Forms.Label mTagsLabel;
 		private System.Windows.Forms.TextBox mTags;
-		private System.Windows.Forms.TextBox mOverrideUrl;
+		private KeePass.UI.ImageComboBoxEx m_cmbOverrideUrl;
 		private System.Windows.Forms.Label mOverrideUrlLabel;
 		private System.Windows.Forms.Panel mIconPanel;
 		private System.Windows.Forms.Label m_lblIcon;

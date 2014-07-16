@@ -134,6 +134,13 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.27
+ Added support for URL override behaviour for the standard URL field. If an entry has an override
+  URL, then this will apply if the URL field link is clicked. Other fields will behave as normal.
+ Added the browser drop-down suggestions to the URL override field on the Properties tab.
+ Fixed bug where changes to URL override and Tags properties would sometimes be ignored
+ Added flag to PlgX to indicate that this plugin only works on Windows
+
 v0.26
  Fixed bug with Protect Field command
 
