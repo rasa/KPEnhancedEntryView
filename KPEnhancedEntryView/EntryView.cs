@@ -637,6 +637,10 @@ namespace KPEnhancedEntryView
 			else
 			{
 				var url = e.Item.SubItems.Count == 2 ? e.Item.GetSubItem(1).Url : null;
+				if (url == UrlOpenAsEntryUrl)
+				{
+					url = Entry.Strings.ReadSafe(PwDefs.UrlField);
+				}
 				mLastContextMenuUrl = url;
 				mURLDropDown.Visible = url != null;
 				mCopyCommand.Enabled = true;
