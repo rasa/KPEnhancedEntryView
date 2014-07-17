@@ -418,6 +418,7 @@ namespace KPEnhancedEntryView
 			// Attempt to complete any current editing
 			mAttachments.PossibleFinishCellEditing();
 			mFieldsGrid.PossibleFinishCellEditing();
+			mMultipleSelectionFields.PossibleFinishCellEditing();
 			NotesEditingActive = false;
 
 			// If validation failed, then cancel the edit regardless
@@ -726,11 +727,13 @@ namespace KPEnhancedEntryView
 		public event EventHandler EntryModified;
 		protected virtual void OnEntryModified(EventArgs e)
 		{
-			if (Entry != null)
+			foreach (var entry in Entries)
 			{
-				Entry.Touch(true, false);
+				entry.Touch(true, false);
 			}
 
+			PopulateProperties(); // Update access/modified times
+			
 			var temp = EntryModified;
 			if (temp != null)
 			{

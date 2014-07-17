@@ -134,6 +134,12 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.28
+ Fixed bug with multiple editing where entries Last-Modified date would not be updated (this could
+  also lead to synchronisation issues)
+ Fixed bug where edits to a multiple selection would not be comitted if a single entry was then
+  selected in the list before committing
+
 v0.27
  Added support for URL override behaviour for the standard URL field. If an entry has an override
   URL, then this will apply if the URL field link is clicked. Other fields will behave as normal.
