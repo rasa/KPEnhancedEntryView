@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KPEnhancedEntryView", "KPEnhancedEntryView.csproj", "{83E5E035-7E8F-4AE7-B22C-F3816D8DA4AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeePass", "..\KeePass-Source\KeePass\KeePass.csproj", "{10938016-DEE2-4A25-9A5A-8FD3444379CA}"
@@ -9,6 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectListView2010", "..\Th
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E448F3C9-FC22-49FD-9760-602C3C3DD5C1}"
 	ProjectSection(SolutionItems) = preProject
+		..\CreatePlgX.bat = ..\CreatePlgX.bat
 		..\Development.txt = ..\Development.txt
 		..\Releases\PackageRelease.bat = ..\Releases\PackageRelease.bat
 		..\Readme.txt = ..\Readme.txt

@@ -22,7 +22,7 @@ namespace KPEnhancedEntryView
 	{
 		public AttachmentsListView()
 		{
-			SmallImageList = new ImageList { ColorDepth = ColorDepth.Depth32Bit };
+			SmallImageList = new ImageList { ColorDepth = ColorDepth.Depth32Bit, ImageSize = new Size(DpiUtil.ScaleIntX(16), DpiUtil.ScaleIntY(16)) };
 
 			View = System.Windows.Forms.View.SmallIcon;
 			HeaderStyle = ColumnHeaderStyle.None;
@@ -52,6 +52,8 @@ namespace KPEnhancedEntryView
 				ImageGetter = IconImageGetter
 			};
 			Columns.Add(column);
+
+			OnFontChanged(EventArgs.Empty); // Set initial font
 		}
 
 		// Disallow setting of IsSimpleDragSource (as it breaks the file dragging, and is sometimes automatically set by the designer for some reason)
@@ -96,11 +98,23 @@ namespace KPEnhancedEntryView
 			var path = rowObject.Name;
 			var extension = System.IO.Path.GetExtension(path);
 
+			/*
 			if (!SmallImageList.Images.ContainsKey(extension))
 			{
-				var icon = IconHelper.GetIconForFileName(path);
-				SmallImageList.Images.Add(icon);
+				using(var icon = IconHelper.GetIconForFileName(path))
+				{
+					var iconBitmap = icon.ToBitmap();
+					var scaledIconBitmap = DpiUtil.ScaleImage(iconBitmap, false);
+					if (iconBitmap != scaledIconBitmap)
+					{
+						iconBitmap.Dispose();
+					}
+
+					SmallImageList.Images.Add(scaledIconBitmap);
+				}				
 			}
+			 */
+			SmallImageList.Images.Add(IconHelper.GetIconForFileName(path));
 
 			return SmallImageList.Images.Count - 1;
 		}

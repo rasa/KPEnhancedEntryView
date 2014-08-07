@@ -14,6 +14,8 @@ namespace KPEnhancedEntryView
 		{
 			InitializeComponent();
 
+			mToggleHidden.Width = Properties.Resources.B17x05_3BlackDots.Width + DpiUtil.ScaleIntX(16);
+
 			mSecureEdit = new SecureEdit();
 			mSecureEdit.Attach(mTextBox, OnPasswordTextChanged, mToggleHidden.Checked);
 		}

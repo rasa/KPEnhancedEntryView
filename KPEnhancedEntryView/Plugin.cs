@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using KeePass.Forms;
 using KeePass.Plugins;
 using KeePass.UI;
+using KeePass.Util;
 using KeePassLib;
 using KeePassLib.Utility;
 
@@ -26,6 +27,8 @@ namespace KPEnhancedEntryView
 
 			// Ensure terminate before initialise, in unlikely case of double initialisation
 			Terminate();
+
+			CustomResourceManager.Override(typeof(Properties.Resources));
 
 			mHost = host;
 

@@ -134,6 +134,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.29
+ Added support for High DPI (requires KeePass v2.28 or above)
+
 v0.28
  Fixed bug with multiple editing where entries Last-Modified date would not be updated (this could
   also lead to synchronisation issues)

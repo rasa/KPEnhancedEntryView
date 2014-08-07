@@ -58,7 +58,7 @@
 			this.mMultipleSelectionTab = new System.Windows.Forms.TabPage();
 			this.mMultipleSelectionFields = new KPEnhancedEntryView.MultipleEntriesFieldsListView();
 			this.mDoubleClickTimer = new System.Windows.Forms.Timer(this.components);
-			this.mFieldGridContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.mFieldGridContextMenu = new KeePass.UI.CustomContextMenuStripEx(this.components);
 			this.mURLDropDown = new System.Windows.Forms.ToolStripMenuItem();
 			this.mOpenURLCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.mCopyCommand = new System.Windows.Forms.ToolStripMenuItem();
@@ -69,7 +69,7 @@
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.mDeleteFieldCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.mAddNewCommand = new System.Windows.Forms.ToolStripMenuItem();
-			this.mAttachmentsContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.mAttachmentsContextMenu = new KeePass.UI.CustomContextMenuStripEx(this.components);
 			this.mViewBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.mRenameBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.mSaveBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
@@ -881,7 +881,7 @@
 		private System.Windows.Forms.Panel mIconPanel;
 		private System.Windows.Forms.Label m_lblIcon;
 		private System.Windows.Forms.Button m_btnIcon;
-		private System.Windows.Forms.ContextMenuStrip mFieldGridContextMenu;
+		private KeePass.UI.CustomContextMenuStripEx mFieldGridContextMenu;
 		private System.Windows.Forms.ToolStripMenuItem mCopyCommand;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripMenuItem mEditFieldCommand;
@@ -890,7 +890,7 @@
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private System.Windows.Forms.ToolStripMenuItem mDeleteFieldCommand;
 		private System.Windows.Forms.ToolStripMenuItem mAddNewCommand;
-		private System.Windows.Forms.ContextMenuStrip mAttachmentsContextMenu;
+		private KeePass.UI.CustomContextMenuStripEx mAttachmentsContextMenu;
 		private System.Windows.Forms.ToolStripMenuItem mViewBinaryCommand;
 		private System.Windows.Forms.ToolStripMenuItem mSaveBinaryCommand;
 		private System.Windows.Forms.ToolStripMenuItem mDeleteBinaryCommand;

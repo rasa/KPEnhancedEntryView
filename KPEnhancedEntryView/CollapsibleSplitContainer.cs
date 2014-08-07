@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using KeePass.UI;
 
 namespace KPEnhancedEntryView
 {
@@ -161,6 +162,13 @@ namespace KPEnhancedEntryView
 			}
 		}
 
+		protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+		{
+			base.ScaleControl(factor, specified);
+
+			ButtonSize = (int)Math.Round((float)ButtonSize * (Orientation == Orientation.Horizontal ? factor.Width : factor.Height));
+		}
+
 		protected override void OnMouseDown(MouseEventArgs e)
 		{
 			base.OnMouseDown(e);
@@ -248,15 +256,15 @@ namespace KPEnhancedEntryView
 
 
 				// Draw the arrows
-				g.FillPolygon(SystemBrushes.ControlDark, GetArrowPointArray(buttonRectangle.X + 5, buttonRectangle.Y, arrowDirection));
-				g.FillPolygon(SystemBrushes.ControlDark, GetArrowPointArray(buttonRectangle.Right - 12, buttonRectangle.Y, arrowDirection));
+				g.FillPolygon(SystemBrushes.ControlDark, GetArrowPointArray(buttonRectangle.X + DpiUtil.ScaleIntX(5), buttonRectangle.Y, arrowDirection));
+				g.FillPolygon(SystemBrushes.ControlDark, GetArrowPointArray(buttonRectangle.Right - DpiUtil.ScaleIntX(12), buttonRectangle.Y, arrowDirection));
 
 				// Draw the dots
-				var dotY = buttonRectangle.Y + 1;
-				for (var dotX = buttonRectangle.X + 15; dotX < buttonRectangle.Right - 16; dotX += DotSeparation)
+				var dotY = buttonRectangle.Y + DpiUtil.ScaleIntY(1);
+				for (var dotX = buttonRectangle.X + DpiUtil.ScaleIntX(15); dotX < buttonRectangle.Right - DpiUtil.ScaleIntX(16); dotX += DpiUtil.ScaleIntX(DotSeparation))
 				{
-					g.FillRectangle(SystemBrushes.ControlLightLight, dotX + DotDropOffset, dotY + DotDropOffset, DotSize, DotSize);
-					g.FillRectangle(SystemBrushes.ControlDark, dotX, dotY, DotSize, DotSize);
+					g.FillRectangle(SystemBrushes.ControlLightLight, dotX + DpiUtil.ScaleIntX(DotDropOffset), dotY + DpiUtil.ScaleIntY(DotDropOffset), DpiUtil.ScaleIntX(DotSize), DpiUtil.ScaleIntY(DotSize));
+					g.FillRectangle(SystemBrushes.ControlDark, dotX, dotY, DpiUtil.ScaleIntX(DotSize), DpiUtil.ScaleIntY(DotSize));
 				}
 			}
 			else
@@ -273,15 +281,15 @@ namespace KPEnhancedEntryView
 				}
 
 				// Draw the arrows
-				g.FillPolygon(SystemBrushes.ControlDark, GetArrowPointArray(buttonRectangle.X, buttonRectangle.Y + 5, arrowDirection));
-				g.FillPolygon(SystemBrushes.ControlDark, GetArrowPointArray(buttonRectangle.X, buttonRectangle.Bottom - 12, arrowDirection));
+				g.FillPolygon(SystemBrushes.ControlDark, GetArrowPointArray(buttonRectangle.X, buttonRectangle.Y + DpiUtil.ScaleIntY(5), arrowDirection));
+				g.FillPolygon(SystemBrushes.ControlDark, GetArrowPointArray(buttonRectangle.X, buttonRectangle.Bottom - DpiUtil.ScaleIntY(12), arrowDirection));
 
 				// Draw the dots
-				var dotX = buttonRectangle.X + 1;
-				for (var dotY = buttonRectangle.Y + 15; dotY < buttonRectangle.Bottom - 16; dotY += DotSeparation)
+				var dotX = buttonRectangle.X + DpiUtil.ScaleIntX(1);
+				for (var dotY = buttonRectangle.Y + DpiUtil.ScaleIntY(15); dotY < buttonRectangle.Bottom - DpiUtil.ScaleIntY(16); dotY += DpiUtil.ScaleIntY(DotSeparation))
 				{
-					g.FillRectangle(SystemBrushes.ControlLightLight, dotX + DotDropOffset, dotY + DotDropOffset, DotSize, DotSize);
-					g.FillRectangle(SystemBrushes.ControlDark, dotX, dotY, DotSize, DotSize);
+					g.FillRectangle(SystemBrushes.ControlLightLight, dotX + DpiUtil.ScaleIntX(DotDropOffset), dotY + DpiUtil.ScaleIntY(DotDropOffset), DpiUtil.ScaleIntX(DotSize), DpiUtil.ScaleIntY(DotSize));
+					g.FillRectangle(SystemBrushes.ControlDark, dotX, dotY, DpiUtil.ScaleIntX(DotSize), DpiUtil.ScaleIntY(DotSize));
 				}
 			}
 
@@ -299,30 +307,30 @@ namespace KPEnhancedEntryView
 				case ArrowDirection.Up:
 					return new[]
 					{
-						new Point(x - 1, y + 3),
-						new Point(x + 3, y - 1),
-						new Point(x + 6, y + 3),
+						new Point(x - DpiUtil.ScaleIntX(1), y + DpiUtil.ScaleIntY(3)),
+						new Point(x + DpiUtil.ScaleIntX(3), y - DpiUtil.ScaleIntY(1)),
+						new Point(x + DpiUtil.ScaleIntX(6), y + DpiUtil.ScaleIntY(3)),
 					};
 				case ArrowDirection.Down:
 					return new[]
 					{
-						new Point(x, y + 1),
-						new Point(x + 6, y + 1),
-						new Point(x + 3, y + 4),
+						new Point(x, y + DpiUtil.ScaleIntY(1)),
+						new Point(x + DpiUtil.ScaleIntX(6), y + DpiUtil.ScaleIntY(1)),
+						new Point(x + DpiUtil.ScaleIntX(3), y + DpiUtil.ScaleIntY(4)),
 					};
 				case ArrowDirection.Left:
 					return new[]
 					{
-						new Point(x + 3, y + 6),
-						new Point(x, y + 3),
-						new Point(x + 3, y),
+						new Point(x + DpiUtil.ScaleIntX(3), y + DpiUtil.ScaleIntY(6)),
+						new Point(x, y + DpiUtil.ScaleIntY(3)),
+						new Point(x + DpiUtil.ScaleIntX(3), y),
 					};
 				case ArrowDirection.Right:
 					return new[]
 					{
-						new Point(x + 1, y),
-						new Point(x + 4, y + 3),
-						new Point(x + 1, y + 6),
+						new Point(x + DpiUtil.ScaleIntX(1), y),
+						new Point(x + DpiUtil.ScaleIntX(4), y + DpiUtil.ScaleIntY(3)),
+						new Point(x + DpiUtil.ScaleIntX(1), y + DpiUtil.ScaleIntY(6)),
 					};
 				default:
 					throw new ArgumentOutOfRangeException("direction");

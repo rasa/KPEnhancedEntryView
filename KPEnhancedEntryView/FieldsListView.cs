@@ -66,6 +66,8 @@ namespace KPEnhancedEntryView
 			Columns.Add(mFieldValues);
 
 			ShowItemToolTips = true;
+
+			OnFontChanged(EventArgs.Empty); // Set initial font
 		}
 
 		// Disallow setting of IsSimpleDragSource (as it breaks the file dragging, and is sometimes automatically set by the designer for some reason)
@@ -84,7 +86,17 @@ namespace KPEnhancedEntryView
 			mOptions = options;
 		}
 
-		protected PwDatabase Database { get { return mMainForm.ActiveDatabase; } }
+		protected PwDatabase Database 
+		{ 
+			get 
+			{
+				if (mMainForm == null)
+				{
+					return null;
+				}
+				return  mMainForm.ActiveDatabase; 
+			}
+		}
 
 		#region Disposal
 		protected override void Dispose(bool disposing)
@@ -108,7 +120,7 @@ namespace KPEnhancedEntryView
 
 		public void RefreshItems()
 		{
-			if (Database.IsOpen)
+			if (Database != null && Database.IsOpen)
 			{
 				foreach (OLVListItem item in Items)
 				{
@@ -210,7 +222,7 @@ namespace KPEnhancedEntryView
 
 		#region Reveal
 
-		private const int EyePadding = 5;
+		private static readonly int EyePadding = DpiUtil.ScaleIntX(5);
 		private static readonly int EyeRegionWidth = Properties.Resources.Reveal.Width + EyePadding;
 		private static readonly ImageDecoration EyeGreyDecoration = new ImageDecoration(Properties.Resources.RevealGrey, ContentAlignment.MiddleRight) { Offset = new Size(-EyePadding, 0) };
 		private static readonly ImageDecoration EyeDecoration = new ImageDecoration(Properties.Resources.Reveal, ContentAlignment.MiddleRight) { Offset = new Size(-EyePadding, 0) };

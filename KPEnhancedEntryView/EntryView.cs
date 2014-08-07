@@ -829,7 +829,7 @@ namespace KPEnhancedEntryView
 			Image image = null;
 			if (Database != null)
 			{
-				if (!customIconId.EqualsValue(PwUuid.Zero))
+				if (!customIconId.Equals(PwUuid.Zero))
 				{
 					image = Database.GetCustomIcon(customIconId);
 				}

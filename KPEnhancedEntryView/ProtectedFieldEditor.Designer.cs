@@ -37,7 +37,7 @@
 			this.mTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mTextBox.Location = new System.Drawing.Point(0, 0);
 			this.mTextBox.Name = "mTextBox";
-			this.mTextBox.Size = new System.Drawing.Size(271, 20);
+			this.mTextBox.Size = new System.Drawing.Size(280, 20);
 			this.mTextBox.TabIndex = 0;
 			// 
 			// mToggleHidden
@@ -45,10 +45,8 @@
 			this.mToggleHidden.Appearance = System.Windows.Forms.Appearance.Button;
 			this.mToggleHidden.Dock = System.Windows.Forms.DockStyle.Right;
 			this.mToggleHidden.Image = global::KPEnhancedEntryView.Properties.Resources.B17x05_3BlackDots;
-			this.mToggleHidden.Location = new System.Drawing.Point(271, 0);
+			this.mToggleHidden.Location = new System.Drawing.Point(280, 0);
 			this.mToggleHidden.Name = "mToggleHidden";
-			this.mToggleHidden.Padding = new System.Windows.Forms.Padding(0, 1, 0, 0);
-			this.mToggleHidden.Size = new System.Drawing.Size(32, 20);
 			this.mToggleHidden.TabIndex = 1;
 			this.mToggleHidden.UseVisualStyleBackColor = true;
 			this.mToggleHidden.CheckedChanged += new System.EventHandler(this.mToggleHidden_CheckedChanged);
