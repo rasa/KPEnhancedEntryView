@@ -71,11 +71,8 @@ namespace KPEnhancedEntryView
 			// Database may be saved while in the middle of editing Notes. Watch for that and commit the current edit if that happens
 			mHost.MainWindow.FileSaving += this.OnFileSaving;
 
-			if (PwDefs.FileVersion64 < StrUtil.ParseVersion("2.22")) // Fixed in KeePass 2.22
-			{
-				// HACK: UIStateUpdated isn't called when navigating a reference link in the entry view, so grab that too.
-				mOriginalEntryView.LinkClicked += this.OnUIStateUpdated;
-			}
+			// Workspace may be locked while in the middle of editing. Also watch for that and commit the current edit if that happens
+			mHost.MainWindow.FileClosingPre += this.OnFileClosingPre;
 
 			// HACK: UIStateUpdated isn't called when toggling column value hiding on and off, so monitor the entries list for being invalidated
 			mEntriesListView = FindControl<ListView>("m_lvEntries");
@@ -168,6 +165,8 @@ namespace KPEnhancedEntryView
 
 			mOriginalEntryView.FontChanged -= mOriginalEntryView_FontChanged;
 			mHost.MainWindow.UIStateUpdated -= this.OnUIStateUpdated;
+			mHost.MainWindow.FileSaving -= this.OnFileSaving;
+			mHost.MainWindow.FileClosingPre -= this.OnFileClosingPre;
 
 			// Restore original entry view to it's normal place
 			mEntryView.Parent.Controls.Add(mOriginalEntryView);
@@ -190,30 +189,52 @@ namespace KPEnhancedEntryView
 
 		private void OnUIStateUpdated(object sender, EventArgs e)
 		{
-			IEnumerable<PwEntry> selectedEntries;
-
-			// Don't use MainForm.GetSSelectedEntries, it has perf issues on versions of KeePass 2.26 and below
-			if (mEntriesListView != null)
-			{
-				selectedEntries = from ListViewItem lvi in mEntriesListView.SelectedItems select ((PwListItem)lvi.Tag).Entry;
-			}
-			else
-			{
-				// Fall back on GetSelectedEntries - can't read from list view directly
-				selectedEntries = mHost.MainWindow.GetSelectedEntries();
-			}
-			mEntryView.Entries = selectedEntries;
+			mEntryView.Entries = mHost.MainWindow.GetSelectedEntries();
 		}
 
 		private void OnFileSaving(object sender, FileSavingEventArgs e)
 		{
-			mEntryView.FinishEditingNotes();
+			mEntryView.FinishEditing();
 		}
 
+		private void OnFileClosingPre(object sender, FileClosingEventArgs e)
+		{
+			mEntryView.FinishEditing();
+		}
+
+		private volatile bool mHostRequiresModificationNotification;
 		private void mEntryView_EntryModified(object sender, EventArgs e)
 		{
-			mHost.MainWindow.UpdateUI(false, null, false, null, false, null, true);
-			mHost.MainWindow.RefreshEntriesList();
+			mHostRequiresModificationNotification = true;
+			NotifyHostOfModification();
+		}
+
+		private void NotifyHostOfModification()
+		{
+			// Decouple the update from the current stack to avoid any recursive loops
+			mHost.MainWindow.BeginInvoke(new Action(delegate
+			{
+				if (!mHostRequiresModificationNotification)
+				{
+					// Host has already been notified, no further notification required.
+					return;
+				}
+
+				// If it's already editing another cell, then don't bother mentioning that it's modified until editing finishes
+				var notificationDeferred = mEntryView.DeferUntilCellEditingFinishes(NotifyHostOfModification);
+
+				if (notificationDeferred)
+				{
+					mHost.MainWindow.UpdateUI(false, null, false, null, false, null, false); // If the notification is deferred, don't notify as modified now, just notify the UI change without modified flag
+				}
+				else
+				{
+					// Notification is not deferred - notifying with modified flag now, and clearing the requires notification flag - further modifications after notification require further notifications.
+					mHostRequiresModificationNotification = false;
+					mHost.MainWindow.UpdateUI(false, null, false, null, false, null, true); // If the notification is deferred, don't notify as modified now, just notify the UI change without modified flag
+				}
+				mHost.MainWindow.RefreshEntriesList();
+			}));
 		}
 
 		private void mOptions_OptionChanged(object sender, Options.OptionChangedEventArgs e)

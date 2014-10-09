@@ -136,6 +136,7 @@ Changelog
 ---------
 v0.29
  Added support for High DPI (requires KeePass v2.28 or above)
+ More reliable committing of in-progress editing when saving, closing or locking the workspace.
 
 v0.28
  Fixed bug with multiple editing where entries Last-Modified date would not be updated (this could

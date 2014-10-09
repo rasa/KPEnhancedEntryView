@@ -264,12 +264,15 @@ namespace KPEnhancedEntryView
 
 		protected override void OnMouseLeave(EventArgs e)
 		{
-			mLastMouseDownLocation = null;
-				
-			if (mMouseInReveal)
+			if (Enabled)
 			{
-				mMouseInReveal = false;
-				Cursor = Cursors.Default;
+				mLastMouseDownLocation = null;
+
+				if (mMouseInReveal)
+				{
+					mMouseInReveal = false;
+					Cursor = Cursors.Default;
+				}
 			}
 			base.OnMouseLeave(e);
 		}

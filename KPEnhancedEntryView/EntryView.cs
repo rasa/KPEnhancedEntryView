@@ -320,7 +320,7 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region Population
-		private bool mSuspendEntryChangedPopulation;
+
 		private DateTime? mEntryLastModificationTime;
 		private PwEntry mEntry;
 		private PwEntry[] mEntries;
@@ -371,12 +371,19 @@ namespace KPEnhancedEntryView
 					else
 					{
 						// Multiple selection
-						mEntry = null;
-						mEntryLastModificationTime = null;
-						mEntries = valueArray;
+						if (mEntries == null ||
+							!mEntries.SequenceEqual(valueArray) ||
+						    HasEntryBeenModifiedSinceLastModificationTime(valueArray))
+						{
 
-						// TODO: Extra checking needed to see if this has actually changed?
-						OnEntryChanged(EventArgs.Empty);
+							mEntry = null;
+							mEntries = valueArray;
+
+							RecordEntryLastModificationTime();
+
+							// TODO: Extra checking needed to see if this has actually changed?
+							OnEntryChanged(EventArgs.Empty);
+						}
 					}
 				}
 			}
@@ -396,34 +403,56 @@ namespace KPEnhancedEntryView
 			get { return mEntry; }
 			set
 			{
-				if (value != mEntry ||
-					(value == null || value.LastModificationTime != mEntryLastModificationTime))
+				if (value != mEntry || HasEntryBeenModifiedSinceLastModificationTime(value))
 				{
 					mEntry = value;
 					mEntries = null;
 
-					mEntryLastModificationTime = mEntry == null ? null : (DateTime?)mEntry.LastModificationTime;
+					RecordEntryLastModificationTime();
 					OnEntryChanged(EventArgs.Empty);
 				}
 			}
 		}
 
-		protected virtual void OnEntryChanged(EventArgs e)
+		#region Last modification time high water mark
+		private void RecordEntryLastModificationTime()
 		{
-			if (mSuspendEntryChangedPopulation)
+			if (mEntries != null && mEntries.Length > 0)
 			{
-				return;
+				// Use the most recently modified entry for the last modification time
+				mEntryLastModificationTime = mEntries.Max(entry => entry.LastModificationTime);
+			}
+			else if (mEntry != null)
+			{
+				// Use the single entry for the last modification time
+				mEntryLastModificationTime = mEntry.LastModificationTime;
+			}
+			else
+			{
+				mEntryLastModificationTime = null;
+			}
+		}
+
+		private bool HasEntryBeenModifiedSinceLastModificationTime(PwEntry entry)
+		{
+			return entry == null || entry.LastModificationTime != mEntryLastModificationTime;
+		}
+
+		private bool HasEntryBeenModifiedSinceLastModificationTime(IEnumerable<PwEntry> entries)
+		{
+			// Use the most recently modified entry for the last modification time
+			if (entries == null || !entries.Any())
+			{
+				return true;
 			}
 
-			// Attempt to complete any current editing
-			mAttachments.PossibleFinishCellEditing();
-			mFieldsGrid.PossibleFinishCellEditing();
-			mMultipleSelectionFields.PossibleFinishCellEditing();
-			NotesEditingActive = false;
+			return entries.Max(entry => entry.LastModificationTime) != mEntryLastModificationTime;
+		}
+		#endregion
 
-			// If validation failed, then cancel the edit regardless
-			mAttachments.CancelCellEdit();
-			mFieldsGrid.CancelCellEdit();
+		protected virtual void OnEntryChanged(EventArgs e)
+		{
+			FinishEditing();
 
 			if (IsMultipleSelection)
 			{
@@ -490,9 +519,17 @@ namespace KPEnhancedEntryView
 
 		#region Notes
 
-		public void FinishEditingNotes()
+		public void FinishEditing()
 		{
+			// Attempt to complete any current editing
+			mAttachments.PossibleFinishCellEditing();
+			mFieldsGrid.PossibleFinishCellEditing();
+			mMultipleSelectionFields.PossibleFinishCellEditing();
 			NotesEditingActive = false;
+
+			// If validation failed, then cancel the edit regardless
+			mAttachments.CancelCellEdit();
+			mFieldsGrid.CancelCellEdit();
 		}
 
 		private void PopulateNotes(string value)
@@ -733,19 +770,15 @@ namespace KPEnhancedEntryView
 			}
 
 			PopulateProperties(); // Update access/modified times
+
+			// We have already made the change to the UI, don't need to repopulate in response to notifying the main window of the change.
+			// So, note that we are already up-to-date with regards to the entry modification up to now.
+			RecordEntryLastModificationTime();
 			
 			var temp = EntryModified;
 			if (temp != null)
 			{
-				try
-				{
-					mSuspendEntryChangedPopulation = true; // We have already made the change to the UI, don't need to repopulate in response to notifying the main window of the change
-					temp(this, e);
-				}
-				finally
-				{
-					mSuspendEntryChangedPopulation = false;
-				}
+				temp(this, e);
 			}
 		}
 
@@ -763,6 +796,46 @@ namespace KPEnhancedEntryView
 		{
 			OnEntryModified(e);
 		}
+
+
+		/// <summary>
+		/// Defers an action to perform once cell editing finishes (if a cell is currently being edited)
+		/// </summary>
+		/// <param name="action">Action to perform once cell editing finishes</param>
+		/// <returns>True if the action was deferred, false if no cell was currently being edited</returns>
+		public bool DeferUntilCellEditingFinishes(Action action)
+		{
+			if (DeferUntilCellEditingFinishes(mFieldsGrid, action) ||
+			    DeferUntilCellEditingFinishes(mMultipleSelectionFields, action) ||
+			    DeferUntilCellEditingFinishes(mAttachments, action))
+			{
+				// One of them deferred the action
+				return true;
+			}
+
+			// None of them were editing, so the action wasn't deferred.
+			return false;
+		}
+
+		private bool DeferUntilCellEditingFinishes(ObjectListView listView, Action action)
+		{
+			if (listView.IsCellEditing)
+			{
+				// Set up one-shot finishing event handler to call action on cell edit finished
+				CellEditEventHandler onFinishing = null;
+				onFinishing = delegate(object sender, CellEditEventArgs e)
+				{
+					((ObjectListView)sender).CellEditFinishing -= onFinishing;
+					action();
+				};
+				listView.CellEditFinishing += onFinishing;
+
+				return true;
+			}
+
+			return false;
+		}
+
 		#endregion
 
 		#region Properties Tab
@@ -831,7 +904,7 @@ namespace KPEnhancedEntryView
 			{
 				if (!customIconId.Equals(PwUuid.Zero))
 				{
-					image = Database.GetCustomIcon(customIconId);
+					image = DpiUtil.ScaleImage(Database.GetCustomIcon(customIconId), false);
 				}
 				if (image == null)
 				{
@@ -1145,5 +1218,6 @@ namespace KPEnhancedEntryView
 			mFieldsGrid.AllowCreateHistoryNow = false; // Don't allow a new history record for 1 minute from this modification
 		}
 		#endregion
+
 	}
 }
