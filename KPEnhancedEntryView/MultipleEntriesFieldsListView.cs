@@ -428,7 +428,7 @@ namespace KPEnhancedEntryView
 			return base.GetDragValue(rowObject);
 		}
 
-		protected override string GetDisplayValue(ProtectedString value, bool revealValues, SprCompileFlags compileFlags = DisplayValueSprCompileFlags)
+		protected override string GetDisplayValue(ProtectedString value, bool revealValues, SprCompileFlags compileFlags)
 		{
 			return SprEngine.Compile(value.ReadString(), new SprContext(null, Database, compileFlags) { ForcePlainTextPasswords = revealValues });
 		}

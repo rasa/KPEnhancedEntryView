@@ -195,7 +195,7 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region Field dereferencing
-		protected override string GetDisplayValue(ProtectedString value, bool revealValues, SprCompileFlags compileFlags = DisplayValueSprCompileFlags)
+		protected override string GetDisplayValue(ProtectedString value, bool revealValues, SprCompileFlags compileFlags)
 		{
 			return SprEngine.Compile(value.ReadString(), new SprContext(Entry, Database, compileFlags) { ForcePlainTextPasswords = revealValues });
 		}

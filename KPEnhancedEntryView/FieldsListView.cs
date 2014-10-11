@@ -887,7 +887,11 @@ namespace KPEnhancedEntryView
 			}
 		}
 
-		protected virtual string GetDisplayValue(ProtectedString value, bool revealValue, SprCompileFlags compileFlags = DisplayValueSprCompileFlags)
+		protected string GetDisplayValue(ProtectedString value, bool revealValue)
+		{
+			return GetDisplayValue(value, revealValue, DisplayValueSprCompileFlags);
+		}
+		protected virtual string GetDisplayValue(ProtectedString value, bool revealValue, SprCompileFlags compileFlags)
 		{
 			return value.ReadString();
 		}

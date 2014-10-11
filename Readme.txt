@@ -134,6 +134,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.30
+ Fixed compatibility with older versions of the .NET Framework
+
 v0.29
  Added support for High DPI (requires KeePass v2.28 or above)
  More reliable committing of in-progress editing when saving, closing or locking the workspace.
