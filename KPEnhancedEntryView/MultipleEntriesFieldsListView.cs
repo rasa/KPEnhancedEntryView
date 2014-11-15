@@ -231,6 +231,11 @@ namespace KPEnhancedEntryView
 		{
 			base.ValidateFieldName(e, newValue);
 
+			if (e.Cancel)
+			{
+				return;
+			}
+
 			if (PwDefs.IsStandardField(newValue))
 			{
 				ReportValidationFailure(e.Control, KPRes.FieldNameInvalid);

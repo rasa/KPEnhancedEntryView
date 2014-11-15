@@ -134,6 +134,12 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v0.31
+ Fixed bug where validation failure with a multiple selection may cause a crash when changing
+  selection before attempting to comitt an invalid change
+ Fixed bug where a mulitple selection change with uncommitted changes may not properly update
+  the last modified timestamp
+
 v0.30
  Fixed compatibility with older versions of the .NET Framework
 

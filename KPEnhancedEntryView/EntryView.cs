@@ -530,6 +530,7 @@ namespace KPEnhancedEntryView
 			// If validation failed, then cancel the edit regardless
 			mAttachments.CancelCellEdit();
 			mFieldsGrid.CancelCellEdit();
+			mMultipleSelectionFields.CancelCellEdit();
 		}
 
 		private void PopulateNotes(string value)
@@ -600,7 +601,7 @@ namespace KPEnhancedEntryView
 									// Save changes
 									CreateHistoryEntry();
 									entry.Strings.Set(PwDefs.NotesField, new ProtectedString(Database.MemoryProtection.ProtectNotes, newValue));
-									OnEntryModified(EventArgs.Empty);
+									OnEntryModified(new EntryModifiedEventArgs(entry));
 								}
 
 								PopulateNotes(newValue);
@@ -761,10 +762,30 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region EntryModified event
-		public event EventHandler EntryModified;
-		protected virtual void OnEntryModified(EventArgs e)
+
+		public class EntryModifiedEventArgs : EventArgs
 		{
-			foreach (var entry in Entries)
+			private readonly PwEntry[] mEntries;
+
+			public EntryModifiedEventArgs(IEnumerable<PwEntry> entries)
+			{
+				mEntries = entries.ToArray();
+			}
+
+			public EntryModifiedEventArgs(PwEntry entry)
+			{
+				mEntries = new[] { entry };
+			}
+
+			public IEnumerable<PwEntry> Entries
+			{
+				get { return mEntries; }
+			}
+		}
+		public event EventHandler<EntryModifiedEventArgs> EntryModified;
+		protected virtual void OnEntryModified(EntryModifiedEventArgs e)
+		{
+			foreach (var entry in e.Entries)
 			{
 				entry.Touch(true, false);
 			}
@@ -782,19 +803,25 @@ namespace KPEnhancedEntryView
 			}
 		}
 
+		private void OnCurrentEntryModified()
+		{
+			Debug.Assert(Entries.Count() == 1);
+			OnEntryModified(new EntryModifiedEventArgs(Entry));
+		}
+
 		private void mAttachments_EntryModified(object sender, EventArgs e)
 		{
-			OnEntryModified(e);
+			OnEntryModified(new EntryModifiedEventArgs(mAttachments.Entry));
 		}
 
 		private void mFieldsGrid_Modified(object sender, EventArgs e)
 		{
-			OnEntryModified(e);
+			OnEntryModified(new EntryModifiedEventArgs(mFieldsGrid.Entry));
 		}
 
 		private void mMultipleSelectionFields_Modified(object sender, EventArgs e)
 		{
-			OnEntryModified(e);
+			OnEntryModified(new EntryModifiedEventArgs(mMultipleSelectionFields.Entries));
 		}
 
 
@@ -922,7 +949,7 @@ namespace KPEnhancedEntryView
 			{
 				CreateHistoryEntry();
 				Entry.OverrideUrl = m_cmbOverrideUrl.Text;
-				OnEntryModified(EventArgs.Empty);
+				OnCurrentEntryModified();
 			}
 		}
 
@@ -933,7 +960,7 @@ namespace KPEnhancedEntryView
 				CreateHistoryEntry();
 				Entry.Tags.Clear();
 				Entry.Tags.AddRange(StrUtil.StringToTags(mTags.Text));
-				OnEntryModified(EventArgs.Empty);
+				OnCurrentEntryModified();
 			}
 		}
 
@@ -965,7 +992,7 @@ namespace KPEnhancedEntryView
 
 				UIUtil.SetButtonImage(m_btnIcon, GetImage(Entry.CustomIconUuid, Entry.IconId), true);
 
-				OnEntryModified(EventArgs.Empty);
+				OnCurrentEntryModified();
 			}
 
 			UIUtil.DestroyForm(iconPicker);
@@ -1022,7 +1049,7 @@ namespace KPEnhancedEntryView
 				setEntryColor(pickedColour.Value);
 				colourPicker.BackColor = pickedColour.Value;
 
-				OnEntryModified(EventArgs.Empty);
+				OnCurrentEntryModified();
 			}
 		}
 
@@ -1034,7 +1061,7 @@ namespace KPEnhancedEntryView
 				CreateHistoryEntry();
 				Entry.BackgroundColor = Color.Empty;
 
-				OnEntryModified(EventArgs.Empty);
+				OnCurrentEntryModified();
 			}
 		}
 
@@ -1046,7 +1073,7 @@ namespace KPEnhancedEntryView
 				CreateHistoryEntry();
 				Entry.ForegroundColor = Color.Empty;
 
-				OnEntryModified(EventArgs.Empty);
+				OnCurrentEntryModified();
 			}
 		}
 		#endregion
