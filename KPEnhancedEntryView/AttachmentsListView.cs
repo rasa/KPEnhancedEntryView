@@ -234,7 +234,7 @@ namespace KPEnhancedEntryView
 
 			prompt.SetIcon(VtdCustomIcon.Question);
 			prompt.AddButton((int)DialogResult.OK, KPRes.DeleteCmd, null);
-			prompt.AddButton((int)DialogResult.Cancel, KPRes.CancelCmd, null);
+			prompt.AddButton((int)DialogResult.Cancel, KPRes.Cancel, null);
 
 			if (prompt.ShowDialog())
 			{
@@ -404,24 +404,7 @@ namespace KPEnhancedEntryView
 
 		private void ShowBinaryWindow(string name, ProtectedBinary binary)
 		{
-#if DEBUG
 			var modifiedData = BinaryDataUtil.Open(name, binary, null);
-#else
-			ProtectedBinary modifiedData = null;
-			
-			// BinaryDataUtil was introduced with KeePass 2.25, so use it if it's available
-			var binaryDataUtil = typeof(BinaryDataClassifier).Assembly.GetType("KeePass.Util.BinaryDataUtil");
-			if (binaryDataUtil != null)
-			{
-				modifiedData = (ProtectedBinary)binaryDataUtil.GetMethod("Open", BindingFlags.Static | BindingFlags.Public).Invoke(null, new object[] { name, binary, null });
-			}
-			else
-			{
-				// Not available, use the legacy code
-				modifiedData = OpenBinaryDataLegacy(name, binary);
-			}
-#endif
-
 			if (modifiedData != null)
 			{
 				Entry.CreateBackup(Database);
@@ -431,37 +414,6 @@ namespace KPEnhancedEntryView
 				RefreshObjectsFromEntry();
 				OnEntryModified(EventArgs.Empty);
 			}
-		}
-
-		private ProtectedBinary OpenBinaryDataLegacy(string name, ProtectedBinary binary)
-		{
-			ProtectedBinary modifiedData = null;
-
-			var data = binary.ReadData();
-
-			var dataClass = BinaryDataClassifier.Classify(name, data);
-
-			if (DataEditorForm.SupportsDataType(dataClass))
-			{
-				var editor = new DataEditorForm();
-				editor.InitEx(name, data);
-				editor.ShowDialog();
-
-				if (editor.EditedBinaryData != null)
-				{
-					modifiedData = new ProtectedBinary(binary.IsProtected, editor.EditedBinaryData);
-				}
-
-				UIUtil.DestroyForm(editor);
-			}
-			else
-			{
-				var viewer = new DataViewerForm();
-				viewer.InitEx(name, data);
-				UIUtil.ShowDialogAndDestroy(viewer);
-			}
-
-			return modifiedData;
 		}
 		#endregion
 

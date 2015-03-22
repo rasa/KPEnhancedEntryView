@@ -200,6 +200,10 @@
   <ItemGroup>
     <None Include="Resources\RevealGrey.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Nuvola\B16x16_History.png" />
+    <None Include="Resources\Nuvola\B16x16_KTouch.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF $(ConfigurationName) == Release "$(ProjectDir)..\CreatePlgX.bat"</PostBuildEvent>

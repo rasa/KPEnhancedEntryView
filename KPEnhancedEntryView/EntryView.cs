@@ -31,6 +31,10 @@ namespace KPEnhancedEntryView
 		private readonly OpenWithMenu mURLDropDownMenu;
 		private readonly bool mShowAccessTime;
 
+		private readonly string mDefaultExpireDateTimePickerFormat;
+		private ExpiryControlGroup m_cgExpiry = new ExpiryControlGroup();
+		private readonly Image m_imgStdExpire;
+
 		/// <summary>When a context menu is shown for a field value with a URL, that URL will be stored in this variable for use with the OpenWith menu</summary>
 		private string mLastContextMenuUrl;
 
@@ -53,8 +57,7 @@ namespace KPEnhancedEntryView
 			mFieldsGrid.Initialise(mMainForm, mOptions);
 			mMultipleSelectionFields.Initialise(mMainForm, mOptions);
 
-			// KeePass 2.24 and above deprecates last access time
-			mShowAccessTime = (PwDefs.FileVersion64 < 0x0002001800000000UL) || ((KeePass.Program.Config.UI.UIFlags & 0x20000) != 0);
+			mShowAccessTime = (Program.Config.UI.UIFlags & 0x20000) != 0;
 		
 			mAccessTimeLabel.Visible = mAccessTime.Visible = mShowAccessTime;
 			
@@ -78,7 +81,6 @@ namespace KPEnhancedEntryView
 				SetLabel(mAccessTimeLabel, KPRes.LastAccessTime);
 			}
 			SetLabel(mModificationTimeLabel, KPRes.LastModificationTime);
-			SetLabel(mExpiryTimeLabel, KPRes.ExpiryTime);
 			SetLabel(mTagsLabel, KPRes.Tags);
 			SetLabel(mOverrideUrlLabel, KPRes.UrlOverride);
 			SetLabel(mUUIDLabel, KPRes.Uuid);
@@ -96,6 +98,10 @@ namespace KPEnhancedEntryView
 			mSplitNotesAttachements.SplitRatio = mOptions.NotesAttachmentsSplitPosition;
 
 			// Code copied from PwEntryForm.cs
+			m_imgStdExpire = UIUtil.CreateDropDownImage(Properties.Resources.B16x16_History);
+			m_cgExpiry.Attach(m_cbExpires, m_dtExpireDateTime);
+			mDefaultExpireDateTimePickerFormat = m_dtExpireDateTime.CustomFormat;
+
 			System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
 				try { InitOverridesBox(); }
@@ -163,6 +169,9 @@ namespace KPEnhancedEntryView
 				{
 					mURLDropDownMenu.Destroy();
 				}
+
+				m_cgExpiry.Release();
+				m_imgStdExpire.Dispose();
 
 				DisposeOverideUrlIcons();
 
@@ -664,6 +673,7 @@ namespace KPEnhancedEntryView
 			{
 				mURLDropDown.Visible = false;
 				mCopyCommand.Enabled = false;
+				mAutoTypeCommand.Enabled = false;
 				mEditFieldCommand.Enabled = false;
 				mProtectFieldCommand.Visible = false;
 				mPasswordGeneratorCommand.Enabled = false;
@@ -672,6 +682,7 @@ namespace KPEnhancedEntryView
 
 				mProtectFieldCommand.Checked = false;
 				mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, Properties.Resources.Field);
+				mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, Properties.Resources.Field);
 			}
 			else
 			{
@@ -683,6 +694,7 @@ namespace KPEnhancedEntryView
 				mLastContextMenuUrl = url;
 				mURLDropDown.Visible = url != null;
 				mCopyCommand.Enabled = true;
+				mAutoTypeCommand.Enabled = mFieldsGrid.Entry.GetAutoTypeEnabled();
 				mEditFieldCommand.Enabled = true;
 				mProtectFieldCommand.Visible = !PwDefs.IsStandardField(rowObject.FieldName); // Changing the protection of standard fields has no visible effect, so don't allow it
 				mPasswordGeneratorCommand.Enabled = true;
@@ -691,6 +703,7 @@ namespace KPEnhancedEntryView
 			
 				mProtectFieldCommand.Checked = rowObject.Value.IsProtected;
 				mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, rowObject.DisplayName);
+				mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, rowObject.DisplayName);
 			}
 			e.MenuStrip = mFieldGridContextMenu;
 			mFieldGridContextMenuTarget = mFieldsGrid;
@@ -704,6 +717,7 @@ namespace KPEnhancedEntryView
 			{
 				mURLDropDown.Visible = false;
 				mCopyCommand.Enabled = false;
+				mAutoTypeCommand.Enabled = false;
 				mEditFieldCommand.Enabled = false;
 				mProtectFieldCommand.Enabled = false;
 				mPasswordGeneratorCommand.Enabled = false;
@@ -719,10 +733,12 @@ namespace KPEnhancedEntryView
 				{
 					mURLDropDown.Visible = false;
 					mCopyCommand.Enabled = false;
+					mAutoTypeCommand.Enabled = false;
 					mProtectFieldCommand.Enabled = false;
 					
 					mProtectFieldCommand.Checked = false;
-					mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, Properties.Resources.Field);
+					mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, rowObject.DisplayName);
+					mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, rowObject.DisplayName);
 				}
 				else
 				{
@@ -730,11 +746,13 @@ namespace KPEnhancedEntryView
 					mLastContextMenuUrl = url;
 					mURLDropDown.Visible = url != null;
 					mCopyCommand.Enabled = true;
+					mAutoTypeCommand.Enabled = mMultipleSelectionFields.Entries.Any(entry => entry.GetAutoTypeEnabled());
 					mProtectFieldCommand.Enabled = true;
 					
 					mProtectFieldCommand.Checked = rowObject.Value.IsProtected;
 
 					mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, rowObject.DisplayName);
+					mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, rowObject.DisplayName);
 				}
 
 				mEditFieldCommand.Enabled = true;
@@ -879,6 +897,8 @@ namespace KPEnhancedEntryView
 
 				UIUtil.SetButtonImage(m_btnIcon, GetImage(Entry.CustomIconUuid, Entry.IconId), true);
 
+				UIUtil.SetButtonImage(m_btnStandardExpires, m_imgStdExpire, true);
+
 				mCreationTime.Text = TimeUtil.ToDisplayString(Entry.CreationTime);
 				if (mShowAccessTime)
 				{
@@ -888,13 +908,13 @@ namespace KPEnhancedEntryView
 
 				if (Entry.Expires)
 				{
-					mExpiryTime.Text = TimeUtil.ToDisplayString(Entry.ExpiryTime);
-
-					mExpiryTimeLabel.Visible = mExpiryTime.Visible = true;
+					m_cgExpiry.Value = Entry.ExpiryTime;
+					m_cgExpiry.Checked = true;
 				}
-				else
+				else // Does not expire
 				{
-					mExpiryTimeLabel.Visible = mExpiryTime.Visible = false;
+					m_cgExpiry.Value = DateTime.Now.Date;
+					m_cgExpiry.Checked = false;
 				}
 
 				SetCustomColourControls(m_cbCustomForegroundColor, m_btnPickFgColor, Entry.ForegroundColor);
@@ -904,6 +924,9 @@ namespace KPEnhancedEntryView
 				mTags.Text = StrUtil.TagsToString(Entry.Tags, true);
 
 				mUUID.Text = Entry.Uuid.ToHexString();
+
+				m_cbAutoTypeEnabled.Checked = Entry.AutoType.Enabled;
+				m_cbAutoTypeObfuscation.Checked = AutoTypeObfuscationEnabled;
 
 				mPropertiesTabScrollPanel.Visible = true;
 			}
@@ -1134,6 +1157,153 @@ namespace KPEnhancedEntryView
 			l.Add(new KeyValuePair<string, Image>(strOverride, img));
 		}
 		#endregion
+
+		#region Expiry
+
+		private void m_dtExpireDateTime_GotFocus(object sender, EventArgs e)
+		{
+			m_dtExpireDateTime.CustomFormat = mDefaultExpireDateTimePickerFormat;
+		}
+
+		private void m_dtExpireDateTime_LostFocus(object sender, EventArgs e)
+		{
+			UpdateExpiry();
+			UpdateExpiryDisplay();
+		}
+
+		private void m_cbExpires_Click(object sender, EventArgs e)
+		{
+			UpdateExpiry();
+		}
+
+		private void m_cbExpires_CheckedChanged(object sender, EventArgs e)
+		{
+			UpdateExpiryDisplay();
+		}
+
+		private void UpdateExpiryDisplay()
+		{
+			if (m_cgExpiry.Checked)
+			{
+				m_dtExpireDateTime.CustomFormat = mDefaultExpireDateTimePickerFormat;
+			}
+			else
+			{
+				m_dtExpireDateTime.CustomFormat = " ";
+			}
+		}
+
+		private void m_cbExpires_LostFocus(object sender, EventArgs e)
+		{
+			UpdateExpiry();
+		}
+
+		private void UpdateExpiry()
+		{
+			if (Entry != null && (Entry.Expires != m_cgExpiry.Checked ||
+								  (m_cgExpiry.Checked && Entry.ExpiryTime != m_cgExpiry.Value)))
+			{
+				CreateHistoryEntry();
+				if (m_cgExpiry.Checked)
+				{
+					Entry.Expires = true;
+					Entry.ExpiryTime = m_cgExpiry.Value;
+				}
+				else
+				{
+					Entry.Expires = false;
+				}
+				OnCurrentEntryModified();
+			}
+		}
+
+		// Copied from PwEntryForm.cs
+		private void SetExpireIn(int nYears, int nMonths, int nDays)
+		{
+			DateTime dt = DateTime.Now.Date;
+			dt = dt.AddYears(nYears);
+			dt = dt.AddMonths(nMonths);
+			dt = dt.AddDays(nDays);
+
+			DateTime dtPrevTime = m_cgExpiry.Value;
+			dt = dt.AddHours(dtPrevTime.Hour);
+			dt = dt.AddMinutes(dtPrevTime.Minute);
+			dt = dt.AddSeconds(dtPrevTime.Second);
+
+			m_cgExpiry.Value = dt;
+			m_cgExpiry.Checked = true;
+			
+			UpdateExpiry();
+		}
+
+		private void OnMenuExpireNow(object sender, EventArgs e)
+		{
+			SetExpireIn(0, 0, 0);
+		}
+
+		private void OnMenuExpire1Week(object sender, EventArgs e)
+		{
+			SetExpireIn(0, 0, 7);
+		}
+
+		private void OnMenuExpire2Weeks(object sender, EventArgs e)
+		{
+			SetExpireIn(0, 0, 14);
+		}
+
+		private void OnMenuExpire1Month(object sender, EventArgs e)
+		{
+			SetExpireIn(0, 1, 0);
+		}
+
+		private void OnMenuExpire3Months(object sender, EventArgs e)
+		{
+			SetExpireIn(0, 3, 0);
+		}
+
+		private void OnMenuExpire6Months(object sender, EventArgs e)
+		{
+			SetExpireIn(0, 6, 0);
+		}
+
+		private void OnMenuExpire1Year(object sender, EventArgs e)
+		{
+			SetExpireIn(1, 0, 0);
+		}
+
+		private void OnBtnStandardExpiresClick(object sender, EventArgs e)
+		{
+			m_ctxDefaultTimes.Show(m_btnStandardExpires, 0, m_btnStandardExpires.Height);
+		}
+		#endregion
+
+		#region Auto-Type
+		private void m_cbAutoTypeEnabled_Click(object sender, EventArgs e)
+		{
+			if (Entry != null && (Entry.AutoType.Enabled != m_cbAutoTypeEnabled.Checked))
+			{
+				CreateHistoryEntry();
+				Entry.AutoType.Enabled = m_cbAutoTypeEnabled.Checked;
+                OnCurrentEntryModified();
+			}
+		}
+
+		private void m_cbAutoTypeObfuscation_Click(object sender, EventArgs e)
+		{
+			if (Entry != null && (AutoTypeObfuscationEnabled != m_cbAutoTypeObfuscation.Checked))
+			{
+				CreateHistoryEntry();
+				AutoTypeObfuscationEnabled = m_cbAutoTypeObfuscation.Checked;
+				OnCurrentEntryModified();
+			}
+		}
+
+		private bool AutoTypeObfuscationEnabled
+		{
+			get { return Entry.AutoType.ObfuscationOptions != KeePassLib.Collections.AutoTypeObfuscationOptions.None; }
+			set { Entry.AutoType.ObfuscationOptions = value ? KeePassLib.Collections.AutoTypeObfuscationOptions.UseClipboard : KeePassLib.Collections.AutoTypeObfuscationOptions.None; }
+		}
+		#endregion
 		#endregion
 
 		#region Fields Menu Event handlers
@@ -1171,6 +1341,11 @@ namespace KPEnhancedEntryView
 		private void mOpenURLCommand_Click(object sender, EventArgs e)
 		{
 			mFieldGridContextMenuTarget.DoOpenUrl();
+		}
+
+		private void mAutoTypeCommand_Click(object sender, EventArgs e)
+		{
+			mFieldGridContextMenuTarget.DoAutoType();
 		}
 		#endregion
 
@@ -1245,6 +1420,5 @@ namespace KPEnhancedEntryView
 			mFieldsGrid.AllowCreateHistoryNow = false; // Don't allow a new history record for 1 minute from this modification
 		}
 		#endregion
-
 	}
 }

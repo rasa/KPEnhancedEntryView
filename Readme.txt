@@ -32,6 +32,7 @@ Delete KPEnhancedEntryView.plgx from your KeePass Plugins folder.
 
 Usage
 -----
+
 To in-place edit a field value, double click on it, or select it and press Enter.
 To rename a field, double click the field name, or select it and press F2.
 To delete a field, select it and press Delete.
@@ -55,6 +56,20 @@ tags, and URL override properties are also editable.
 To get back to the old textual entry view, select the All Text tab
 
 All other operations are available through the context (right-click) menus.
+
+
+Auto-Type field values
+----------------------
+
+On the context (right click) menu for fields, there is a command to Auto-Type that
+field. This will perform an auto-type into the previous window to be active, in the
+same way as the KeePass "Perform Auto-Type" command for an entry does. The difference
+is that it will not auto-type the whole sequence of the entry, but instead auto-type
+just the value of that field.
+
+If the default auto-type sequence for an entry starts with special control
+placeholders like {DELAY} or {APPACTIVATE} then these will be honoured for the field
+value auto-typing, but the rest of the sequence is ignored.
 
 
 Mass editing of multiple selected entries
@@ -134,6 +149,18 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v1.01
+ Added checkboxes to enable and diable Auto-Type and Two-Channel Auto-Type to the properties tab
+ Fixed compatibility with latest KeePass development snapshots
+
+v1.00
+ Added "AutoType Field" command to the context menu for fields. This performs an auto-type of only
+  that field, rather than using the full entry auto-type sequence
+ Added the ability to edit the expiry for entries from the Properties tab
+
+v0.32
+ Fixed bug where uncomitted changes may not be comitted when auto-locking a database
+
 v0.31
  Fixed bug where validation failure with a multiple selection may cause a crash when changing
   selection before attempting to comitt an invalid change
@@ -145,7 +172,7 @@ v0.30
 
 v0.29
  Added support for High DPI (requires KeePass v2.28 or above)
- More reliable committing of in-progress editing when saving, closing or locking the workspace.
+ More reliable committing of in-progress editing when saving, closing or locking the workspace
 
 v0.28
  Fixed bug with multiple editing where entries Last-Modified date would not be updated (this could

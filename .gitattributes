@@ -29,9 +29,11 @@ KPEnhancedEntryView/Resources/Nuvola/B16x16_Attach.png -text svneol=unset#unset
 KPEnhancedEntryView/Resources/Nuvola/B16x16_Browser.png -text
 KPEnhancedEntryView/Resources/Nuvola/B16x16_EditDelete.png -text svneol=unset#unset
 KPEnhancedEntryView/Resources/Nuvola/B16x16_Folder_Yellow_Open.png -text svneol=unset#unset
+KPEnhancedEntryView/Resources/Nuvola/B16x16_History.png -text
 KPEnhancedEntryView/Resources/Nuvola/B16x16_KGPG_Import.png -text svneol=unset#unset
 KPEnhancedEntryView/Resources/Nuvola/B16x16_KGPG_Info.png -text svneol=unset#unset
 KPEnhancedEntryView/Resources/Nuvola/B16x16_KGPG_Sign.png -text svneol=unset#unset
+KPEnhancedEntryView/Resources/Nuvola/B16x16_KTouch.png -text
 KPEnhancedEntryView/Resources/Nuvola_Derived/B16x16_DeleteEntry.png -text svneol=unset#unset
 KPEnhancedEntryView/Resources/Nuvola_Derived/B16x16_Key_New.png -text svneol=unset#unset
 KPEnhancedEntryView/Resources/Reveal.png -text

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using BrightIdeasSoftware;
 using KeePass.Forms;
@@ -12,6 +13,8 @@ using KeePassLib;
 using KeePassLib.Cryptography.PasswordGenerator;
 using KeePassLib.Security;
 using KeePass.App.Configuration;
+using KeePass.Util;
+using KeePassLib.Utility;
 
 namespace KPEnhancedEntryView
 {
@@ -564,6 +567,7 @@ namespace KPEnhancedEntryView
 
 		public void DoOpenUrl() { DoCommandOnSelected(OpenURLCommand); }
 		public void DoCopy() { DoCommandOnSelected(CopyCommand); }
+		public void DoAutoType() { DoCommandOnSelected(AutoTypeCommand); }
 		public void DoEditField() { DoCommandOnSelected(EditFieldCommand); }
 		public void DoSetProtected(bool value) { DoCommandOnSelected(rowObject => ProtectFieldCommand(rowObject, value)); }
 		public void DoPasswordGenerator() { DoCommandOnSelected(PasswordGeneratorCommand); }
@@ -586,6 +590,22 @@ namespace KPEnhancedEntryView
 		}
 
 		protected abstract void CopyCommand(RowObject rowObject);
+
+		protected abstract void AutoTypeCommand(RowObject rowObject);
+
+		private static readonly Regex AutoTypeSequenceSpecialCommandsExtractor = new Regex("(?:{(?:DELAY|APPACTIVATE)[= ][^}]+})*", RegexOptions.IgnoreCase);
+		protected void AutoTypeField(PwEntry entry, string fieldName)
+		{
+			try
+			{
+				AutoType.PerformIntoPreviousWindow(mMainForm, entry, Database,
+					// Extract any setup information from autotype
+					AutoTypeSequenceSpecialCommandsExtractor.Match(entry.GetAutoTypeSequence()).Value +
+					// Auto-type just this field
+					"{" + (PwDefs.IsStandardField(fieldName) ? "" : PwDefs.AutoTypeStringPrefix) + fieldName + "}");
+			}
+			catch (Exception ex) { MessageService.ShowWarning(ex); }
+		}
 
 		private void EditFieldCommand(RowObject rowObject)
 		{

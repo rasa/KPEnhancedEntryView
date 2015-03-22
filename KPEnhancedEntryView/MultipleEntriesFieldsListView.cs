@@ -360,6 +360,14 @@ namespace KPEnhancedEntryView
 			}
 		}
 
+		protected override void AutoTypeCommand(RowObject rowObject)
+		{
+			if (!IsMultiValuedField(rowObject))
+			{
+				AutoTypeField(Entries.First(), rowObject.FieldName);
+			}
+		}
+
 		protected override void DeleteFieldCommand(RowObject rowObject)
 		{
 			var isStandardField = PwDefs.IsStandardField(rowObject.FieldName);
@@ -409,7 +417,7 @@ namespace KPEnhancedEntryView
 			dlg.SetIcon(VtdCustomIcon.Question);
 			dlg.WindowTitle = PwDefs.ShortProductName;
 			dlg.AddButton((int)DialogResult.OK, command, null);
-			dlg.AddButton((int)DialogResult.Cancel, KPRes.CancelCmd, null);
+			dlg.AddButton((int)DialogResult.Cancel, KPRes.Cancel, null);
 
 			if (dlg.ShowDialog())
 			{

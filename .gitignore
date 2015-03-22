@@ -1,5 +1,6 @@
 KPEnhancedEntryView/*.suo
 KPEnhancedEntryView/*.user
+KPEnhancedEntryView/.vs
 KPEnhancedEntryView/bin
 KPEnhancedEntryView/obj
 KeePass-Source/*

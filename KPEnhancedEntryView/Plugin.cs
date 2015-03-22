@@ -199,9 +199,18 @@ namespace KPEnhancedEntryView
 
 		private void OnFileClosingPre(object sender, FileClosingEventArgs e)
 		{
-			mEntryView.FinishEditing();
+			try
+			{
+				mNotifyHostImmediatelyOnModification = true; // Modifications must be made before returning from this method if they are to be included in the save before closing
+				mEntryView.FinishEditing();
+			}
+			finally
+			{
+				mNotifyHostImmediatelyOnModification = false;
+			}
 		}
 
+		private bool mNotifyHostImmediatelyOnModification;
 		private volatile bool mHostRequiresModificationNotification;
 		private void mEntryView_EntryModified(object sender, EventArgs e)
 		{
@@ -211,30 +220,38 @@ namespace KPEnhancedEntryView
 
 		private void NotifyHostOfModification()
 		{
-			// Decouple the update from the current stack to avoid any recursive loops
-			mHost.MainWindow.BeginInvoke(new Action(delegate
+			if (mNotifyHostImmediatelyOnModification)
 			{
-				if (!mHostRequiresModificationNotification)
+				mHostRequiresModificationNotification = false;
+				mHost.MainWindow.UpdateUI(false, null, false, null, false, null, true);
+			}
+			else
+			{
+				// Decouple the update from the current stack to avoid any recursive loops
+				mHost.MainWindow.BeginInvoke(new Action(delegate
 				{
-					// Host has already been notified, no further notification required.
-					return;
-				}
+					if (!mHostRequiresModificationNotification)
+					{
+						// Host has already been notified, no further notification required.
+						return;
+					}
 
-				// If it's already editing another cell, then don't bother mentioning that it's modified until editing finishes
-				var notificationDeferred = mEntryView.DeferUntilCellEditingFinishes(NotifyHostOfModification);
+					// If it's already editing another cell, then don't bother mentioning that it's modified until editing finishes
+					var notificationDeferred = mEntryView.DeferUntilCellEditingFinishes(NotifyHostOfModification);
 
-				if (notificationDeferred)
-				{
-					mHost.MainWindow.UpdateUI(false, null, false, null, false, null, false); // If the notification is deferred, don't notify as modified now, just notify the UI change without modified flag
-				}
-				else
-				{
-					// Notification is not deferred - notifying with modified flag now, and clearing the requires notification flag - further modifications after notification require further notifications.
-					mHostRequiresModificationNotification = false;
-					mHost.MainWindow.UpdateUI(false, null, false, null, false, null, true); // If the notification is deferred, don't notify as modified now, just notify the UI change without modified flag
-				}
-				mHost.MainWindow.RefreshEntriesList();
-			}));
+					if (notificationDeferred)
+					{
+						mHost.MainWindow.UpdateUI(false, null, false, null, false, null, false); // If the notification is deferred, don't notify as modified now, just notify the UI change without modified flag
+					}
+					else
+					{
+						// Notification is not deferred - notifying with modified flag now, and clearing the requires notification flag - further modifications after notification require further notifications.
+						mHostRequiresModificationNotification = false;
+						mHost.MainWindow.UpdateUI(false, null, false, null, false, null, true);
+					}
+					mHost.MainWindow.RefreshEntriesList();
+				}));
+			}
 		}
 
 		private void mOptions_OptionChanged(object sender, Options.OptionChangedEventArgs e)

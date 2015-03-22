@@ -47,9 +47,21 @@
 			this.mAccessTime = new System.Windows.Forms.Label();
 			this.mModificationTimeLabel = new System.Windows.Forms.Label();
 			this.mModificationTime = new System.Windows.Forms.Label();
-			this.mExpiryTimeLabel = new System.Windows.Forms.Label();
-			this.mExpiryTime = new System.Windows.Forms.Label();
 			this.mSeparator = new System.Windows.Forms.Label();
+			this.m_cbExpires = new System.Windows.Forms.CheckBox();
+			this.m_dtExpireDateTime = new System.Windows.Forms.DateTimePicker();
+			this.m_btnStandardExpires = new System.Windows.Forms.Button();
+			this.m_ctxDefaultTimes = new KeePass.UI.CustomContextMenuStripEx(this.components);
+			this.m_menuExpireNow = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_menuExpireSep0 = new System.Windows.Forms.ToolStripSeparator();
+			this.m_menuExpire1Week = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_menuExpire2Weeks = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_menuExpireSep1 = new System.Windows.Forms.ToolStripSeparator();
+			this.m_menuExpire1Month = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_menuExpire3Months = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_menuExpire6Months = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_menuExpireSep2 = new System.Windows.Forms.ToolStripSeparator();
+			this.m_menuExpire1Year = new System.Windows.Forms.ToolStripMenuItem();
 			this.mIconPanel = new System.Windows.Forms.Panel();
 			this.mGroupButton = new System.Windows.Forms.Button();
 			this.m_lblIcon = new System.Windows.Forms.Label();
@@ -62,6 +74,7 @@
 			this.mURLDropDown = new System.Windows.Forms.ToolStripMenuItem();
 			this.mOpenURLCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.mCopyCommand = new System.Windows.Forms.ToolStripMenuItem();
+			this.mAutoTypeCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.mEditFieldCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.mProtectFieldCommand = new System.Windows.Forms.ToolStripMenuItem();
@@ -77,6 +90,10 @@
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.mAttachBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.mMultipleEntriesTabs = new System.Windows.Forms.TabControl();
+			this.mAutoTypeLayout = new System.Windows.Forms.TableLayoutPanel();
+			this.mSeparator3 = new System.Windows.Forms.Label();
+			this.m_cbAutoTypeEnabled = new System.Windows.Forms.CheckBox();
+			this.m_cbAutoTypeObfuscation = new System.Windows.Forms.CheckBox();
 			this.mSingleEntryTabs.SuspendLayout();
 			this.mFieldsTab.SuspendLayout();
 			this.mSplitGridPanels.Panel1.SuspendLayout();
@@ -93,12 +110,14 @@
 			this.mTextPropertiesLayout.SuspendLayout();
 			this.mCustomColoursLayout.SuspendLayout();
 			this.mTimestampsLayout.SuspendLayout();
+			this.m_ctxDefaultTimes.SuspendLayout();
 			this.mIconPanel.SuspendLayout();
 			this.mMultipleSelectionTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.mMultipleSelectionFields)).BeginInit();
 			this.mFieldGridContextMenu.SuspendLayout();
 			this.mAttachmentsContextMenu.SuspendLayout();
 			this.mMultipleEntriesTabs.SuspendLayout();
+			this.mAutoTypeLayout.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// mSingleEntryTabs
@@ -110,7 +129,7 @@
 			this.mSingleEntryTabs.Location = new System.Drawing.Point(0, 0);
 			this.mSingleEntryTabs.Name = "mSingleEntryTabs";
 			this.mSingleEntryTabs.SelectedIndex = 0;
-			this.mSingleEntryTabs.Size = new System.Drawing.Size(373, 342);
+			this.mSingleEntryTabs.Size = new System.Drawing.Size(373, 436);
 			this.mSingleEntryTabs.TabIndex = 1;
 			// 
 			// mFieldsTab
@@ -232,6 +251,7 @@
 			this.mAttachments.Database = null;
 			this.mAttachments.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mAttachments.EmptyListMsg = "Attachments";
+			this.mAttachments.EmptyListMsgFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic);
 			this.mAttachments.Entry = null;
 			this.mAttachments.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.mAttachments.Location = new System.Drawing.Point(0, 0);
@@ -250,13 +270,14 @@
 			this.mPropertiesTab.Controls.Add(this.mPropertiesTabScrollPanel);
 			this.mPropertiesTab.Location = new System.Drawing.Point(4, 22);
 			this.mPropertiesTab.Name = "mPropertiesTab";
-			this.mPropertiesTab.Size = new System.Drawing.Size(365, 316);
+			this.mPropertiesTab.Size = new System.Drawing.Size(365, 410);
 			this.mPropertiesTab.TabIndex = 1;
 			this.mPropertiesTab.Text = "Properties";
 			// 
 			// mPropertiesTabScrollPanel
 			// 
 			this.mPropertiesTabScrollPanel.AutoScroll = true;
+			this.mPropertiesTabScrollPanel.Controls.Add(this.mAutoTypeLayout);
 			this.mPropertiesTabScrollPanel.Controls.Add(this.mTextPropertiesLayout);
 			this.mPropertiesTabScrollPanel.Controls.Add(this.mCustomColoursLayout);
 			this.mPropertiesTabScrollPanel.Controls.Add(this.mTimestampsLayout);
@@ -264,7 +285,7 @@
 			this.mPropertiesTabScrollPanel.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mPropertiesTabScrollPanel.Location = new System.Drawing.Point(0, 0);
 			this.mPropertiesTabScrollPanel.Name = "mPropertiesTabScrollPanel";
-			this.mPropertiesTabScrollPanel.Size = new System.Drawing.Size(365, 316);
+			this.mPropertiesTabScrollPanel.Size = new System.Drawing.Size(365, 410);
 			this.mPropertiesTabScrollPanel.TabIndex = 16;
 			// 
 			// mTextPropertiesLayout
@@ -281,19 +302,19 @@
 			this.mTextPropertiesLayout.Controls.Add(this.mTagsLabel, 0, 0);
 			this.mTextPropertiesLayout.Controls.Add(this.mTags, 1, 0);
 			this.mTextPropertiesLayout.Dock = System.Windows.Forms.DockStyle.Top;
-			this.mTextPropertiesLayout.Location = new System.Drawing.Point(0, 201);
+			this.mTextPropertiesLayout.Location = new System.Drawing.Point(0, 209);
 			this.mTextPropertiesLayout.Name = "mTextPropertiesLayout";
 			this.mTextPropertiesLayout.RowCount = 3;
 			this.mTextPropertiesLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.mTextPropertiesLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.mTextPropertiesLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.mTextPropertiesLayout.Size = new System.Drawing.Size(365, 81);
+			this.mTextPropertiesLayout.Size = new System.Drawing.Size(365, 82);
 			this.mTextPropertiesLayout.TabIndex = 3;
 			// 
 			// mUUID
 			// 
 			this.mUUID.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mUUID.Location = new System.Drawing.Point(87, 58);
+			this.mUUID.Location = new System.Drawing.Point(87, 59);
 			this.mUUID.Name = "mUUID";
 			this.mUUID.ReadOnly = true;
 			this.mUUID.Size = new System.Drawing.Size(275, 20);
@@ -304,7 +325,7 @@
 			// 
 			this.mUUIDLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.mUUIDLabel.AutoSize = true;
-			this.mUUIDLabel.Location = new System.Drawing.Point(3, 60);
+			this.mUUIDLabel.Location = new System.Drawing.Point(3, 61);
 			this.mUUIDLabel.Margin = new System.Windows.Forms.Padding(3, 1, 3, 3);
 			this.mUUIDLabel.Name = "mUUIDLabel";
 			this.mUUIDLabel.Size = new System.Drawing.Size(78, 13);
@@ -315,7 +336,7 @@
 			// 
 			this.mOverrideUrlLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.mOverrideUrlLabel.AutoSize = true;
-			this.mOverrideUrlLabel.Location = new System.Drawing.Point(3, 34);
+			this.mOverrideUrlLabel.Location = new System.Drawing.Point(3, 35);
 			this.mOverrideUrlLabel.Margin = new System.Windows.Forms.Padding(3, 1, 3, 3);
 			this.mOverrideUrlLabel.Name = "mOverrideUrlLabel";
 			this.mOverrideUrlLabel.Size = new System.Drawing.Size(78, 13);
@@ -327,7 +348,8 @@
 			this.m_cmbOverrideUrl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.m_cmbOverrideUrl.Location = new System.Drawing.Point(87, 32);
 			this.m_cmbOverrideUrl.Name = "m_cmbOverrideUrl";
-			this.m_cmbOverrideUrl.Size = new System.Drawing.Size(275, 20);
+			this.m_cmbOverrideUrl.OrderedImageList = null;
+			this.m_cmbOverrideUrl.Size = new System.Drawing.Size(275, 21);
 			this.m_cmbOverrideUrl.TabIndex = 3;
 			this.m_cmbOverrideUrl.LostFocus += new System.EventHandler(this.m_cmbOverrideUrl_LostFocus);
 			// 
@@ -365,7 +387,7 @@
 			this.mCustomColoursLayout.Controls.Add(this.m_cbCustomBackgroundColor, 0, 2);
 			this.mCustomColoursLayout.Controls.Add(this.m_btnPickBgColor, 1, 2);
 			this.mCustomColoursLayout.Dock = System.Windows.Forms.DockStyle.Top;
-			this.mCustomColoursLayout.Location = new System.Drawing.Point(0, 132);
+			this.mCustomColoursLayout.Location = new System.Drawing.Point(0, 140);
 			this.mCustomColoursLayout.Name = "mCustomColoursLayout";
 			this.mCustomColoursLayout.RowCount = 3;
 			this.mCustomColoursLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -437,18 +459,20 @@
 			// 
 			this.mTimestampsLayout.AutoSize = true;
 			this.mTimestampsLayout.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.mTimestampsLayout.ColumnCount = 2;
+			this.mTimestampsLayout.ColumnCount = 3;
 			this.mTimestampsLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.mTimestampsLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.mTimestampsLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.mTimestampsLayout.Controls.Add(this.mCreationTimeLabel, 0, 2);
 			this.mTimestampsLayout.Controls.Add(this.mCreationTime, 1, 2);
 			this.mTimestampsLayout.Controls.Add(this.mAccessTimeLabel, 0, 3);
 			this.mTimestampsLayout.Controls.Add(this.mAccessTime, 1, 3);
 			this.mTimestampsLayout.Controls.Add(this.mModificationTimeLabel, 0, 4);
 			this.mTimestampsLayout.Controls.Add(this.mModificationTime, 1, 4);
-			this.mTimestampsLayout.Controls.Add(this.mExpiryTimeLabel, 0, 5);
-			this.mTimestampsLayout.Controls.Add(this.mExpiryTime, 1, 5);
 			this.mTimestampsLayout.Controls.Add(this.mSeparator, 0, 0);
+			this.mTimestampsLayout.Controls.Add(this.m_cbExpires, 0, 5);
+			this.mTimestampsLayout.Controls.Add(this.m_dtExpireDateTime, 1, 5);
+			this.mTimestampsLayout.Controls.Add(this.m_btnStandardExpires, 2, 5);
 			this.mTimestampsLayout.Dock = System.Windows.Forms.DockStyle.Top;
 			this.mTimestampsLayout.Location = new System.Drawing.Point(0, 34);
 			this.mTimestampsLayout.Name = "mTimestampsLayout";
@@ -463,7 +487,7 @@
 			this.mTimestampsLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.mTimestampsLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.mTimestampsLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.mTimestampsLayout.Size = new System.Drawing.Size(365, 98);
+			this.mTimestampsLayout.Size = new System.Drawing.Size(365, 106);
 			this.mTimestampsLayout.TabIndex = 1;
 			// 
 			// mCreationTimeLabel
@@ -479,6 +503,7 @@
 			// mCreationTime
 			// 
 			this.mCreationTime.AutoSize = true;
+			this.mTimestampsLayout.SetColumnSpan(this.mCreationTime, 2);
 			this.mCreationTime.Location = new System.Drawing.Point(87, 25);
 			this.mCreationTime.Margin = new System.Windows.Forms.Padding(3);
 			this.mCreationTime.Name = "mCreationTime";
@@ -499,6 +524,7 @@
 			// mAccessTime
 			// 
 			this.mAccessTime.AutoSize = true;
+			this.mTimestampsLayout.SetColumnSpan(this.mAccessTime, 2);
 			this.mAccessTime.Location = new System.Drawing.Point(87, 44);
 			this.mAccessTime.Margin = new System.Windows.Forms.Padding(3);
 			this.mAccessTime.Name = "mAccessTime";
@@ -519,6 +545,7 @@
 			// mModificationTime
 			// 
 			this.mModificationTime.AutoSize = true;
+			this.mTimestampsLayout.SetColumnSpan(this.mModificationTime, 2);
 			this.mModificationTime.Location = new System.Drawing.Point(87, 63);
 			this.mModificationTime.Margin = new System.Windows.Forms.Padding(3);
 			this.mModificationTime.Name = "mModificationTime";
@@ -526,36 +553,134 @@
 			this.mModificationTime.TabIndex = 7;
 			this.mModificationTime.Text = "<dynamic text>";
 			// 
-			// mExpiryTimeLabel
-			// 
-			this.mExpiryTimeLabel.AutoSize = true;
-			this.mExpiryTimeLabel.Location = new System.Drawing.Point(3, 82);
-			this.mExpiryTimeLabel.Margin = new System.Windows.Forms.Padding(3);
-			this.mExpiryTimeLabel.Name = "mExpiryTimeLabel";
-			this.mExpiryTimeLabel.Size = new System.Drawing.Size(78, 13);
-			this.mExpiryTimeLabel.TabIndex = 8;
-			this.mExpiryTimeLabel.Text = "<dynamic text>";
-			// 
-			// mExpiryTime
-			// 
-			this.mExpiryTime.AutoSize = true;
-			this.mExpiryTime.Location = new System.Drawing.Point(87, 82);
-			this.mExpiryTime.Margin = new System.Windows.Forms.Padding(3);
-			this.mExpiryTime.Name = "mExpiryTime";
-			this.mExpiryTime.Size = new System.Drawing.Size(78, 13);
-			this.mExpiryTime.TabIndex = 9;
-			this.mExpiryTime.Text = "<dynamic text>";
-			// 
 			// mSeparator
 			// 
 			this.mSeparator.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.mTimestampsLayout.SetColumnSpan(this.mSeparator, 2);
+			this.mTimestampsLayout.SetColumnSpan(this.mSeparator, 3);
 			this.mSeparator.Dock = System.Windows.Forms.DockStyle.Top;
 			this.mSeparator.Location = new System.Drawing.Point(3, 10);
 			this.mSeparator.Margin = new System.Windows.Forms.Padding(3, 10, 3, 10);
 			this.mSeparator.Name = "mSeparator";
 			this.mSeparator.Size = new System.Drawing.Size(359, 2);
 			this.mSeparator.TabIndex = 1;
+			// 
+			// m_cbExpires
+			// 
+			this.m_cbExpires.Anchor = System.Windows.Forms.AnchorStyles.Left;
+			this.m_cbExpires.AutoSize = true;
+			this.m_cbExpires.Location = new System.Drawing.Point(7, 85);
+			this.m_cbExpires.Margin = new System.Windows.Forms.Padding(7, 5, 3, 3);
+			this.m_cbExpires.Name = "m_cbExpires";
+			this.m_cbExpires.Size = new System.Drawing.Size(63, 17);
+			this.m_cbExpires.TabIndex = 10;
+			this.m_cbExpires.Text = "Expires:";
+			this.m_cbExpires.UseVisualStyleBackColor = true;
+			this.m_cbExpires.CheckedChanged += new System.EventHandler(this.m_cbExpires_CheckedChanged);
+			this.m_cbExpires.Click += new System.EventHandler(this.m_cbExpires_Click);
+			this.m_cbExpires.LostFocus += new System.EventHandler(this.m_cbExpires_LostFocus);
+			// 
+			// m_dtExpireDateTime
+			// 
+			this.m_dtExpireDateTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+			this.m_dtExpireDateTime.CustomFormat = " ";
+			this.m_dtExpireDateTime.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+			this.m_dtExpireDateTime.Location = new System.Drawing.Point(87, 82);
+			this.m_dtExpireDateTime.Name = "m_dtExpireDateTime";
+			this.m_dtExpireDateTime.Size = new System.Drawing.Size(237, 20);
+			this.m_dtExpireDateTime.TabIndex = 20;
+			this.m_dtExpireDateTime.GotFocus += new System.EventHandler(this.m_dtExpireDateTime_GotFocus);
+			this.m_dtExpireDateTime.LostFocus += new System.EventHandler(this.m_dtExpireDateTime_LostFocus);
+			// 
+			// m_btnStandardExpires
+			// 
+			this.m_btnStandardExpires.ContextMenuStrip = this.m_ctxDefaultTimes;
+			this.m_btnStandardExpires.Location = new System.Drawing.Point(330, 80);
+			this.m_btnStandardExpires.Margin = new System.Windows.Forms.Padding(3, 1, 3, 3);
+			this.m_btnStandardExpires.Name = "m_btnStandardExpires";
+			this.m_btnStandardExpires.Size = new System.Drawing.Size(32, 23);
+			this.m_btnStandardExpires.TabIndex = 21;
+			this.m_btnStandardExpires.UseVisualStyleBackColor = true;
+			this.m_btnStandardExpires.Click += new System.EventHandler(this.OnBtnStandardExpiresClick);
+			// 
+			// m_ctxDefaultTimes
+			// 
+			this.m_ctxDefaultTimes.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.m_menuExpireNow,
+            this.m_menuExpireSep0,
+            this.m_menuExpire1Week,
+            this.m_menuExpire2Weeks,
+            this.m_menuExpireSep1,
+            this.m_menuExpire1Month,
+            this.m_menuExpire3Months,
+            this.m_menuExpire6Months,
+            this.m_menuExpireSep2,
+            this.m_menuExpire1Year});
+			this.m_ctxDefaultTimes.Name = "m_ctxDefaultTimes";
+			this.m_ctxDefaultTimes.Size = new System.Drawing.Size(125, 176);
+			// 
+			// m_menuExpireNow
+			// 
+			this.m_menuExpireNow.Name = "m_menuExpireNow";
+			this.m_menuExpireNow.Size = new System.Drawing.Size(124, 22);
+			this.m_menuExpireNow.Text = "&Now";
+			this.m_menuExpireNow.Click += new System.EventHandler(this.OnMenuExpireNow);
+			// 
+			// m_menuExpireSep0
+			// 
+			this.m_menuExpireSep0.Name = "m_menuExpireSep0";
+			this.m_menuExpireSep0.Size = new System.Drawing.Size(121, 6);
+			// 
+			// m_menuExpire1Week
+			// 
+			this.m_menuExpire1Week.Name = "m_menuExpire1Week";
+			this.m_menuExpire1Week.Size = new System.Drawing.Size(124, 22);
+			this.m_menuExpire1Week.Text = "&1 Week";
+			this.m_menuExpire1Week.Click += new System.EventHandler(this.OnMenuExpire1Week);
+			// 
+			// m_menuExpire2Weeks
+			// 
+			this.m_menuExpire2Weeks.Name = "m_menuExpire2Weeks";
+			this.m_menuExpire2Weeks.Size = new System.Drawing.Size(124, 22);
+			this.m_menuExpire2Weeks.Text = "&2 Weeks";
+			this.m_menuExpire2Weeks.Click += new System.EventHandler(this.OnMenuExpire2Weeks);
+			// 
+			// m_menuExpireSep1
+			// 
+			this.m_menuExpireSep1.Name = "m_menuExpireSep1";
+			this.m_menuExpireSep1.Size = new System.Drawing.Size(121, 6);
+			// 
+			// m_menuExpire1Month
+			// 
+			this.m_menuExpire1Month.Name = "m_menuExpire1Month";
+			this.m_menuExpire1Month.Size = new System.Drawing.Size(124, 22);
+			this.m_menuExpire1Month.Text = "1 &Month";
+			this.m_menuExpire1Month.Click += new System.EventHandler(this.OnMenuExpire1Month);
+			// 
+			// m_menuExpire3Months
+			// 
+			this.m_menuExpire3Months.Name = "m_menuExpire3Months";
+			this.m_menuExpire3Months.Size = new System.Drawing.Size(124, 22);
+			this.m_menuExpire3Months.Text = "&3 Months";
+			this.m_menuExpire3Months.Click += new System.EventHandler(this.OnMenuExpire3Months);
+			// 
+			// m_menuExpire6Months
+			// 
+			this.m_menuExpire6Months.Name = "m_menuExpire6Months";
+			this.m_menuExpire6Months.Size = new System.Drawing.Size(124, 22);
+			this.m_menuExpire6Months.Text = "&6 Months";
+			this.m_menuExpire6Months.Click += new System.EventHandler(this.OnMenuExpire6Months);
+			// 
+			// m_menuExpireSep2
+			// 
+			this.m_menuExpireSep2.Name = "m_menuExpireSep2";
+			this.m_menuExpireSep2.Size = new System.Drawing.Size(121, 6);
+			// 
+			// m_menuExpire1Year
+			// 
+			this.m_menuExpire1Year.Name = "m_menuExpire1Year";
+			this.m_menuExpire1Year.Size = new System.Drawing.Size(124, 22);
+			this.m_menuExpire1Year.Text = "1 &Year";
+			this.m_menuExpire1Year.Click += new System.EventHandler(this.OnMenuExpire1Year);
 			// 
 			// mIconPanel
 			// 
@@ -618,7 +743,7 @@
 			this.mMultipleSelectionTab.Controls.Add(this.mMultipleSelectionFields);
 			this.mMultipleSelectionTab.Location = new System.Drawing.Point(4, 22);
 			this.mMultipleSelectionTab.Name = "mMultipleSelectionTab";
-			this.mMultipleSelectionTab.Size = new System.Drawing.Size(365, 316);
+			this.mMultipleSelectionTab.Size = new System.Drawing.Size(365, 410);
 			this.mMultipleSelectionTab.TabIndex = 3;
 			this.mMultipleSelectionTab.Text = "Multiple Selection";
 			// 
@@ -639,7 +764,7 @@
 			this.mMultipleSelectionFields.Name = "mMultipleSelectionFields";
 			this.mMultipleSelectionFields.ShowGroups = false;
 			this.mMultipleSelectionFields.ShowItemToolTips = true;
-			this.mMultipleSelectionFields.Size = new System.Drawing.Size(365, 316);
+			this.mMultipleSelectionFields.Size = new System.Drawing.Size(365, 410);
 			this.mMultipleSelectionFields.TabIndex = 1;
 			this.mMultipleSelectionFields.UseAlternatingBackColors = true;
 			this.mMultipleSelectionFields.UseCellFormatEvents = true;
@@ -659,6 +784,7 @@
 			this.mFieldGridContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mURLDropDown,
             this.mCopyCommand,
+            this.mAutoTypeCommand,
             this.toolStripSeparator1,
             this.mEditFieldCommand,
             this.mProtectFieldCommand,
@@ -667,7 +793,7 @@
             this.mDeleteFieldCommand,
             this.mAddNewCommand});
 			this.mFieldGridContextMenu.Name = "mFieldGridContextMenu";
-			this.mFieldGridContextMenu.Size = new System.Drawing.Size(221, 170);
+			this.mFieldGridContextMenu.Size = new System.Drawing.Size(221, 192);
 			// 
 			// mURLDropDown
 			// 
@@ -692,6 +818,14 @@
 			this.mCopyCommand.Size = new System.Drawing.Size(220, 22);
 			this.mCopyCommand.Text = "Copy {0}";
 			this.mCopyCommand.Click += new System.EventHandler(this.mCopyCommand_Click);
+			// 
+			// mAutoTypeCommand
+			// 
+			this.mAutoTypeCommand.Image = global::KPEnhancedEntryView.Properties.Resources.B16x16_KTouch;
+			this.mAutoTypeCommand.Name = "mAutoTypeCommand";
+			this.mAutoTypeCommand.Size = new System.Drawing.Size(220, 22);
+			this.mAutoTypeCommand.Text = "Auto-Type {0}";
+			this.mAutoTypeCommand.Click += new System.EventHandler(this.mAutoTypeCommand_Click);
 			// 
 			// toolStripSeparator1
 			// 
@@ -805,9 +939,63 @@
 			this.mMultipleEntriesTabs.Location = new System.Drawing.Point(0, 0);
 			this.mMultipleEntriesTabs.Name = "mMultipleEntriesTabs";
 			this.mMultipleEntriesTabs.SelectedIndex = 0;
-			this.mMultipleEntriesTabs.Size = new System.Drawing.Size(373, 342);
+			this.mMultipleEntriesTabs.Size = new System.Drawing.Size(373, 436);
 			this.mMultipleEntriesTabs.TabIndex = 2;
 			this.mMultipleEntriesTabs.Visible = false;
+			// 
+			// mAutoTypeLayout
+			// 
+			this.mAutoTypeLayout.AutoSize = true;
+			this.mAutoTypeLayout.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.mAutoTypeLayout.ColumnCount = 1;
+			this.mAutoTypeLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.mAutoTypeLayout.Controls.Add(this.m_cbAutoTypeObfuscation, 0, 2);
+			this.mAutoTypeLayout.Controls.Add(this.m_cbAutoTypeEnabled, 0, 1);
+			this.mAutoTypeLayout.Controls.Add(this.mSeparator3, 0, 0);
+			this.mAutoTypeLayout.Dock = System.Windows.Forms.DockStyle.Top;
+			this.mAutoTypeLayout.Location = new System.Drawing.Point(0, 291);
+			this.mAutoTypeLayout.Name = "mAutoTypeLayout";
+			this.mAutoTypeLayout.RowCount = 3;
+			this.mAutoTypeLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			this.mAutoTypeLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			this.mAutoTypeLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			this.mAutoTypeLayout.Size = new System.Drawing.Size(365, 63);
+			this.mAutoTypeLayout.TabIndex = 4;
+			// 
+			// mSeparator3
+			// 
+			this.mSeparator3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.mAutoTypeLayout.SetColumnSpan(this.mSeparator3, 2);
+			this.mSeparator3.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mSeparator3.Location = new System.Drawing.Point(3, 10);
+			this.mSeparator3.Margin = new System.Windows.Forms.Padding(3, 10, 3, 5);
+			this.mSeparator3.Name = "mSeparator3";
+			this.mSeparator3.Size = new System.Drawing.Size(359, 2);
+			this.mSeparator3.TabIndex = 1;
+			// 
+			// m_cbAutoTypeEnabled
+			// 
+			this.m_cbAutoTypeEnabled.AutoSize = true;
+			this.m_cbAutoTypeEnabled.Location = new System.Drawing.Point(7, 20);
+			this.m_cbAutoTypeEnabled.Margin = new System.Windows.Forms.Padding(7, 3, 3, 3);
+			this.m_cbAutoTypeEnabled.Name = "m_cbAutoTypeEnabled";
+			this.m_cbAutoTypeEnabled.Size = new System.Drawing.Size(166, 17);
+			this.m_cbAutoTypeEnabled.TabIndex = 2;
+			this.m_cbAutoTypeEnabled.Text = "Enable auto-type for this entry";
+			this.m_cbAutoTypeEnabled.UseVisualStyleBackColor = true;
+			this.m_cbAutoTypeEnabled.Click += new System.EventHandler(this.m_cbAutoTypeEnabled_Click);
+			// 
+			// m_cbAutoTypeObfuscation
+			// 
+			this.m_cbAutoTypeObfuscation.AutoSize = true;
+			this.m_cbAutoTypeObfuscation.Location = new System.Drawing.Point(7, 43);
+			this.m_cbAutoTypeObfuscation.Margin = new System.Windows.Forms.Padding(7, 3, 3, 3);
+			this.m_cbAutoTypeObfuscation.Name = "m_cbAutoTypeObfuscation";
+			this.m_cbAutoTypeObfuscation.Size = new System.Drawing.Size(193, 17);
+			this.m_cbAutoTypeObfuscation.TabIndex = 13;
+			this.m_cbAutoTypeObfuscation.Text = "Two-channel auto-type obfuscation";
+			this.m_cbAutoTypeObfuscation.UseVisualStyleBackColor = true;
+			this.m_cbAutoTypeObfuscation.Click += new System.EventHandler(this.m_cbAutoTypeObfuscation_Click);
 			// 
 			// EntryView
 			// 
@@ -816,7 +1004,7 @@
 			this.Controls.Add(this.mSingleEntryTabs);
 			this.Controls.Add(this.mMultipleEntriesTabs);
 			this.Name = "EntryView";
-			this.Size = new System.Drawing.Size(373, 342);
+			this.Size = new System.Drawing.Size(373, 436);
 			this.mSingleEntryTabs.ResumeLayout(false);
 			this.mFieldsTab.ResumeLayout(false);
 			this.mSplitGridPanels.Panel1.ResumeLayout(false);
@@ -837,6 +1025,7 @@
 			this.mCustomColoursLayout.PerformLayout();
 			this.mTimestampsLayout.ResumeLayout(false);
 			this.mTimestampsLayout.PerformLayout();
+			this.m_ctxDefaultTimes.ResumeLayout(false);
 			this.mIconPanel.ResumeLayout(false);
 			this.mIconPanel.PerformLayout();
 			this.mMultipleSelectionTab.ResumeLayout(false);
@@ -844,6 +1033,8 @@
 			this.mFieldGridContextMenu.ResumeLayout(false);
 			this.mAttachmentsContextMenu.ResumeLayout(false);
 			this.mMultipleEntriesTabs.ResumeLayout(false);
+			this.mAutoTypeLayout.ResumeLayout(false);
+			this.mAutoTypeLayout.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -870,8 +1061,6 @@
 		private System.Windows.Forms.Label mAccessTime;
 		private System.Windows.Forms.Label mModificationTimeLabel;
 		private System.Windows.Forms.Label mModificationTime;
-		private System.Windows.Forms.Label mExpiryTimeLabel;
-		private System.Windows.Forms.Label mExpiryTime;
 		private System.Windows.Forms.Label mSeparator;
 		private System.Windows.Forms.Label mSeparator2;
 		private System.Windows.Forms.Label mTagsLabel;
@@ -911,5 +1100,24 @@
 		private System.Windows.Forms.CheckBox m_cbCustomBackgroundColor;
 		private System.Windows.Forms.Button m_btnPickBgColor;
 		private System.Windows.Forms.TabControl mMultipleEntriesTabs;
+		private System.Windows.Forms.ToolStripMenuItem mAutoTypeCommand;
+		private System.Windows.Forms.CheckBox m_cbExpires;
+		private System.Windows.Forms.DateTimePicker m_dtExpireDateTime;
+		private System.Windows.Forms.Button m_btnStandardExpires;
+		private KeePass.UI.CustomContextMenuStripEx m_ctxDefaultTimes;
+		private System.Windows.Forms.ToolStripMenuItem m_menuExpireNow;
+		private System.Windows.Forms.ToolStripSeparator m_menuExpireSep0;
+		private System.Windows.Forms.ToolStripMenuItem m_menuExpire1Week;
+		private System.Windows.Forms.ToolStripMenuItem m_menuExpire2Weeks;
+		private System.Windows.Forms.ToolStripSeparator m_menuExpireSep1;
+		private System.Windows.Forms.ToolStripMenuItem m_menuExpire1Month;
+		private System.Windows.Forms.ToolStripMenuItem m_menuExpire3Months;
+		private System.Windows.Forms.ToolStripMenuItem m_menuExpire6Months;
+		private System.Windows.Forms.ToolStripSeparator m_menuExpireSep2;
+		private System.Windows.Forms.ToolStripMenuItem m_menuExpire1Year;
+		private System.Windows.Forms.TableLayoutPanel mAutoTypeLayout;
+		private System.Windows.Forms.Label mSeparator3;
+		private System.Windows.Forms.CheckBox m_cbAutoTypeEnabled;
+		private System.Windows.Forms.CheckBox m_cbAutoTypeObfuscation;
 	}
 }

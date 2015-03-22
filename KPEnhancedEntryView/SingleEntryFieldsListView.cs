@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using BrightIdeasSoftware;
 using KeePass.Resources;
 using KeePass.Util;
 using KeePass.Util.Spr;
 using KeePassLib;
 using KeePassLib.Security;
+using KeePassLib.Utility;
 
 namespace KPEnhancedEntryView
 {
@@ -161,6 +163,11 @@ namespace KPEnhancedEntryView
 				mMainForm.StartClipboardCountdown();
 			}
 			Repopulate();
+		}
+
+		protected override void AutoTypeCommand(RowObject rowObject)
+		{
+			AutoTypeField(Entry, rowObject.FieldName);
 		}
 
 		protected override void DeleteFieldCommand(RowObject rowObject)
