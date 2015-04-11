@@ -954,7 +954,7 @@ namespace KPEnhancedEntryView
 			{
 				if (!customIconId.Equals(PwUuid.Zero))
 				{
-					image = DpiUtil.ScaleImage(Database.GetCustomIcon(customIconId), false);
+					image = IconHelper.GetCustomIcon(Database, customIconId);
 				}
 				if (image == null)
 				{

@@ -149,11 +149,14 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
-v1.01
+v1.2
+ Added compatibility with KeePass 2.29 high resolution custom icons
+
+v1.1
  Added checkboxes to enable and diable Auto-Type and Two-Channel Auto-Type to the properties tab
  Fixed compatibility with latest KeePass development snapshots
 
-v1.00
+v1.0
  Added "AutoType Field" command to the context menu for fields. This performs an auto-type of only
   that field, rather than using the full entry auto-type sequence
  Added the ability to edit the expiry for entries from the Properties tab
