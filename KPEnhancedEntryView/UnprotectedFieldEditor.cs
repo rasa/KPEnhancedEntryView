@@ -1,9 +1,9 @@
-﻿using System.Windows.Forms;
+﻿using System;
 using KeePassLib.Security;
 
 namespace KPEnhancedEntryView
 {
-	public class UnprotectedFieldEditor : TextBox
+	public class UnprotectedFieldEditor : DynamicMultiLineTextBox
 	{
 		public ProtectedString Value
 		{

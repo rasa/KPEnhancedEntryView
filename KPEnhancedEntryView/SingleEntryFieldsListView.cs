@@ -85,7 +85,7 @@ namespace KPEnhancedEntryView
 		{
 			base.ValidateFieldName(e, newValue);
 
-			if (PwDefs.IsStandardField(newValue))
+			if (PwDefs.GetStandardFields().Any(standardField => standardField.Equals(newValue, StringComparison.OrdinalIgnoreCase)))
 			{
 				// Allow if the standard field on the entry is currently blank and hidden
 				if (mOptions.HideEmptyFields && Entry.Strings.GetSafe(newValue).IsEmpty)
@@ -97,8 +97,9 @@ namespace KPEnhancedEntryView
 				e.Cancel = true;
 				return;
 			}
-			
-			if (Entry.Strings.Exists(newValue))
+
+			if (Entry.Strings.Exists(newValue) ||
+				(!newValue.Equals((string)e.Value, StringComparison.OrdinalIgnoreCase) && Entry.Strings.GetKeys().Any(key => key.Equals(newValue, StringComparison.OrdinalIgnoreCase))))
 			{
 				ReportValidationFailure(e.Control, KPRes.FieldNameExistsAlready);
 				e.Cancel = true;
@@ -128,6 +129,9 @@ namespace KPEnhancedEntryView
 
 				if (rowObject.IsInsertionRow)
 				{
+					// Coerce to standard field value casing
+					newName = PwDefs.GetStandardFields().FirstOrDefault(standardField => standardField.Equals(newName, StringComparison.OrdinalIgnoreCase)) ?? newName;
+			
 					// Check if this should be a protected string
 					var isProtected = false; // Default to not protected
 					var fieldOnOtherEntry = (from otherEntry in Entry.ParentGroup.Entries select otherEntry.Strings.Get(newName)).FirstOrDefault();

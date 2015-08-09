@@ -176,10 +176,19 @@ namespace KPEnhancedEntryView
 				DisposeOverideUrlIcons();
 
 				// Ensure all tabs are disposed, even if they aren't currently visible
-				mMultipleSelectionTab.Dispose();
-				mFieldsTab.Dispose();
-				mPropertiesTab.Dispose();
-				mAllTextTab.Dispose();
+				try {
+					mMultipleSelectionTab.Dispose();
+				} catch (Exception){ }
+				try {
+					mFieldsTab.Dispose();
+				} catch (Exception){ }
+				try {
+					mPropertiesTab.Dispose();
+				} catch (Exception){ }
+				try {
+					mAllTextTab.Dispose();
+				} catch (Exception){ }
+
 			}
 			base.Dispose(disposing);
 		}

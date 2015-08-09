@@ -62,7 +62,7 @@ namespace KPEnhancedEntryView
 				FillsFreeSpace = true,
 				Hyperlink = true,
 				AspectGetter = rowObject => ((RowObject)rowObject).GetDisplayValue(this),
-				AspectPutter = SetFieldValue
+				AspectPutter = SetFieldValue,
 			};
 			
 			Columns.Add(mFieldNames);
@@ -327,6 +327,12 @@ namespace KPEnhancedEntryView
 			{
 				return null; // Don't show the special placeholder string in the tooltip
 			}
+
+			if (tooltip == null && GetColumn(columnIndex) == mFieldValues)
+			{
+				tooltip = ((RowObject)GetModelObject(rowIndex)).GetTooltip(this);
+			}
+
 			return tooltip;
 		}
 
@@ -410,7 +416,7 @@ namespace KPEnhancedEntryView
 					{
 						return new UnprotectedFieldEditor
 						{
-							Value = rowObject.Value
+							Value = rowObject.Value,
 						};
 					}
 				}
@@ -822,6 +828,7 @@ namespace KPEnhancedEntryView
 				}
 			}
 
+
 			public string GetDisplayValue(FieldsListView listView)
 			{
 				if (Value == null)
@@ -835,8 +842,26 @@ namespace KPEnhancedEntryView
 				}
 				else
 				{
-					return listView.GetDisplayValue(Value, RevealValue);
+					return MultiLineHelper.ToSingleLine(listView.GetDisplayValue(Value, RevealValue));
 				}
+			}
+
+			public string GetTooltip(FieldsListView listView)
+			{
+				if (Value == null ||
+					(!RevealValue && HideValue))
+				{
+					return null; // No tooltip for hidden or null values
+				}
+				// Check to see if the value is multi-line, in which case, show it as a tooltip
+				var displayValue = listView.GetDisplayValue(Value, RevealValue);
+				if (MultiLineHelper.IsMultiLine(displayValue))
+				{
+					return displayValue;
+				}
+
+				// No tooltip for single-line values
+				return null;
 			}
 
 			public bool HideValue

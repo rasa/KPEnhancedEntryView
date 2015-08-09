@@ -4,6 +4,7 @@
 /Development.txt -text
 KPEnhancedEntryView/AttachmentsListView.cs -text
 KPEnhancedEntryView/CollapsibleSplitContainer.cs -text
+KPEnhancedEntryView/DynamicMultiLineTextBox.cs -text
 KPEnhancedEntryView/EntryView.Designer.cs -text
 KPEnhancedEntryView/EntryView.cs -text
 KPEnhancedEntryView/EntryView.resx -text
@@ -12,6 +13,7 @@ KPEnhancedEntryView/FieldsListView.cs -text
 KPEnhancedEntryView/IconHelper.cs -text
 KPEnhancedEntryView/KPEnhancedEntryView.csproj -text
 KPEnhancedEntryView/KPEnhancedEntryView.sln -text
+KPEnhancedEntryView/MultiLineHelper.cs -text
 KPEnhancedEntryView/MultipleEntriesFieldsListView.cs -text
 KPEnhancedEntryView/NativeMethods.cs -text
 KPEnhancedEntryView/NotesRtfHelpers.cs -text

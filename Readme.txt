@@ -149,6 +149,13 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v1.4
+ Match KeePass 2.30 behaviour for case-insensitivity of field names. Multiple custom fields on the
+  same entry with names which differ only by case are no longer allowed.
+
+v1.3
+ Support for multi-line field values. Press Shift+Enter to insert a new line when editing
+
 v1.2
  Added compatibility with KeePass 2.29 high resolution custom icons
 

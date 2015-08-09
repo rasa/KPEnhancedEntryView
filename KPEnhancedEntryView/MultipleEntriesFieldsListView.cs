@@ -236,7 +236,7 @@ namespace KPEnhancedEntryView
 				return;
 			}
 
-			if (PwDefs.IsStandardField(newValue))
+			if (PwDefs.GetStandardFields().Any(standardField => standardField.Equals(newValue, StringComparison.OrdinalIgnoreCase)))
 			{
 				ReportValidationFailure(e.Control, KPRes.FieldNameInvalid);
 				e.Cancel = true;
@@ -257,7 +257,8 @@ namespace KPEnhancedEntryView
 			// Disallow the field name if it already exists on any of the entries which have that field
 			foreach (var entry in entriesWithField)
 			{
-				if (entry.Strings.Exists(newValue))
+				if (entry.Strings.Exists(newValue) ||
+					(!newValue.Equals(rowObject.FieldName, StringComparison.OrdinalIgnoreCase) && entry.Strings.GetKeys().Any(key => key.Equals(newValue, StringComparison.OrdinalIgnoreCase))))
 				{
 					ReportValidationFailure(e.Control, KPRes.FieldNameExistsAlready);
 					e.Cancel = true;

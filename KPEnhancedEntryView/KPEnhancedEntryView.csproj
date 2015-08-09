@@ -97,6 +97,10 @@
     <Compile Include="CollapsibleSplitContainer.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="DynamicMultiLineTextBox.cs">
+      <SubType>component</SubType>
+    </Compile>
+    <Compile Include="MultiLineHelper.cs" />
     <Compile Include="MultipleEntriesFieldsListView.cs">
       <SubType>Component</SubType>
     </Compile>
