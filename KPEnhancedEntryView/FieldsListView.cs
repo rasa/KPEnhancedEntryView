@@ -208,7 +208,8 @@ namespace KPEnhancedEntryView
 				{
 					if (rowObject.RevealValue)
 					{
-						args.SubItem.Decoration = EyeDecoration;						
+						args.SubItem.Decoration = EyeDecoration;
+						args.SubItem.Font = PasswordFont;
 					}
 					else
 					{
@@ -218,6 +219,30 @@ namespace KPEnhancedEntryView
 				else
 				{
 					args.SubItem.Decoration = null;
+
+					if (rowObject.Value != null && rowObject.Value.IsProtected)
+					{
+						args.SubItem.Font = PasswordFont;
+					}
+				}
+			}
+		}
+
+		private Font PasswordFont
+		{
+			get
+			{
+				if (KeePass.Program.Config.UI.PasswordFont.OverrideUIDefault)
+				{
+					return KeePass.Program.Config.UI.PasswordFont.ToFont(); // Already cached
+				}
+				else
+				{
+					if (FontUtil.MonoFont == null) //.MonoFont not automatically generated, so generate it if missin
+					{
+						FontUtil.AssignDefaultMono(new Control(), false);
+					}
+					return FontUtil.MonoFont;
 				}
 			}
 		}

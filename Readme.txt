@@ -152,6 +152,7 @@ Changelog
 v1.4
  Match KeePass 2.30 behaviour for case-insensitivity of field names. Multiple custom fields on the
   same entry with names which differ only by case are no longer allowed.
+ Password (and other protected fields) are now shown using the selected Password font
 
 v1.3
  Support for multi-line field values. Press Shift+Enter to insert a new line when editing
