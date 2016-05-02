@@ -149,6 +149,11 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v1.5
+ Attempt to correct gradual splitter position drifting
+ Horizontal scrollbar added to properties tab, when required
+ Added menu command and keyboard shortcut (F9) to toggle revealing of all values
+
 v1.4
  Match KeePass 2.30 behaviour for case-insensitivity of field names. Multiple custom fields on the
   same entry with names which differ only by case are no longer allowed.

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -45,7 +46,30 @@ namespace KPEnhancedEntryView
 			hideEmptyStandardFields.CheckedChanged += (o, e) => SetOption(OptionName.HideEmptyFields, ((ToolStripMenuItem)o).Checked);
 			root.DropDownItems.Add(hideEmptyStandardFields);
 
+			var reveal = new ToolStripMenuItem
+			{
+				Text = Properties.Resources.RevealMenuItem,
+				Image = Properties.Resources.Reveal,
+				ImageScaling = ToolStripItemImageScaling.None,
+				ShortcutKeys = Keys.F9
+			};
+
+			reveal.Click += (o, e) => OnRevealProtectedFields();
+			root.DropDownItems.Add(reveal);
+
 			return root;
+		}
+
+		// Reveal is one-shot rather than being persisted
+		public event EventHandler RevealProtectedFields;
+
+		private void OnRevealProtectedFields()
+		{
+			var handler = RevealProtectedFields;
+			if (handler != null)
+			{
+				handler(this, EventArgs.Empty);
+			}
 		}
 
 		public event EventHandler<OptionChangedEventArgs> OptionChanged;

@@ -42,6 +42,8 @@ namespace KPEnhancedEntryView
 			}
 		}
 
+		private long mSplitRatioAsSet;
+
 		public long SplitRatio
 		{
 			get
@@ -58,6 +60,14 @@ namespace KPEnhancedEntryView
 					return SplitRatioMax;
 				}
 
+				// If there's a set value, and it produces the same splitter value, return that to avoid rounding errors
+				if ((int)Math.Round(((double)mSplitRatioAsSet / SplitRatioMax) * maxSplit) == SplitterDistance)
+				{
+
+					return mSplitRatioAsSet;
+				}
+
+
 				var ratio = (SplitterDistance / (double)maxSplit) * SplitRatioMax;
 				return (long)ratio;
 			}
@@ -65,9 +75,38 @@ namespace KPEnhancedEntryView
 			{
 				if (value >= 0)
 				{
-					SplitterDistance = (int)(((double)value / SplitRatioMax) * GetMaxSplit());
+					mSplitRatioAsSet = value;
+					SplitterDistance = (int)Math.Round(((double)value / SplitRatioMax) * GetMaxSplit());
 				}
 			}
+		}
+
+		public override Font Font
+		{
+			get
+			{
+				return base.Font;
+			}
+			set
+			{
+				// Don't adjust the split ratio as a result of font changes
+				var splitRatio = SplitRatio;
+				base.Font = value;
+				SplitRatio = splitRatio;
+			}
+		}
+
+		protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+		{
+			// Don't adjust the split ratio as a result of size changes
+			var splitRatio = SplitRatio;
+			base.SetBoundsCore(x, y, width, height, specified);
+
+			var maxSplit = GetMaxSplit();
+
+			var maxSplitRatio = (long)(((maxSplit - MinimumSplitSize) / (double)maxSplit) * SplitRatioMax);
+			var minSplitRatio = (long)((MinimumSplitSize / (double)maxSplit) * SplitRatioMax);
+			SplitRatio = Math.Min(Math.Max(splitRatio, minSplitRatio), maxSplitRatio);
 		}
 
 		private void OnSplitterMoving(object sender, SplitterCancelEventArgs e)
@@ -151,6 +190,7 @@ namespace KPEnhancedEntryView
 		}
 
 		private int mButtonSize = sDefaultButtonSize;
+
 		[DefaultValue(sDefaultButtonSize)]
 		public int ButtonSize
 		{

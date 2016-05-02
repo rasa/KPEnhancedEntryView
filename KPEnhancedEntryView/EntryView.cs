@@ -1410,6 +1410,21 @@ namespace KPEnhancedEntryView
 		}
 		#endregion
 
+		#region Reveal
+
+		public void Reveal()
+		{
+			if (IsMultipleSelection)
+			{
+				mMultipleSelectionFields.ToggleRevealAll();
+			}
+			else
+			{
+				mFieldsGrid.ToggleRevealAll();
+			}
+		}
+		#endregion
+
 		private void mUUID_Enter(object sender, EventArgs e)
 		{
 			BeginInvoke(new Action(() => mUUID.SelectAll())); // Invoke async so that it selects all after the focus is got, not before.

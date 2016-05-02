@@ -37,6 +37,7 @@ namespace KPEnhancedEntryView
 			mHost.MainWindow.ToolsMenu.DropDownItems.Add(mOptions.Menu);
 
 			mOptions.OptionChanged += mOptions_OptionChanged;
+			mOptions.RevealProtectedFields += mOptions_RevealProtectedFields;
 
 			mOriginalEntryView = FindControl<RichTextBox>("m_richEntryView");
 			var entryViewContainer = mOriginalEntryView.Parent;
@@ -52,7 +53,8 @@ namespace KPEnhancedEntryView
 			{
 				Name = "m_KPEnhancedEntryView",
 				Dock = DockStyle.Fill,
-				AutoValidate = AutoValidate.Disable // Don't allow our internal validation to bubble upwards to KeePass
+				Font = mOriginalEntryView.Font,
+				AutoValidate = AutoValidate.Disable, // Don't allow our internal validation to bubble upwards to KeePass
 			};
 
 			entryViewContainer.Controls.Add(mEntryView);
@@ -63,8 +65,7 @@ namespace KPEnhancedEntryView
 
 			// Font is assigned, not inherited. So assign here too, and follow any changes
 			mOriginalEntryView.FontChanged += mOriginalEntryView_FontChanged;
-			mOriginalEntryView_FontChanged(null, EventArgs.Empty);
-
+			
 			// Hook UIStateUpdated to watch for current entry changing.
 			mHost.MainWindow.UIStateUpdated += this.OnUIStateUpdated;
 
@@ -265,5 +266,11 @@ namespace KPEnhancedEntryView
 					break;
 			}
 		}
+
+		private void mOptions_RevealProtectedFields(object sender, EventArgs e)
+		{
+			mEntryView.Reveal();
+		}
+
 	}
 }

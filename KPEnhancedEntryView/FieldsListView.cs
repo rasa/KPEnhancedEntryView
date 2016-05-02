@@ -321,6 +321,19 @@ namespace KPEnhancedEntryView
 			base.OnCellClick(args);
 		}
 
+		public void ToggleRevealAll()
+		{
+			var rowObjects = from OLVListItem item in Items select (RowObject)item.RowObject;
+
+			// If any are currently set to reveal, then toggle hides all
+			var toggleToState = !rowObjects.Any(rowObject => rowObject.RevealValue);
+
+			foreach (OLVListItem item in Items)
+			{
+				((RowObject)item.RowObject).RevealValue = toggleToState;
+				RefreshItem(item);
+			}
+		}
 		#endregion
 
 		#region Hyperlinks
