@@ -149,6 +149,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v1.6
+ Fixed bug with High DPI support
+
 v1.5
  Attempt to correct gradual splitter position drifting
  Horizontal scrollbar added to properties tab, when required

@@ -51,6 +51,9 @@ namespace KPEnhancedEntryView
 		{
 			InitializeComponent();
 
+			mSplitGridPanels.SplitRatio = options.FieldsNotesSplitPosition;
+			mSplitNotesAttachements.SplitRatio = options.NotesAttachmentsSplitPosition;
+
 			mMainForm = mainForm;
 			mOptions = options;
 
@@ -93,9 +96,6 @@ namespace KPEnhancedEntryView
 
 			mURLDropDownMenu = new OpenWithMenu(mURLDropDown);
 			CustomizeOnClick(mURLDropDownMenu);
-
-			mSplitGridPanels.SplitRatio = mOptions.FieldsNotesSplitPosition;
-			mSplitNotesAttachements.SplitRatio = mOptions.NotesAttachmentsSplitPosition;
 
 			// Code copied from PwEntryForm.cs
 			m_imgStdExpire = UIUtil.CreateDropDownImage(Properties.Resources.B16x16_History);
@@ -525,12 +525,18 @@ namespace KPEnhancedEntryView
 				mFieldsGrid.Visible = true;
 			}
 
-			mOptions.FieldsNotesSplitPosition = mSplitGridPanels.SplitRatio;
+			if (mOptions != null)
+			{
+				mOptions.FieldsNotesSplitPosition = mSplitGridPanels.SplitRatio;
+			}
 		}
 
 		private void mSplitNotesAttachements_SplitterMoved(object sender, SplitterEventArgs e)
 		{
-			mOptions.NotesAttachmentsSplitPosition = mSplitNotesAttachements.SplitRatio;
+			if (mOptions != null)
+			{
+				mOptions.NotesAttachmentsSplitPosition = mSplitNotesAttachements.SplitRatio;
+			}
 		}
 
 		#endregion
