@@ -573,6 +573,17 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region Commands
+
+		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+		{
+			if (keyData == Keys.Escape && IsCellEditing)
+			{
+				// Do not allow MainForm_Functions to handle this key, as it will lock the workspace
+				return false;
+			}
+			return base.ProcessCmdKey(ref msg, keyData);
+		}
+
 		protected override bool ProcessDialogKey(Keys keyData)
 		{
 			if (!IsCellEditing)
