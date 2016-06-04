@@ -102,11 +102,18 @@ namespace KPEnhancedEntryView
 			var splitRatio = SplitRatio;
 			base.SetBoundsCore(x, y, width, height, specified);
 
-			var maxSplit = GetMaxSplit();
+			if (splitRatio == 0 || splitRatio == SplitRatioMax)
+			{
+				SplitRatio = splitRatio;
+			}
+			else
+			{
+				var maxSplit = GetMaxSplit();
 
-			var maxSplitRatio = (long)(((maxSplit - MinimumSplitSize) / (double)maxSplit) * SplitRatioMax);
-			var minSplitRatio = (long)((MinimumSplitSize / (double)maxSplit) * SplitRatioMax);
-			SplitRatio = Math.Min(Math.Max(splitRatio, minSplitRatio), maxSplitRatio);
+				var maxSplitRatio = (long)(((maxSplit - MinimumSplitSize) / (double)maxSplit) * SplitRatioMax);
+				var minSplitRatio = (long)((MinimumSplitSize / (double)maxSplit) * SplitRatioMax);
+				SplitRatio = Math.Min(Math.Max(splitRatio, minSplitRatio), maxSplitRatio);
+			}
 		}
 
 		private void OnSplitterMoving(object sender, SplitterCancelEventArgs e)

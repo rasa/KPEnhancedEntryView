@@ -149,6 +149,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v1.8
+ Fixed bug with splitter snapping not persisting
+
 v1.7
  Compatibility with KeePass 2.33 Escape key behaviour - while editing a field, Escape will only
   cancel the edit. Pressing Escape a second time will lock the workspace
