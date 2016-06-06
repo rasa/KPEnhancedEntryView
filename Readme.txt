@@ -149,6 +149,10 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v1.8.1
+ Fixed bug with splitter causing a crash when entry view size is zero (possible in Stacked window
+  layout)
+
 v1.8
  Fixed bug with splitter snapping not persisting
 

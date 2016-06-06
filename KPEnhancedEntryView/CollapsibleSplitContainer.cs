@@ -157,7 +157,7 @@ namespace KPEnhancedEntryView
 		private int GetMaxSplit()
 		{
 			var splitBoundsMax = Orientation == Orientation.Horizontal ? Height : Width;
-			var maxSplit = splitBoundsMax - SplitterWidth;
+			var maxSplit = Math.Max(0, splitBoundsMax - SplitterWidth);
 			return maxSplit;
 		}
 
