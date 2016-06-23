@@ -35,6 +35,9 @@ namespace KPEnhancedEntryView
 			set
 			{
 				mEntries = value;
+
+				TopItemIndex = 0; // Reset scroll when actually changing entries
+				SelectedIndex = -1;
 				OnEntriesChanged(EventArgs.Empty);
 			}
 		}

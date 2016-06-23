@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using BrightIdeasSoftware;
 using KeePass.Resources;
 using KeePass.Util;
@@ -26,6 +27,8 @@ namespace KPEnhancedEntryView
 			set
 			{
 				mEntry = value;
+				TopItemIndex = 0; // Reset scroll when actually changing entries
+				SelectedIndex = -1;
 				OnEntryChanged(EventArgs.Empty);
 			}
 		}

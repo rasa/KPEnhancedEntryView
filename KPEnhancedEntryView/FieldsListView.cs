@@ -134,11 +134,17 @@ namespace KPEnhancedEntryView
 
 		protected void SetRows(IEnumerable<RowObject> rows)
 		{
+			var selectedIndex = SelectedIndex;
+			var topItemIndex = TopItemIndex;
+
 			BeginUpdate();
 			SetObjects(rows);
 			mFieldNames.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
 			mFieldNames.Width += 10; // Give it a bit of a margin to make it look better
 			EndUpdate();
+
+			SelectedIndex = selectedIndex;
+			TopItemIndex = topItemIndex;
 		}
 
 		protected bool IsExcludedField(string fieldName)
