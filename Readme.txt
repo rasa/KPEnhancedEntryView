@@ -149,6 +149,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v1.9.1
+ Fixed further bug with splitter in Stacked window layout
+
 v1.9
  Fixed bug where fields list would reset scroll position and selection when copying or dragging
 

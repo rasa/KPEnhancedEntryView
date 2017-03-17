@@ -76,7 +76,12 @@ namespace KPEnhancedEntryView
 				if (value >= 0)
 				{
 					mSplitRatioAsSet = value;
-					SplitterDistance = (int)Math.Round(((double)value / SplitRatioMax) * GetMaxSplit());
+					// Do not set splitter distance if the control size is below minimum allowed or WinForms throws a wobbly.
+					if ((Orientation == Orientation.Horizontal && Height > SplitterWidth) ||
+					    (Orientation == Orientation.Vertical && Width > SplitterWidth))
+					{
+						SplitterDistance = (int)Math.Round(((double)value / SplitRatioMax) * GetMaxSplit());
+					}
 				}
 			}
 		}

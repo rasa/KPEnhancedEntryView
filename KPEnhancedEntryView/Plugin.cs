@@ -20,7 +20,7 @@ namespace KPEnhancedEntryView
 		private RichTextBox mOriginalEntryView;
 		private ListView mEntriesListView;
 		private Options mOptions;
-		
+
 		public override bool Initialize(IPluginHost host)
 		{
 			if (host == null) return false;
@@ -65,7 +65,7 @@ namespace KPEnhancedEntryView
 
 			// Font is assigned, not inherited. So assign here too, and follow any changes
 			mOriginalEntryView.FontChanged += mOriginalEntryView_FontChanged;
-			
+
 			// Hook UIStateUpdated to watch for current entry changing.
 			mHost.MainWindow.UIStateUpdated += this.OnUIStateUpdated;
 
@@ -84,7 +84,7 @@ namespace KPEnhancedEntryView
 
 			// Hook events to update the UI when the entry is modified
 			mEntryView.EntryModified += this.mEntryView_EntryModified;
-			
+
 			return true;
 		}
 
@@ -96,7 +96,7 @@ namespace KPEnhancedEntryView
 		private static readonly TimeSpan EntitiesListViewInvalidationTimeout = TimeSpan.FromMilliseconds(250); // Consolidate any Invalidated events that occur within 250ms of each other
 		private readonly object mEntitiesListViewInvalidationTimerLock = new object();
 		private Stopwatch mEntitiesListViewInvalidationTimer;
-		
+
 		private void mEntitiesListView_Invalidated(object sender, InvalidateEventArgs e)
 		{
 			// Whenever the entities list is invalidated, refresh the items of the entry view too (so that changes like column value hiding get reflected)
@@ -135,17 +135,27 @@ namespace KPEnhancedEntryView
 						break;
 					}
 				}
-				
+
 				Thread.Sleep(remainingTime);
 			} while (true);
 
-			mEntryView.BeginInvoke(new Action(delegate
+			if (mEntryView != null)
 			{
-				if (mEntryView != null)
+				try
 				{
-					mEntryView.RefreshItems();
+					mEntryView.BeginInvoke(new Action(delegate
+					{
+						if (mEntryView != null)
+						{
+							mEntryView.RefreshItems();
+						}
+					}));
 				}
-			}));
+				catch (Exception)
+				{
+					// If it failed to invoke on the entry view it might be be because it's been disposed. Ignore.
+				}
+			}
 		}
 
 		private void mOriginalEntryView_FontChanged(object sender, EventArgs e)
