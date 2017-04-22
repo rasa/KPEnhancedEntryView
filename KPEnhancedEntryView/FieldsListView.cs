@@ -598,28 +598,37 @@ namespace KPEnhancedEntryView
 
 				if (rowObject != null)
 				{
-					if (keyData == (Keys.Control | Keys.C))
+					if (rowObject.IsInsertionRow)
 					{
-						CopyCommand(rowObject);
-						return true;
-					}
-					else if (keyData == Keys.Return)
-					{
-						if (rowObject.IsInsertionRow)
+						if (keyData == Keys.Return)
 						{
 							// For the insertion row only, start editing the name on Enter
 							AddNewCommand();
+							return true;
 						}
-						else
+					}
+					else
+					{
+						if (keyData == (Keys.Control | Keys.C))
+						{
+							CopyCommand(rowObject);
+							return true;
+						}
+						else if (keyData == (Keys.Control | Keys.V))
+						{
+							AutoTypeCommand(rowObject);
+							return true;
+						}
+						else if (keyData == Keys.Return)
 						{
 							EditFieldCommand(rowObject);
+							return true;
 						}
-						return true;
-					}
-					else if (keyData == Keys.Delete)
-					{
-						DeleteFieldCommand(rowObject);
-						return true;
+						else if (keyData == Keys.Delete)
+						{
+							DeleteFieldCommand(rowObject);
+							return true;
+						}
 					}
 				}
 			}

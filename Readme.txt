@@ -149,6 +149,10 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v1.10
+ Added Ctrl+V shortcut for auto-typing selected field.
+ Fixed bugs with shortcuts on (Add New) row
+
 v1.9.1
  Fixed further bug with splitter in Stacked window layout
 

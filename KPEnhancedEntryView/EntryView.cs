@@ -93,6 +93,7 @@ namespace KPEnhancedEntryView
 			mEditFieldCommand.ShortcutKeyDisplayString = KPRes.KeyboardKeyReturn;
 			mDeleteFieldCommand.ShortcutKeyDisplayString = UIUtil.GetKeysName(Keys.Delete);
 			mCopyCommand.ShortcutKeys = Keys.Control | Keys.C;
+			mAutoTypeCommand.ShortcutKeys = Keys.Control | Keys.V;
 
 			mURLDropDownMenu = new OpenWithMenu(mURLDropDown);
 			CustomizeOnClick(mURLDropDownMenu);
