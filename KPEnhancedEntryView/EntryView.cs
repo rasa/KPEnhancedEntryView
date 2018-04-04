@@ -97,6 +97,7 @@ namespace KPEnhancedEntryView
 
 			mURLDropDownMenu = new OpenWithMenu(mURLDropDown);
 			CustomizeOnClick(mURLDropDownMenu);
+			mURLDropDown.DropDownOpening += UrlDropDownMenuOpening;
 
 			// Code copied from PwEntryForm.cs
 			m_imgStdExpire = UIUtil.CreateDropDownImage(Properties.Resources.B16x16_History);
@@ -252,28 +253,70 @@ namespace KPEnhancedEntryView
 			return null;
 		}
 
-		private void mURLDropDownMenu_MenuClick(object sender, DynamicMenuEventArgs e)
+		private void UrlDropDownMenuOpening(object o, EventArgs eventArgs)
 		{
-			var filePath = GetFilePath(e.Tag);
-			if (filePath != null && mLastContextMenuUrl != null)
+			// KeePass.OpenWithMenu.OnMenuOpening will have set the menu items enabled or disabled based on the URL field rather than the context url, so duplicate logic here
+			var canOpenWith = !WinUtil.IsCommandLineUrl(mLastContextMenuUrl);
+			var lOpenWithFieldInfo = typeof(OpenWithMenu).GetField("m_lOpenWith", BindingFlags.Instance | BindingFlags.NonPublic);
+			if (lOpenWithFieldInfo != null)
 			{
-				WinUtil.OpenUrlWithApp(mLastContextMenuUrl, Entry, filePath);
+				var openWithItems = lOpenWithFieldInfo.GetValue(mURLDropDownMenu) as System.Collections.IEnumerable;
+				if (openWithItems != null)
+				{
+					foreach (var openWithItem in openWithItems)
+					{
+						var openWithItemType = openWithItem.GetType();
+						Debug.Assert(openWithItemType.Name == "OpenWithItem");
+						var menuItemPropertyInfo = openWithItemType.GetProperty("MenuItem", BindingFlags.Public | BindingFlags.Instance);
+						if (menuItemPropertyInfo != null)
+						{
+							var menuItem = menuItemPropertyInfo.GetValue(openWithItem, null) as ToolStripMenuItem;
+							if (menuItem != null)
+							{
+								menuItem.Enabled = canOpenWith;
+							}
+						}
+					}
+				}
 			}
 		}
 
-		private string GetFilePath(object openWithItemTag)
+		private void mURLDropDownMenu_MenuClick(object sender, DynamicMenuEventArgs e)
+		{
+			const string PlhTargetUri = @"{OW_URI}"; // Match KeePass.OpenWithMenu.PlhTargetUri
+
+			// This should be a copy of KeePass.OpenWithMenu.OnOpenUrl logic, except it uses mLastContextMenuUrl instead of the selected entries
+			bool isExecutable;
+			var filePath = GetFilePath(e.Tag, out isExecutable);
+			if (filePath != null && mLastContextMenuUrl != null)
+			{
+				if (isExecutable)
+				{
+					WinUtil.OpenUrlWithApp(mLastContextMenuUrl, Entry, filePath);
+				}
+				else
+				{
+					WinUtil.OpenUrl(filePath.Replace(PlhTargetUri, mLastContextMenuUrl), Entry, false);
+				}
+			}
+		}
+
+		private string GetFilePath(object openWithItemTag, out bool isExecutable)
 		{
 			if (openWithItemTag != null)
 			{
 				var openWithItemType = openWithItemTag.GetType();
 				Debug.Assert(openWithItemType.Name == "OpenWithItem");
 				var filePathPropertyInfo = openWithItemType.GetProperty("FilePath", BindingFlags.Public | BindingFlags.Instance);
-				if (filePathPropertyInfo != null)
+				var filePathTypePropertyInfo = openWithItemType.GetProperty("FilePathType", BindingFlags.Public | BindingFlags.Instance);
+				if (filePathPropertyInfo != null && filePathTypePropertyInfo != null)
 				{
+					isExecutable = (int)filePathTypePropertyInfo.GetValue(openWithItemTag, null) == 0;
 					return filePathPropertyInfo.GetValue(openWithItemTag, null) as string;
 				}
 			}
 
+			isExecutable = false;
 			return null;
 		}
 		

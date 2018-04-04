@@ -149,6 +149,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v1.11
+ Fixed bug with Open With menu for URLs
+
 v1.10
  Added Ctrl+V shortcut for auto-typing selected field.
  Fixed bugs with shortcuts on (Add New) row
