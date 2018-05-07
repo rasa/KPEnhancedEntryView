@@ -30,24 +30,9 @@ namespace KPEnhancedEntryView
 			return null;
 		}
 
-		private static Func<PwDatabase, PwUuid, Image> sGetCustomIconInternal;
         public static Image GetCustomIcon(PwDatabase database, PwUuid customIconId)
-		{
-	        if (sGetCustomIconInternal == null)
-	        {
-				// Attempt to use the new (2.29 and above) methods to get a natively larger icon, rather than rescaling
-		        var getCustomIconMethod = database.GetType().GetMethod("GetCustomIcon", new[] { typeof(PwUuid), typeof(int), typeof(int) });
-		        if (getCustomIconMethod != null)
-		        {
-			        sGetCustomIconInternal = (db, id) => getCustomIconMethod.Invoke(db, new object[] { id, DpiUtil.ScaleIntX(16), DpiUtil.ScaleIntY(16) }) as Image;
-		        }
-		        else
-		        {
-					// Pre- 2.29 method
-					sGetCustomIconInternal = (db, id) => DpiUtil.ScaleImage(db.GetCustomIcon(id), false);
-				}
-			}
-	        return sGetCustomIconInternal(database, customIconId);
+        {
+	        return database.GetCustomIcon(customIconId, DpiUtil.ScaleIntX(16), DpiUtil.ScaleIntY(16));
 		}
 	}
 }

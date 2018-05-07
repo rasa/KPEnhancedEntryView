@@ -1,4 +1,6 @@
-﻿namespace KPEnhancedEntryView
+﻿using System.Drawing;
+
+namespace KPEnhancedEntryView
 {
 	partial class EntryView
 	{

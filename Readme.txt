@@ -149,6 +149,10 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.0
+ Compatibility with KeePass 2.39. For versions of KeePass prior to 2.39, use a 1.X version of
+  KPEnhancedEntryView.
+
 v1.11
  Fixed bug with Open With menu for URLs
 

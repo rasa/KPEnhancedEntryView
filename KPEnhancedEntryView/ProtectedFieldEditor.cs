@@ -9,15 +9,13 @@ namespace KPEnhancedEntryView
 {
 	public partial class ProtectedFieldEditor : UserControl
 	{
-		private SecureEdit mSecureEdit;
 		public ProtectedFieldEditor()
 		{
 			InitializeComponent();
 
 			mToggleHidden.Width = Properties.Resources.B17x05_3BlackDots.Width + DpiUtil.ScaleIntX(16);
 
-			mSecureEdit = new SecureEdit();
-			mSecureEdit.Attach(mTextBox, OnPasswordTextChanged, mToggleHidden.Checked);
+			mTextBox.EnableProtection(mToggleHidden.Checked);
 		}
 
 		protected override void Select(bool directed, bool forward)
@@ -56,18 +54,8 @@ namespace KPEnhancedEntryView
 
 		public ProtectedString Value
 		{
-			get
-			{
-				return new ProtectedString(true, mSecureEdit.ToUtf8());
-			}
-			set
-			{
-				mSecureEdit.SetPassword(value.ReadUtf8());
-			}
-		}
-
-		private void OnPasswordTextChanged(object sender, EventArgs e)
-		{
+			get { return mTextBox.TextEx; }
+			set { mTextBox.TextEx = value; }
 		}
 
 		private void mToggleHidden_CheckedChanged(object sender, EventArgs e)
@@ -77,9 +65,7 @@ namespace KPEnhancedEntryView
 				mToggleHidden.Checked = true;
 				return;
 			}
-			mSecureEdit.EnableProtection(mToggleHidden.Checked);
+			mTextBox.EnableProtection(mToggleHidden.Checked);
 		}
-
-		
 	}
 }

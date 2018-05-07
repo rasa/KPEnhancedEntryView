@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using KeePass.Forms;
 using KeePass.Plugins;
-using KeePass.UI;
 using KeePass.Util;
-using KeePassLib;
-using KeePassLib.Utility;
 
 namespace KPEnhancedEntryView
 {
 	public sealed class KPEnhancedEntryViewExt : Plugin
 	{
+		private const int MinimumEntryViewHeight = 150;
+
 		private IPluginHost mHost;
 		private EntryView mEntryView;
 		private RichTextBox mOriginalEntryView;
@@ -48,6 +46,17 @@ namespace KPEnhancedEntryView
 				return false;
 			}
 
+			// Enforce a minimum height to avoid disappearing fields grid issue
+			var container = entryViewContainer.Parent as SplitContainer;
+			if (container != null)
+			{
+				if (container.Panel2 == entryViewContainer)
+				{
+					container.Panel2MinSize = MinimumEntryViewHeight;
+					container.SplitterDistance--; // .net has a bug with Panel2MinSize where it won't update if the split is vertical rather than horizontal, so force it here
+				}
+			}
+
 			// Replace existing entry view with new one
 			mEntryView = new EntryView(mHost.MainWindow, mOptions)
 			{
@@ -58,7 +67,7 @@ namespace KPEnhancedEntryView
 			};
 
 			entryViewContainer.Controls.Add(mEntryView);
-
+			
 			// Move the original entry view into a tab on the new view
 			entryViewContainer.Controls.Remove(mOriginalEntryView);
 			mEntryView.AllTextControl = mOriginalEntryView;
@@ -235,6 +244,7 @@ namespace KPEnhancedEntryView
 			{
 				mHostRequiresModificationNotification = false;
 				mHost.MainWindow.UpdateUI(false, null, false, null, false, null, true);
+				AutoSave();
 			}
 			else
 			{
@@ -259,9 +269,18 @@ namespace KPEnhancedEntryView
 						// Notification is not deferred - notifying with modified flag now, and clearing the requires notification flag - further modifications after notification require further notifications.
 						mHostRequiresModificationNotification = false;
 						mHost.MainWindow.UpdateUI(false, null, false, null, false, null, true);
+						AutoSave();
 					}
 					mHost.MainWindow.RefreshEntriesList();
 				}));
+			}
+		}
+
+		private void AutoSave()
+		{
+			if (KeePass.Program.Config.Application.AutoSaveAfterEntryEdit)
+			{
+				mHost.MainWindow.SaveDatabase(mHost.Database, null);
 			}
 		}
 

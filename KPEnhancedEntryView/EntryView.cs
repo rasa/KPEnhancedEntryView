@@ -1210,7 +1210,7 @@ namespace KPEnhancedEntryView
 			if(str.Length > 0) img = UIUtil.GetFileIcon(str, qSize, qSize);
 
 			if(img == null)
-				img = UIUtil.CreateScaledImage(mMainForm.ClientIcons.Images[
+				img = GfxUtil.ScaleImage(mMainForm.ClientIcons.Images[
 					(int)PwIcon.Console], qSize, qSize);
 
 			l.Add(new KeyValuePair<string, Image>(strOverride, img));

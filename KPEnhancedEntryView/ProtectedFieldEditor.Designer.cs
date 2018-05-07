@@ -1,4 +1,6 @@
-﻿namespace KPEnhancedEntryView
+﻿using KeePass.UI;
+
+namespace KPEnhancedEntryView
 {
 	partial class ProtectedFieldEditor
 	{
@@ -30,7 +32,7 @@
 		{
 			this.mToggleHidden = new System.Windows.Forms.CheckBox();
 			this.layout = new System.Windows.Forms.TableLayoutPanel();
-			this.mTextBox = new KPEnhancedEntryView.DynamicMultiLineTextBox();
+			this.mTextBox = new SecureTextBoxEx();
 			this.layout.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -89,7 +91,7 @@
 
 		#endregion
 
-		private DynamicMultiLineTextBox mTextBox;
+		private SecureTextBoxEx mTextBox;
 		private System.Windows.Forms.CheckBox mToggleHidden;
 		private System.Windows.Forms.TableLayoutPanel layout;
 	}
