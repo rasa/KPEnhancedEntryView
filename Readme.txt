@@ -149,6 +149,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.0.1
+ Fixed bug where split between KPEnhancedEntryView and main window may shrink over time
+
 v2.0
  Compatibility with KeePass 2.39. For versions of KeePass prior to 2.39, use a 1.X version of
   KPEnhancedEntryView.

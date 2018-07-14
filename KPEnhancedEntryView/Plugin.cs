@@ -5,6 +5,7 @@ using System.Threading;
 using System.Windows.Forms;
 using KeePass.Forms;
 using KeePass.Plugins;
+using KeePass.UI;
 using KeePass.Util;
 
 namespace KPEnhancedEntryView
@@ -47,13 +48,15 @@ namespace KPEnhancedEntryView
 			}
 
 			// Enforce a minimum height to avoid disappearing fields grid issue
-			var container = entryViewContainer.Parent as SplitContainer;
+			var container = entryViewContainer.Parent as CustomSplitContainerEx;
 			if (container != null)
 			{
 				if (container.Panel2 == entryViewContainer)
 				{
 					container.Panel2MinSize = MinimumEntryViewHeight;
+					var splitterDistanceFrac = container.SplitterDistanceFrac;
 					container.SplitterDistance--; // .net has a bug with Panel2MinSize where it won't update if the split is vertical rather than horizontal, so force it here
+					container.SplitterDistanceFrac = splitterDistanceFrac; // Attempt to restore original split
 				}
 			}
 
