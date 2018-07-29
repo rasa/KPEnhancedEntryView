@@ -23,9 +23,16 @@ ObjectListView Source
 Building
 --------
 
+In order for the KeePass project to build at least once go to the project properties,
+signing tab and re-select the keepass.pfx key file. You will be asked for the password,
+which can be found in the readme in the keepass source code directory.
+
 When building the solution, under Debug configuration KeePass is referenced as a project,
 to assist with debugging and source navigation. The build outputs will be placed in the
 plugins folder for the KeePass built from source, and that KeePass executed.
+
+In order to correctly package the Plgx including ObjectListView, please use the release
+build config (that way, the dll is placed in the correct folder for plgx packaging).
 
 Under Release configuration, KeePass is referenced as a binary, from the KeePass.exe in
 the KeePass-2.39 folder. This ensures a correct strong-named dependency. The build outputs
