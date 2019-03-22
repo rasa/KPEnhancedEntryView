@@ -63,6 +63,7 @@ namespace KPEnhancedEntryView
 				Hyperlink = true,
 				AspectGetter = rowObject => ((RowObject)rowObject).GetDisplayValue(this),
 				AspectPutter = SetFieldValue,
+				MinimumWidth = 60,
 			};
 			
 			Columns.Add(mFieldNames);
