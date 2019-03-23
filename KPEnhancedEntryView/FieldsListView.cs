@@ -268,7 +268,7 @@ namespace KPEnhancedEntryView
 			bool invalidate = false;
 			if (args.Item != null && 
 				((RowObject)args.Item.RowObject).CanRevealValue &&
-				args.Location.X > args.Item.Bounds.Width - EyeRegionWidth)
+				args.Location.X > args.Item.Bounds.Right - EyeRegionWidth)
 			{
 				mMouseInReveal = true;
 				Cursor = Cursors.Hand;
@@ -289,7 +289,7 @@ namespace KPEnhancedEntryView
 			if (invalidate)
 			{
 				var bounds = args.Item.Bounds;
-				bounds.X = bounds.Width - EyeRegionWidth;
+				bounds.X = bounds.Right - EyeRegionWidth;
 				bounds.Width = EyeRegionWidth;
 				Invalidate(bounds);
 			}
@@ -314,7 +314,7 @@ namespace KPEnhancedEntryView
 
 		protected override void OnCellClick(CellClickEventArgs args)
 		{
-			if (args.Item != null && args.Location.X > args.Item.Bounds.Width - EyeRegionWidth)
+			if (args.Item != null && args.Location.X > args.Item.Bounds.Right - EyeRegionWidth)
 			{
 				var rowObject = (RowObject)args.Model;
 				if (rowObject.CanRevealValue)
