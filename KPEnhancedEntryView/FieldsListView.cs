@@ -131,7 +131,7 @@ namespace KPEnhancedEntryView
 				}
 			}
 
-			CellEditActivation = (mOptions?.ReadOnly ?? false) ? CellEditActivateMode.None : CellEditActivateMode.DoubleClick;
+			CellEditActivation = (mOptions != null && mOptions.ReadOnly) ? CellEditActivateMode.None : CellEditActivateMode.DoubleClick;
 		}
 
 		protected void SetRows(IEnumerable<RowObject> rows)
