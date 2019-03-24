@@ -31,7 +31,6 @@ namespace KPEnhancedEntryView
 
 		public FieldsListView() 
 		{
-			CellEditActivation = CellEditActivateMode.DoubleClick;
 			CellEditTabChangesRows = true;
 			CopySelectionOnControlC = false;
 			FullRowSelect = true;
@@ -131,6 +130,8 @@ namespace KPEnhancedEntryView
 					RefreshItem(item);
 				}
 			}
+
+			CellEditActivation = (mOptions?.ReadOnly ?? false) ? CellEditActivateMode.None : CellEditActivateMode.DoubleClick;
 		}
 
 		protected void SetRows(IEnumerable<RowObject> rows)
@@ -601,7 +602,7 @@ namespace KPEnhancedEntryView
 				{
 					if (rowObject.IsInsertionRow)
 					{
-						if (keyData == Keys.Return)
+						if (keyData == Keys.Return && !mOptions.ReadOnly)
 						{
 							// For the insertion row only, start editing the name on Enter
 							AddNewCommand();
@@ -620,12 +621,12 @@ namespace KPEnhancedEntryView
 							AutoTypeCommand(rowObject);
 							return true;
 						}
-						else if (keyData == Keys.Return)
+						else if (keyData == Keys.Return && !mOptions.ReadOnly)
 						{
 							EditFieldCommand(rowObject);
 							return true;
 						}
-						else if (keyData == Keys.Delete)
+						else if (keyData == Keys.Delete && !mOptions.ReadOnly)
 						{
 							DeleteFieldCommand(rowObject);
 							return true;

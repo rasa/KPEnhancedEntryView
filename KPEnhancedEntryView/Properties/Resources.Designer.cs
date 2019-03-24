@@ -334,6 +334,15 @@ namespace KPEnhancedEntryView.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &amp;Read Only.
+        /// </summary>
+        internal static string ReadOnlyOptionMenuItem {
+            get {
+                return ResourceManager.GetString("ReadOnlyOptionMenuItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap Reveal {

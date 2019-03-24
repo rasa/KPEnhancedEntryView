@@ -14,6 +14,7 @@ namespace KPEnhancedEntryView
 		public static class OptionName
 		{
 			public const string HideEmptyFields = "HideEmptyFields";
+			public const string ReadOnly = "ReadOnly";
 			public const string FieldNotesSplit = "FieldNotesSplit";
 			public const string NotesAttachmentsSplit = "NotesAttachmentsSplit";
 		}
@@ -45,6 +46,16 @@ namespace KPEnhancedEntryView
 
 			hideEmptyStandardFields.CheckedChanged += (o, e) => SetOption(OptionName.HideEmptyFields, ((ToolStripMenuItem)o).Checked);
 			root.DropDownItems.Add(hideEmptyStandardFields);
+
+			var readOnly = new ToolStripMenuItem
+			{
+				Text = Properties.Resources.ReadOnlyOptionMenuItem,
+				CheckOnClick = true,
+				Checked = ReadOnly
+			};
+
+			readOnly.CheckedChanged += (o, e) => SetOption(OptionName.ReadOnly, ((ToolStripMenuItem)o).Checked);
+			root.DropDownItems.Add(readOnly);
 
 			var reveal = new ToolStripMenuItem
 			{
@@ -119,6 +130,8 @@ namespace KPEnhancedEntryView
 
 		#region Options
 		public bool HideEmptyFields { get { return GetOption(OptionName.HideEmptyFields, false); } }
+		
+		public bool ReadOnly { get { return GetOption(OptionName.ReadOnly, false); } }
 
 		public long FieldsNotesSplitPosition
 		{

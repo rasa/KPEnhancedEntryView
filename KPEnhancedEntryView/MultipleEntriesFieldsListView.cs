@@ -152,9 +152,12 @@ namespace KPEnhancedEntryView
 					}
 				}
 
-				// Then add an empty "add new" row
-				rows.Add(RowObject.CreateInsertionRow());
-
+				if (!mOptions.ReadOnly)
+				{
+					// Finally, an empty "add new" row
+					rows.Add(RowObject.CreateInsertionRow());
+				}
+				
 				BeginInvoke(new Action(delegate
 				{
 					if (Object.ReferenceEquals(entries, mEntries)) // Final guard against repopulation

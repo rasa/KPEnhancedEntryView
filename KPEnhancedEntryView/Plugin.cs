@@ -292,6 +292,7 @@ namespace KPEnhancedEntryView
 			switch (e.OptionName)
 			{
 				case Options.OptionName.HideEmptyFields:
+				case Options.OptionName.ReadOnly:
 					// Force a refresh of the entry
 					mEntryView.Entry = null;
 					OnUIStateUpdated(null, EventArgs.Empty);

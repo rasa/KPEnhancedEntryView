@@ -120,6 +120,18 @@ namespace KPEnhancedEntryView
 		}
 		#endregion
 
+		private bool mIsReadOnly = false;
+		public bool IsReadOnly
+		{
+			get { return mIsReadOnly; }
+			set
+			{
+				CellEditActivation = value ? CellEditActivateMode.None : CellEditActivateMode.F2Only;
+				AllowDrop = !value;
+				mIsReadOnly = value;
+			}
+		}
+
 		/// <summary>
 		/// Database must be set in order to perform history maintenance when modifying the value
 		/// </summary>
@@ -170,7 +182,7 @@ namespace KPEnhancedEntryView
 		#region Commands
 		protected override bool ProcessDialogKey(Keys keyData)
 		{
-			if (!IsCellEditing)
+			if (!IsCellEditing && !IsReadOnly)
 			{
 				if (SelectedIndices.Count > 0)
 				{

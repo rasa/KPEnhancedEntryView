@@ -52,8 +52,11 @@ namespace KPEnhancedEntryView
 				// Then, all custom strings
 				rows.AddRange(from kvp in Entry.Strings where !PwDefs.IsStandardField(kvp.Key) && !IsExcludedField(kvp.Key) select new RowObject(kvp));
 
-				// Finally, an empty "add new" row
-				rows.Add(RowObject.CreateInsertionRow());
+				if (!mOptions.ReadOnly)
+				{
+					// Finally, an empty "add new" row
+					rows.Add(RowObject.CreateInsertionRow());
+				}
 
 				SetRows(rows);
 			}

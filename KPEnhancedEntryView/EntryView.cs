@@ -545,6 +545,9 @@ namespace KPEnhancedEntryView
 					PopulateNotes(Entry.Strings.ReadSafe(PwDefs.NotesField));
 				}
 			}
+
+			mAttachments.IsReadOnly = mOptions.ReadOnly;
+			SetPropertiesTabControlsEnabledRecursive(mPropertiesTab, !mOptions.ReadOnly);
 		}
 
 		public void RefreshItems()
@@ -636,9 +639,10 @@ namespace KPEnhancedEntryView
 			{
 				var entry = Entry;
 				
-				if (entry == null)
+				if (entry == null || // Can't edit if no entry
+				    mOptions.ReadOnly)
 				{
-					value = false; // Can't edit if no entry
+					value = false;
 				}
 				if (value != mNotesEditingActive)
 				{
@@ -754,11 +758,11 @@ namespace KPEnhancedEntryView
 				mURLDropDown.Visible = url != null;
 				mCopyCommand.Enabled = true;
 				mAutoTypeCommand.Enabled = mFieldsGrid.Entry.GetAutoTypeEnabled();
-				mEditFieldCommand.Enabled = true;
-				mProtectFieldCommand.Visible = !PwDefs.IsStandardField(rowObject.FieldName); // Changing the protection of standard fields has no visible effect, so don't allow it
-				mPasswordGeneratorCommand.Enabled = true;
-				mDeleteFieldCommand.Enabled = true;
-				mAddNewCommand.Enabled = true;
+				mEditFieldCommand.Enabled = !mOptions.ReadOnly;
+				mProtectFieldCommand.Visible = !mOptions.ReadOnly && !PwDefs.IsStandardField(rowObject.FieldName); // Changing the protection of standard fields has no visible effect, so don't allow it
+				mPasswordGeneratorCommand.Enabled = !mOptions.ReadOnly;
+				mDeleteFieldCommand.Enabled = !mOptions.ReadOnly;
+				mAddNewCommand.Enabled = !mOptions.ReadOnly;
 			
 				mProtectFieldCommand.Checked = rowObject.Value.IsProtected;
 				mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, rowObject.DisplayName);
@@ -806,7 +810,7 @@ namespace KPEnhancedEntryView
 					mURLDropDown.Visible = url != null;
 					mCopyCommand.Enabled = true;
 					mAutoTypeCommand.Enabled = mMultipleSelectionFields.Entries.Any(entry => entry.GetAutoTypeEnabled());
-					mProtectFieldCommand.Enabled = true;
+					mProtectFieldCommand.Enabled = !mOptions.ReadOnly;
 					
 					mProtectFieldCommand.Checked = rowObject.Value.IsProtected;
 
@@ -814,10 +818,10 @@ namespace KPEnhancedEntryView
 					mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, rowObject.DisplayName);
 				}
 
-				mEditFieldCommand.Enabled = true;
-				mPasswordGeneratorCommand.Enabled = true;
-				mDeleteFieldCommand.Enabled = true;
-				mAddNewCommand.Enabled = true;
+				mEditFieldCommand.Enabled = !mOptions.ReadOnly;
+				mPasswordGeneratorCommand.Enabled = !mOptions.ReadOnly;
+				mDeleteFieldCommand.Enabled = !mOptions.ReadOnly;
+				mAddNewCommand.Enabled = !mOptions.ReadOnly;
 			}
 			e.MenuStrip = mFieldGridContextMenu;
 			mFieldGridContextMenuTarget = mMultipleSelectionFields;
@@ -829,10 +833,10 @@ namespace KPEnhancedEntryView
 			var anyItemSelected = mAttachments.SelectedObjects.Count > 0;
 
 			mViewBinaryCommand.Enabled = singleItemSelected;
-			mRenameBinaryCommand.Enabled = singleItemSelected;
+			mRenameBinaryCommand.Enabled = singleItemSelected && !mOptions.ReadOnly;
 			mSaveBinaryCommand.Enabled = anyItemSelected;
-			mDeleteBinaryCommand.Enabled = anyItemSelected;
-			mAttachBinaryCommand.Enabled = Entry != null;
+			mDeleteBinaryCommand.Enabled = anyItemSelected && !mOptions.ReadOnly;
+			mAttachBinaryCommand.Enabled = Entry != null && !mOptions.ReadOnly;
 
 			e.MenuStrip = mAttachmentsContextMenu;
 		}
@@ -943,6 +947,30 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region Properties Tab
+
+		private void SetPropertiesTabControlsEnabledRecursive(Control control, bool enabled)
+		{
+			// Always allow these controls, they do not allow editing
+			if (control == mGroupButton || 
+				control == mUUID)
+			{
+				return;
+			}
+
+			if (control is TextBox ||
+			    control is Button ||
+			    control is CheckBox ||
+			    control is DateTimePicker ||
+			    control is ComboBox)
+			{
+				control.Enabled = enabled;
+			}
+			foreach (Control childControl in control.Controls)
+			{
+				SetPropertiesTabControlsEnabledRecursive(childControl, enabled);
+			}
+		}
+
 		private void PopulateProperties()
 		{
 			if (Entry == null)

@@ -190,6 +190,9 @@
   <data name="HideEmptyStandardFieldsOptionMenuItem" xml:space="preserve">
     <value>&amp;Hide Empty Standard Fields</value>
   </data>
+  <data name="ReadOnlyOptionMenuItem" xml:space="preserve">
+    <value>&amp;Read Only</value>
+  </data>
   <data name="OptionsMenuItem" xml:space="preserve">
     <value>&amp;Entry View Options</value>
   </data>

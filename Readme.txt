@@ -149,6 +149,10 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.1
+ Added "Read Only" option
+ Enforced minimum width on field value column, so it never completely disappears
+
 v2.0.1
  Fixed bug where split between KPEnhancedEntryView and main window may shrink over time
 
