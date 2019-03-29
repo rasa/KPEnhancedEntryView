@@ -467,6 +467,8 @@ namespace KPEnhancedEntryView
 			{
 				if (value != mEntry || HasEntryBeenModifiedSinceLastModificationTime(value))
 				{
+					FinishEditing();
+
 					mEntry = value;
 					mEntries = null;
 
@@ -546,6 +548,7 @@ namespace KPEnhancedEntryView
 				}
 			}
 
+			mLockButton.Checked = mOptions.ReadOnly;
 			mAttachments.IsReadOnly = mOptions.ReadOnly;
 			SetPropertiesTabControlsEnabledRecursive(mPropertiesTab, !mOptions.ReadOnly);
 		}
@@ -639,7 +642,7 @@ namespace KPEnhancedEntryView
 			{
 				var entry = Entry;
 				
-				if (entry == null || // Can't edit if no entry
+				if (entry == null ||
 				    mOptions.ReadOnly)
 				{
 					value = false;
@@ -682,6 +685,10 @@ namespace KPEnhancedEntryView
 							mNotes.ReadOnly = true;
 							mNotesBorder.Padding = new Padding(1);
 							mNotesBorder.BorderStyle = BorderStyle.FixedSingle;
+							if (mNotes.Focused)
+							{
+								mNotes.Parent.Focus();
+							}
 						}
 					}
 				}
@@ -741,7 +748,7 @@ namespace KPEnhancedEntryView
 				mProtectFieldCommand.Visible = false;
 				mPasswordGeneratorCommand.Enabled = false;
 				mDeleteFieldCommand.Enabled = false;
-				mAddNewCommand.Enabled = Entry != null;
+				mAddNewCommand.Enabled = Entry != null && !mOptions.ReadOnly;
 
 				mProtectFieldCommand.Checked = false;
 				mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, Properties.Resources.Field);
@@ -1522,5 +1529,15 @@ namespace KPEnhancedEntryView
 			mFieldsGrid.AllowCreateHistoryNow = false; // Don't allow a new history record for 1 minute from this modification
 		}
 		#endregion
+
+		private void mLockButton_CheckedChanged(object sender, EventArgs e)
+		{
+			mLockButton.ImageIndex = mLockButton.Checked ? 0 : 1;
+		}
+
+		private void mLockButton_Click(object sender, EventArgs e)
+		{
+			mOptions.ReadOnly = mLockButton.Checked;
+		}
 	}
 }

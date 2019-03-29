@@ -18,6 +18,7 @@ namespace KPEnhancedEntryView
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EntryView));
 			this.mSingleEntryTabs = new System.Windows.Forms.TabControl();
 			this.mFieldsTab = new System.Windows.Forms.TabPage();
 			this.mPropertiesTab = new System.Windows.Forms.TabPage();
@@ -88,6 +89,8 @@ namespace KPEnhancedEntryView
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.mAttachBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.mMultipleEntriesTabs = new System.Windows.Forms.TabControl();
+			this.mLockButton = new System.Windows.Forms.CheckBox();
+			this.mLockImages = new System.Windows.Forms.ImageList(this.components);
 			this.mSplitGridPanels = new KPEnhancedEntryView.CollapsibleSplitContainer();
 			this.mFieldsGrid = new KPEnhancedEntryView.SingleEntryFieldsListView();
 			this.mValidationFailureReporter = new KPEnhancedEntryView.ValidationFailureReporter(this.components);
@@ -847,6 +850,35 @@ namespace KPEnhancedEntryView
 			this.mMultipleEntriesTabs.TabIndex = 2;
 			this.mMultipleEntriesTabs.Visible = false;
 			// 
+			// mLockButton
+			// 
+			this.mLockButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.mLockButton.Appearance = System.Windows.Forms.Appearance.Button;
+			this.mLockButton.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.mLockButton.FlatAppearance.BorderSize = 0;
+			this.mLockButton.FlatAppearance.CheckedBackColor = System.Drawing.SystemColors.Control;
+			this.mLockButton.FlatAppearance.MouseDownBackColor = System.Drawing.SystemColors.ActiveCaption;
+			this.mLockButton.FlatAppearance.MouseOverBackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+			this.mLockButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.mLockButton.ImageIndex = 1;
+			this.mLockButton.ImageList = this.mLockImages;
+			this.mLockButton.Location = new System.Drawing.Point(354, 3);
+			this.mLockButton.Name = "mLockButton";
+			this.mLockButton.Padding = new System.Windows.Forms.Padding(0, 0, 1, 1);
+			this.mLockButton.Size = new System.Drawing.Size(14, 14);
+			this.mLockButton.TabIndex = 0;
+			this.mLockButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+			this.mLockButton.UseVisualStyleBackColor = false;
+			this.mLockButton.CheckedChanged += new System.EventHandler(this.mLockButton_CheckedChanged);
+			this.mLockButton.Click += new System.EventHandler(this.mLockButton_Click);
+			// 
+			// mLockImages
+			// 
+			this.mLockImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("mLockImages.ImageStream")));
+			this.mLockImages.TransparentColor = System.Drawing.Color.Transparent;
+			this.mLockImages.Images.SetKeyName(0, "Lock.png");
+			this.mLockImages.Images.SetKeyName(1, "Unlock.png");
+			// 
 			// mSplitGridPanels
 			// 
 			this.mSplitGridPanels.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -960,6 +992,7 @@ namespace KPEnhancedEntryView
 			this.mAttachments.EmptyListMsgFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic);
 			this.mAttachments.Entry = null;
 			this.mAttachments.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+			this.mAttachments.IsReadOnly = false;
 			this.mAttachments.Location = new System.Drawing.Point(0, 0);
 			this.mAttachments.Name = "mAttachments";
 			this.mAttachments.ShowGroups = false;
@@ -1003,6 +1036,7 @@ namespace KPEnhancedEntryView
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.mLockButton);
 			this.Controls.Add(this.mSingleEntryTabs);
 			this.Controls.Add(this.mMultipleEntriesTabs);
 			this.Name = "EntryView";
@@ -1121,5 +1155,7 @@ namespace KPEnhancedEntryView
 		private System.Windows.Forms.Label mSeparator3;
 		private System.Windows.Forms.CheckBox m_cbAutoTypeEnabled;
 		private System.Windows.Forms.CheckBox m_cbAutoTypeObfuscation;
+		private System.Windows.Forms.CheckBox mLockButton;
+		private System.Windows.Forms.ImageList mLockImages;
 	}
 }

@@ -19,6 +19,7 @@ namespace KPEnhancedEntryView
 		private RichTextBox mOriginalEntryView;
 		private ListView mEntriesListView;
 		private Options mOptions;
+		private ToolStripMenuItem mMenu; // Remove this when KeePass 2.41 minimum version
 
 		public override bool Initialize(IPluginHost host)
 		{
@@ -33,7 +34,10 @@ namespace KPEnhancedEntryView
 
 			// Add an Options menu
 			mOptions = new Options(mHost);
-			mHost.MainWindow.ToolsMenu.DropDownItems.Add(mOptions.Menu);
+
+			// Remove this when KeePass 2.41 minimum version
+			mMenu = mOptions.CreateMenu();
+			mHost.MainWindow.ToolsMenu.DropDownItems.Add(mMenu);
 
 			mOptions.OptionChanged += mOptions_OptionChanged;
 			mOptions.RevealProtectedFields += mOptions_RevealProtectedFields;
@@ -99,6 +103,18 @@ namespace KPEnhancedEntryView
 
 			return true;
 		}
+
+		/* Use this when 2.41 is guaranteed minimum
+		public override ToolStripMenuItem GetMenuItem(PluginMenuType t)
+		{
+			if (t == PluginMenuType.Main)
+			{
+				return mOptions.CreateMenu();
+			}
+
+			return null;
+		}
+		*/
 
 		public override string UpdateUrl
 		{
@@ -205,7 +221,8 @@ namespace KPEnhancedEntryView
 			mEntryView.Dispose();
 			mEntryView = null;
 
-			mHost.MainWindow.ToolsMenu.DropDownItems.Remove(mOptions.Menu);
+			// Remove this with KeePass 2.41 minimum
+			mHost.MainWindow.ToolsMenu.DropDownItems.Remove(mMenu);
 
 			mHost = null;
 		}
@@ -235,6 +252,7 @@ namespace KPEnhancedEntryView
 
 		private bool mNotifyHostImmediatelyOnModification;
 		private volatile bool mHostRequiresModificationNotification;
+
 		private void mEntryView_EntryModified(object sender, EventArgs e)
 		{
 			mHostRequiresModificationNotification = true;

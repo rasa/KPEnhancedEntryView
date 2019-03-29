@@ -130,8 +130,6 @@ namespace KPEnhancedEntryView
 					RefreshItem(item);
 				}
 			}
-
-			CellEditActivation = (mOptions != null && mOptions.ReadOnly) ? CellEditActivateMode.None : CellEditActivateMode.DoubleClick;
 		}
 
 		protected void SetRows(IEnumerable<RowObject> rows)
@@ -408,6 +406,18 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region Cell Editing
+
+		public override CellEditActivateMode CellEditActivation
+		{
+			get
+			{
+				return (mOptions != null && mOptions.ReadOnly)
+					? CellEditActivateMode.None
+					: CellEditActivateMode.DoubleClick;
+			}
+			set { }
+		}
+
 		protected override void OnCellEditStarting(CellEditEventArgs e)
 		{
 			base.OnCellEditStarting(e);

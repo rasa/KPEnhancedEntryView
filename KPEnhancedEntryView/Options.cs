@@ -20,17 +20,13 @@ namespace KPEnhancedEntryView
 		}
 
 		private readonly IPluginHost mHost;
-		private readonly ToolStripMenuItem mMenu;
 
 		public Options(IPluginHost host)
 		{
 			mHost = host;
-			mMenu = CreateMenu();
 		}
 
-		public ToolStripMenuItem Menu { get { return mMenu; } }
-
-		private ToolStripMenuItem CreateMenu()
+		public ToolStripMenuItem CreateMenu()
 		{
 			var root = new ToolStripMenuItem
 			{
@@ -41,20 +37,18 @@ namespace KPEnhancedEntryView
 			{
 				Text = Properties.Resources.HideEmptyStandardFieldsOptionMenuItem,
 				CheckOnClick = true,
-				Checked = HideEmptyFields
 			};
 
-			hideEmptyStandardFields.CheckedChanged += (o, e) => SetOption(OptionName.HideEmptyFields, ((ToolStripMenuItem)o).Checked);
+			hideEmptyStandardFields.Click += (o, e) => SetOption(OptionName.HideEmptyFields, ((ToolStripMenuItem)o).Checked);
 			root.DropDownItems.Add(hideEmptyStandardFields);
 
 			var readOnly = new ToolStripMenuItem
 			{
 				Text = Properties.Resources.ReadOnlyOptionMenuItem,
 				CheckOnClick = true,
-				Checked = ReadOnly
 			};
 
-			readOnly.CheckedChanged += (o, e) => SetOption(OptionName.ReadOnly, ((ToolStripMenuItem)o).Checked);
+			readOnly.Click += (o, e) => SetOption(OptionName.ReadOnly, ((ToolStripMenuItem)o).Checked);
 			root.DropDownItems.Add(readOnly);
 
 			var reveal = new ToolStripMenuItem
@@ -67,6 +61,12 @@ namespace KPEnhancedEntryView
 
 			reveal.Click += (o, e) => OnRevealProtectedFields();
 			root.DropDownItems.Add(reveal);
+
+			root.DropDownOpening += delegate(object sender, EventArgs args)
+			{
+				readOnly.Checked = ReadOnly;
+				hideEmptyStandardFields.Checked = HideEmptyFields;
+			};
 
 			return root;
 		}
@@ -130,8 +130,12 @@ namespace KPEnhancedEntryView
 
 		#region Options
 		public bool HideEmptyFields { get { return GetOption(OptionName.HideEmptyFields, false); } }
-		
-		public bool ReadOnly { get { return GetOption(OptionName.ReadOnly, false); } }
+
+		public bool ReadOnly
+		{
+			get { return GetOption(OptionName.ReadOnly, false); }
+			set { SetOption(OptionName.ReadOnly, value); }
+		}
 
 		public long FieldsNotesSplitPosition
 		{

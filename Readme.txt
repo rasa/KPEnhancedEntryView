@@ -149,6 +149,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.1.2
+ Fixed minor bugs with Read Only option, added padlock button for toggling it
+
 v2.1
  Added "Read Only" option
  Enforced minimum width on field value column, so it never completely disappears
