@@ -18,9 +18,15 @@ namespace KPEnhancedEntryView
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EntryView));
 			this.mSingleEntryTabs = new System.Windows.Forms.TabControl();
 			this.mFieldsTab = new System.Windows.Forms.TabPage();
+			this.mSplitGridPanels = new KPEnhancedEntryView.CollapsibleSplitContainer();
+			this.mFieldsGrid = new KPEnhancedEntryView.SingleEntryFieldsListView();
+			this.mValidationFailureReporter = new KPEnhancedEntryView.ValidationFailureReporter(this.components);
+			this.mSplitNotesAttachements = new KPEnhancedEntryView.CollapsibleSplitContainer();
+			this.mNotesBorder = new System.Windows.Forms.Panel();
+			this.mNotes = new KeePass.UI.CustomRichTextBoxEx();
+			this.mAttachments = new KPEnhancedEntryView.AttachmentsListView();
 			this.mPropertiesTab = new System.Windows.Forms.TabPage();
 			this.mPropertiesTabScrollPanel = new System.Windows.Forms.Panel();
 			this.mAutoTypeLayout = new System.Windows.Forms.TableLayoutPanel();
@@ -68,6 +74,7 @@ namespace KPEnhancedEntryView
 			this.m_btnIcon = new System.Windows.Forms.Button();
 			this.mAllTextTab = new System.Windows.Forms.TabPage();
 			this.mMultipleSelectionTab = new System.Windows.Forms.TabPage();
+			this.mMultipleSelectionFields = new KPEnhancedEntryView.MultipleEntriesFieldsListView();
 			this.mDoubleClickTimer = new System.Windows.Forms.Timer(this.components);
 			this.mFieldGridContextMenu = new KeePass.UI.CustomContextMenuStripEx(this.components);
 			this.mURLDropDown = new System.Windows.Forms.ToolStripMenuItem();
@@ -90,29 +97,8 @@ namespace KPEnhancedEntryView
 			this.mAttachBinaryCommand = new System.Windows.Forms.ToolStripMenuItem();
 			this.mMultipleEntriesTabs = new System.Windows.Forms.TabControl();
 			this.mLockButton = new System.Windows.Forms.CheckBox();
-			this.mLockImages = new System.Windows.Forms.ImageList(this.components);
-			this.mSplitGridPanels = new KPEnhancedEntryView.CollapsibleSplitContainer();
-			this.mFieldsGrid = new KPEnhancedEntryView.SingleEntryFieldsListView();
-			this.mValidationFailureReporter = new KPEnhancedEntryView.ValidationFailureReporter(this.components);
-			this.mSplitNotesAttachements = new KPEnhancedEntryView.CollapsibleSplitContainer();
-			this.mNotesBorder = new System.Windows.Forms.Panel();
-			this.mNotes = new KeePass.UI.CustomRichTextBoxEx();
-			this.mAttachments = new KPEnhancedEntryView.AttachmentsListView();
-			this.mMultipleSelectionFields = new KPEnhancedEntryView.MultipleEntriesFieldsListView();
 			this.mSingleEntryTabs.SuspendLayout();
 			this.mFieldsTab.SuspendLayout();
-			this.mPropertiesTab.SuspendLayout();
-			this.mPropertiesTabScrollPanel.SuspendLayout();
-			this.mAutoTypeLayout.SuspendLayout();
-			this.mTextPropertiesLayout.SuspendLayout();
-			this.mCustomColoursLayout.SuspendLayout();
-			this.mTimestampsLayout.SuspendLayout();
-			this.m_ctxDefaultTimes.SuspendLayout();
-			this.mIconPanel.SuspendLayout();
-			this.mMultipleSelectionTab.SuspendLayout();
-			this.mFieldGridContextMenu.SuspendLayout();
-			this.mAttachmentsContextMenu.SuspendLayout();
-			this.mMultipleEntriesTabs.SuspendLayout();
 			this.mSplitGridPanels.Panel1.SuspendLayout();
 			this.mSplitGridPanels.Panel2.SuspendLayout();
 			this.mSplitGridPanels.SuspendLayout();
@@ -122,7 +108,19 @@ namespace KPEnhancedEntryView
 			this.mSplitNotesAttachements.SuspendLayout();
 			this.mNotesBorder.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.mAttachments)).BeginInit();
+			this.mPropertiesTab.SuspendLayout();
+			this.mPropertiesTabScrollPanel.SuspendLayout();
+			this.mAutoTypeLayout.SuspendLayout();
+			this.mTextPropertiesLayout.SuspendLayout();
+			this.mCustomColoursLayout.SuspendLayout();
+			this.mTimestampsLayout.SuspendLayout();
+			this.m_ctxDefaultTimes.SuspendLayout();
+			this.mIconPanel.SuspendLayout();
+			this.mMultipleSelectionTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.mMultipleSelectionFields)).BeginInit();
+			this.mFieldGridContextMenu.SuspendLayout();
+			this.mAttachmentsContextMenu.SuspendLayout();
+			this.mMultipleEntriesTabs.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// mSingleEntryTabs
@@ -145,6 +143,131 @@ namespace KPEnhancedEntryView
 			this.mFieldsTab.Size = new System.Drawing.Size(365, 410);
 			this.mFieldsTab.TabIndex = 0;
 			this.mFieldsTab.Text = "Fields";
+			// 
+			// mSplitGridPanels
+			// 
+			this.mSplitGridPanels.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mSplitGridPanels.Location = new System.Drawing.Point(0, 0);
+			this.mSplitGridPanels.MinimumSplitSize = 50;
+			this.mSplitGridPanels.Name = "mSplitGridPanels";
+			this.mSplitGridPanels.Orientation = System.Windows.Forms.Orientation.Horizontal;
+			// 
+			// mSplitGridPanels.Panel1
+			// 
+			this.mSplitGridPanels.Panel1.Controls.Add(this.mFieldsGrid);
+			this.mSplitGridPanels.Panel1MinSize = 0;
+			// 
+			// mSplitGridPanels.Panel2
+			// 
+			this.mSplitGridPanels.Panel2.Controls.Add(this.mSplitNotesAttachements);
+			this.mSplitGridPanels.Panel2MinSize = 0;
+			this.mSplitGridPanels.Size = new System.Drawing.Size(365, 410);
+			this.mSplitGridPanels.SplitRatio = ((long)(7788461));
+			this.mSplitGridPanels.SplitterDistance = 316;
+			this.mSplitGridPanels.TabIndex = 2;
+			this.mSplitGridPanels.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.mSplitGridPanels_SplitterMoved);
+			// 
+			// mFieldsGrid
+			// 
+			this.mFieldsGrid.AllowCreateHistoryNow = true;
+			this.mFieldsGrid.AlternateRowBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(238)))), ((int)(((byte)(255)))));
+			this.mFieldsGrid.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
+			this.mFieldsGrid.CellEditTabChangesRows = true;
+			this.mFieldsGrid.CopySelectionOnControlC = false;
+			this.mFieldsGrid.Cursor = System.Windows.Forms.Cursors.Default;
+			this.mFieldsGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mFieldsGrid.Entry = null;
+			this.mFieldsGrid.FullRowSelect = true;
+			this.mFieldsGrid.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+			this.mFieldsGrid.Location = new System.Drawing.Point(0, 0);
+			this.mFieldsGrid.MultiSelect = false;
+			this.mFieldsGrid.Name = "mFieldsGrid";
+			this.mFieldsGrid.ShowGroups = false;
+			this.mFieldsGrid.ShowItemToolTips = true;
+			this.mFieldsGrid.Size = new System.Drawing.Size(365, 316);
+			this.mFieldsGrid.TabIndex = 0;
+			this.mFieldsGrid.UseAlternatingBackColors = true;
+			this.mFieldsGrid.UseCellFormatEvents = true;
+			this.mFieldsGrid.UseCompatibleStateImageBehavior = false;
+			this.mFieldsGrid.UseHyperlinks = true;
+			this.mFieldsGrid.ValidationFailureReporter = this.mValidationFailureReporter;
+			this.mFieldsGrid.View = System.Windows.Forms.View.Details;
+			this.mFieldsGrid.Modified += new System.EventHandler(this.mFieldsGrid_Modified);
+			this.mFieldsGrid.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mFieldsGrid_CellRightClick);
+			this.mFieldsGrid.HyperlinkClicked += new System.EventHandler<BrightIdeasSoftware.HyperlinkClickedEventArgs>(this.mFieldsGrid_HyperlinkClicked);
+			// 
+			// mSplitNotesAttachements
+			// 
+			this.mSplitNotesAttachements.ButtonSize = 42;
+			this.mSplitNotesAttachements.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mSplitNotesAttachements.Location = new System.Drawing.Point(0, 0);
+			this.mSplitNotesAttachements.MinimumSplitSize = 50;
+			this.mSplitNotesAttachements.Name = "mSplitNotesAttachements";
+			// 
+			// mSplitNotesAttachements.Panel1
+			// 
+			this.mSplitNotesAttachements.Panel1.Controls.Add(this.mNotesBorder);
+			this.mSplitNotesAttachements.Panel1MinSize = 0;
+			// 
+			// mSplitNotesAttachements.Panel2
+			// 
+			this.mSplitNotesAttachements.Panel2.Controls.Add(this.mAttachments);
+			this.mSplitNotesAttachements.Panel2MinSize = 0;
+			this.mSplitNotesAttachements.Size = new System.Drawing.Size(365, 90);
+			this.mSplitNotesAttachements.SplitRatio = ((long)(7036011));
+			this.mSplitNotesAttachements.SplitterDistance = 254;
+			this.mSplitNotesAttachements.TabIndex = 0;
+			this.mSplitNotesAttachements.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.mSplitNotesAttachements_SplitterMoved);
+			// 
+			// mNotesBorder
+			// 
+			this.mNotesBorder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.mNotesBorder.Controls.Add(this.mNotes);
+			this.mNotesBorder.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mNotesBorder.Location = new System.Drawing.Point(0, 0);
+			this.mNotesBorder.Name = "mNotesBorder";
+			this.mNotesBorder.Padding = new System.Windows.Forms.Padding(1);
+			this.mNotesBorder.Size = new System.Drawing.Size(254, 90);
+			this.mNotesBorder.TabIndex = 2;
+			// 
+			// mNotes
+			// 
+			this.mNotes.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.mNotes.DetectUrls = false;
+			this.mNotes.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mNotes.Location = new System.Drawing.Point(1, 1);
+			this.mNotes.Name = "mNotes";
+			this.mNotes.Size = new System.Drawing.Size(250, 86);
+			this.mNotes.TabIndex = 1;
+			this.mNotes.Text = "";
+			this.mNotes.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.mNotes_LinkClicked);
+			this.mNotes.DoubleClick += new System.EventHandler(this.mNotes_DoubleClick);
+			this.mNotes.Enter += new System.EventHandler(this.mNotes_Enter);
+			this.mNotes.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mNotes_KeyDown);
+			this.mNotes.Leave += new System.EventHandler(this.mNotes_Leave);
+			// 
+			// mAttachments
+			// 
+			this.mAttachments.AllowDrop = true;
+			this.mAttachments.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.F2Only;
+			this.mAttachments.CopySelectionOnControlC = false;
+			this.mAttachments.Database = null;
+			this.mAttachments.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mAttachments.EmptyListMsg = "Attachments";
+			this.mAttachments.EmptyListMsgFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic);
+			this.mAttachments.Entry = null;
+			this.mAttachments.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+			this.mAttachments.IsReadOnly = false;
+			this.mAttachments.Location = new System.Drawing.Point(0, 0);
+			this.mAttachments.Name = "mAttachments";
+			this.mAttachments.ShowGroups = false;
+			this.mAttachments.Size = new System.Drawing.Size(107, 90);
+			this.mAttachments.TabIndex = 0;
+			this.mAttachments.UseCompatibleStateImageBehavior = false;
+			this.mAttachments.ValidationFailureReporter = this.mValidationFailureReporter;
+			this.mAttachments.View = System.Windows.Forms.View.SmallIcon;
+			this.mAttachments.EntryModified += new System.EventHandler(this.mAttachments_EntryModified);
+			this.mAttachments.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mAttachments_CellRightClick);
 			// 
 			// mPropertiesTab
 			// 
@@ -682,6 +805,34 @@ namespace KPEnhancedEntryView
 			this.mMultipleSelectionTab.TabIndex = 3;
 			this.mMultipleSelectionTab.Text = "Multiple Selection";
 			// 
+			// mMultipleSelectionFields
+			// 
+			this.mMultipleSelectionFields.AllowCreateHistoryNow = true;
+			this.mMultipleSelectionFields.AlternateRowBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(238)))), ((int)(((byte)(255)))));
+			this.mMultipleSelectionFields.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
+			this.mMultipleSelectionFields.CellEditTabChangesRows = true;
+			this.mMultipleSelectionFields.CopySelectionOnControlC = false;
+			this.mMultipleSelectionFields.Cursor = System.Windows.Forms.Cursors.Default;
+			this.mMultipleSelectionFields.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.mMultipleSelectionFields.Entries = new KeePassLib.PwEntry[0];
+			this.mMultipleSelectionFields.FullRowSelect = true;
+			this.mMultipleSelectionFields.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+			this.mMultipleSelectionFields.Location = new System.Drawing.Point(0, 0);
+			this.mMultipleSelectionFields.MultiSelect = false;
+			this.mMultipleSelectionFields.Name = "mMultipleSelectionFields";
+			this.mMultipleSelectionFields.ShowGroups = false;
+			this.mMultipleSelectionFields.ShowItemToolTips = true;
+			this.mMultipleSelectionFields.Size = new System.Drawing.Size(365, 410);
+			this.mMultipleSelectionFields.TabIndex = 1;
+			this.mMultipleSelectionFields.UseAlternatingBackColors = true;
+			this.mMultipleSelectionFields.UseCellFormatEvents = true;
+			this.mMultipleSelectionFields.UseCompatibleStateImageBehavior = false;
+			this.mMultipleSelectionFields.UseHyperlinks = true;
+			this.mMultipleSelectionFields.ValidationFailureReporter = this.mValidationFailureReporter;
+			this.mMultipleSelectionFields.View = System.Windows.Forms.View.Details;
+			this.mMultipleSelectionFields.Modified += new System.EventHandler(this.mMultipleSelectionFields_Modified);
+			this.mMultipleSelectionFields.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mMultipleSelectionFields_CellRightClick);
+			// 
 			// mDoubleClickTimer
 			// 
 			this.mDoubleClickTimer.Tick += new System.EventHandler(this.mDoubleClickTimer_Tick);
@@ -861,7 +1012,6 @@ namespace KPEnhancedEntryView
 			this.mLockButton.FlatAppearance.MouseOverBackColor = System.Drawing.SystemColors.GradientInactiveCaption;
 			this.mLockButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.mLockButton.ImageIndex = 1;
-			this.mLockButton.ImageList = this.mLockImages;
 			this.mLockButton.Location = new System.Drawing.Point(354, 3);
 			this.mLockButton.Name = "mLockButton";
 			this.mLockButton.Padding = new System.Windows.Forms.Padding(0, 0, 1, 1);
@@ -869,168 +1019,7 @@ namespace KPEnhancedEntryView
 			this.mLockButton.TabIndex = 0;
 			this.mLockButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this.mLockButton.UseVisualStyleBackColor = false;
-			this.mLockButton.CheckedChanged += new System.EventHandler(this.mLockButton_CheckedChanged);
 			this.mLockButton.Click += new System.EventHandler(this.mLockButton_Click);
-			// 
-			// mLockImages
-			// 
-			this.mLockImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("mLockImages.ImageStream")));
-			this.mLockImages.TransparentColor = System.Drawing.Color.Transparent;
-			this.mLockImages.Images.SetKeyName(0, "Lock.png");
-			this.mLockImages.Images.SetKeyName(1, "Unlock.png");
-			// 
-			// mSplitGridPanels
-			// 
-			this.mSplitGridPanels.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mSplitGridPanels.Location = new System.Drawing.Point(0, 0);
-			this.mSplitGridPanels.MinimumSplitSize = 50;
-			this.mSplitGridPanels.Name = "mSplitGridPanels";
-			this.mSplitGridPanels.Orientation = System.Windows.Forms.Orientation.Horizontal;
-			// 
-			// mSplitGridPanels.Panel1
-			// 
-			this.mSplitGridPanels.Panel1.Controls.Add(this.mFieldsGrid);
-			this.mSplitGridPanels.Panel1MinSize = 0;
-			// 
-			// mSplitGridPanels.Panel2
-			// 
-			this.mSplitGridPanels.Panel2.Controls.Add(this.mSplitNotesAttachements);
-			this.mSplitGridPanels.Panel2MinSize = 0;
-			this.mSplitGridPanels.Size = new System.Drawing.Size(365, 410);
-			this.mSplitGridPanels.SplitRatio = ((long)(7788461));
-			this.mSplitGridPanels.SplitterDistance = 316;
-			this.mSplitGridPanels.TabIndex = 2;
-			this.mSplitGridPanels.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.mSplitGridPanels_SplitterMoved);
-			// 
-			// mFieldsGrid
-			// 
-			this.mFieldsGrid.AllowCreateHistoryNow = true;
-			this.mFieldsGrid.AlternateRowBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(238)))), ((int)(((byte)(255)))));
-			this.mFieldsGrid.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
-			this.mFieldsGrid.CellEditTabChangesRows = true;
-			this.mFieldsGrid.CopySelectionOnControlC = false;
-			this.mFieldsGrid.Cursor = System.Windows.Forms.Cursors.Default;
-			this.mFieldsGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mFieldsGrid.Entry = null;
-			this.mFieldsGrid.FullRowSelect = true;
-			this.mFieldsGrid.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-			this.mFieldsGrid.Location = new System.Drawing.Point(0, 0);
-			this.mFieldsGrid.MultiSelect = false;
-			this.mFieldsGrid.Name = "mFieldsGrid";
-			this.mFieldsGrid.ShowGroups = false;
-			this.mFieldsGrid.ShowItemToolTips = true;
-			this.mFieldsGrid.Size = new System.Drawing.Size(365, 316);
-			this.mFieldsGrid.TabIndex = 0;
-			this.mFieldsGrid.UseAlternatingBackColors = true;
-			this.mFieldsGrid.UseCellFormatEvents = true;
-			this.mFieldsGrid.UseCompatibleStateImageBehavior = false;
-			this.mFieldsGrid.UseHyperlinks = true;
-			this.mFieldsGrid.ValidationFailureReporter = this.mValidationFailureReporter;
-			this.mFieldsGrid.View = System.Windows.Forms.View.Details;
-			this.mFieldsGrid.Modified += new System.EventHandler(this.mFieldsGrid_Modified);
-			this.mFieldsGrid.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mFieldsGrid_CellRightClick);
-			this.mFieldsGrid.HyperlinkClicked += new System.EventHandler<BrightIdeasSoftware.HyperlinkClickedEventArgs>(this.mFieldsGrid_HyperlinkClicked);
-			// 
-			// mSplitNotesAttachements
-			// 
-			this.mSplitNotesAttachements.ButtonSize = 42;
-			this.mSplitNotesAttachements.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mSplitNotesAttachements.Location = new System.Drawing.Point(0, 0);
-			this.mSplitNotesAttachements.MinimumSplitSize = 50;
-			this.mSplitNotesAttachements.Name = "mSplitNotesAttachements";
-			// 
-			// mSplitNotesAttachements.Panel1
-			// 
-			this.mSplitNotesAttachements.Panel1.Controls.Add(this.mNotesBorder);
-			this.mSplitNotesAttachements.Panel1MinSize = 0;
-			// 
-			// mSplitNotesAttachements.Panel2
-			// 
-			this.mSplitNotesAttachements.Panel2.Controls.Add(this.mAttachments);
-			this.mSplitNotesAttachements.Panel2MinSize = 0;
-			this.mSplitNotesAttachements.Size = new System.Drawing.Size(365, 90);
-			this.mSplitNotesAttachements.SplitRatio = ((long)(7036011));
-			this.mSplitNotesAttachements.SplitterDistance = 254;
-			this.mSplitNotesAttachements.TabIndex = 0;
-			this.mSplitNotesAttachements.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.mSplitNotesAttachements_SplitterMoved);
-			// 
-			// mNotesBorder
-			// 
-			this.mNotesBorder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.mNotesBorder.Controls.Add(this.mNotes);
-			this.mNotesBorder.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mNotesBorder.Location = new System.Drawing.Point(0, 0);
-			this.mNotesBorder.Name = "mNotesBorder";
-			this.mNotesBorder.Padding = new System.Windows.Forms.Padding(1);
-			this.mNotesBorder.Size = new System.Drawing.Size(254, 90);
-			this.mNotesBorder.TabIndex = 2;
-			// 
-			// mNotes
-			// 
-			this.mNotes.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.mNotes.DetectUrls = false;
-			this.mNotes.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mNotes.Location = new System.Drawing.Point(1, 1);
-			this.mNotes.Name = "mNotes";
-			this.mNotes.Size = new System.Drawing.Size(250, 86);
-			this.mNotes.TabIndex = 1;
-			this.mNotes.Text = "";
-			this.mNotes.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.mNotes_LinkClicked);
-			this.mNotes.DoubleClick += new System.EventHandler(this.mNotes_DoubleClick);
-			this.mNotes.Enter += new System.EventHandler(this.mNotes_Enter);
-			this.mNotes.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mNotes_KeyDown);
-			this.mNotes.Leave += new System.EventHandler(this.mNotes_Leave);
-			// 
-			// mAttachments
-			// 
-			this.mAttachments.AllowDrop = true;
-			this.mAttachments.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.F2Only;
-			this.mAttachments.CopySelectionOnControlC = false;
-			this.mAttachments.Database = null;
-			this.mAttachments.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mAttachments.EmptyListMsg = "Attachments";
-			this.mAttachments.EmptyListMsgFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic);
-			this.mAttachments.Entry = null;
-			this.mAttachments.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-			this.mAttachments.IsReadOnly = false;
-			this.mAttachments.Location = new System.Drawing.Point(0, 0);
-			this.mAttachments.Name = "mAttachments";
-			this.mAttachments.ShowGroups = false;
-			this.mAttachments.Size = new System.Drawing.Size(107, 90);
-			this.mAttachments.TabIndex = 0;
-			this.mAttachments.UseCompatibleStateImageBehavior = false;
-			this.mAttachments.ValidationFailureReporter = this.mValidationFailureReporter;
-			this.mAttachments.View = System.Windows.Forms.View.SmallIcon;
-			this.mAttachments.EntryModified += new System.EventHandler(this.mAttachments_EntryModified);
-			this.mAttachments.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mAttachments_CellRightClick);
-			// 
-			// mMultipleSelectionFields
-			// 
-			this.mMultipleSelectionFields.AllowCreateHistoryNow = true;
-			this.mMultipleSelectionFields.AlternateRowBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(238)))), ((int)(((byte)(255)))));
-			this.mMultipleSelectionFields.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
-			this.mMultipleSelectionFields.CellEditTabChangesRows = true;
-			this.mMultipleSelectionFields.CopySelectionOnControlC = false;
-			this.mMultipleSelectionFields.Cursor = System.Windows.Forms.Cursors.Default;
-			this.mMultipleSelectionFields.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.mMultipleSelectionFields.Entries = new KeePassLib.PwEntry[0];
-			this.mMultipleSelectionFields.FullRowSelect = true;
-			this.mMultipleSelectionFields.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-			this.mMultipleSelectionFields.Location = new System.Drawing.Point(0, 0);
-			this.mMultipleSelectionFields.MultiSelect = false;
-			this.mMultipleSelectionFields.Name = "mMultipleSelectionFields";
-			this.mMultipleSelectionFields.ShowGroups = false;
-			this.mMultipleSelectionFields.ShowItemToolTips = true;
-			this.mMultipleSelectionFields.Size = new System.Drawing.Size(365, 410);
-			this.mMultipleSelectionFields.TabIndex = 1;
-			this.mMultipleSelectionFields.UseAlternatingBackColors = true;
-			this.mMultipleSelectionFields.UseCellFormatEvents = true;
-			this.mMultipleSelectionFields.UseCompatibleStateImageBehavior = false;
-			this.mMultipleSelectionFields.UseHyperlinks = true;
-			this.mMultipleSelectionFields.ValidationFailureReporter = this.mValidationFailureReporter;
-			this.mMultipleSelectionFields.View = System.Windows.Forms.View.Details;
-			this.mMultipleSelectionFields.Modified += new System.EventHandler(this.mMultipleSelectionFields_Modified);
-			this.mMultipleSelectionFields.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mMultipleSelectionFields_CellRightClick);
 			// 
 			// EntryView
 			// 
@@ -1043,6 +1032,15 @@ namespace KPEnhancedEntryView
 			this.Size = new System.Drawing.Size(373, 436);
 			this.mSingleEntryTabs.ResumeLayout(false);
 			this.mFieldsTab.ResumeLayout(false);
+			this.mSplitGridPanels.Panel1.ResumeLayout(false);
+			this.mSplitGridPanels.Panel2.ResumeLayout(false);
+			this.mSplitGridPanels.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.mFieldsGrid)).EndInit();
+			this.mSplitNotesAttachements.Panel1.ResumeLayout(false);
+			this.mSplitNotesAttachements.Panel2.ResumeLayout(false);
+			this.mSplitNotesAttachements.ResumeLayout(false);
+			this.mNotesBorder.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.mAttachments)).EndInit();
 			this.mPropertiesTab.ResumeLayout(false);
 			this.mPropertiesTabScrollPanel.ResumeLayout(false);
 			this.mPropertiesTabScrollPanel.PerformLayout();
@@ -1058,19 +1056,10 @@ namespace KPEnhancedEntryView
 			this.mIconPanel.ResumeLayout(false);
 			this.mIconPanel.PerformLayout();
 			this.mMultipleSelectionTab.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.mMultipleSelectionFields)).EndInit();
 			this.mFieldGridContextMenu.ResumeLayout(false);
 			this.mAttachmentsContextMenu.ResumeLayout(false);
 			this.mMultipleEntriesTabs.ResumeLayout(false);
-			this.mSplitGridPanels.Panel1.ResumeLayout(false);
-			this.mSplitGridPanels.Panel2.ResumeLayout(false);
-			this.mSplitGridPanels.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.mFieldsGrid)).EndInit();
-			this.mSplitNotesAttachements.Panel1.ResumeLayout(false);
-			this.mSplitNotesAttachements.Panel2.ResumeLayout(false);
-			this.mSplitNotesAttachements.ResumeLayout(false);
-			this.mNotesBorder.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.mAttachments)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.mMultipleSelectionFields)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -1156,6 +1145,5 @@ namespace KPEnhancedEntryView
 		private System.Windows.Forms.CheckBox m_cbAutoTypeEnabled;
 		private System.Windows.Forms.CheckBox m_cbAutoTypeObfuscation;
 		private System.Windows.Forms.CheckBox mLockButton;
-		private System.Windows.Forms.ImageList mLockImages;
 	}
 }

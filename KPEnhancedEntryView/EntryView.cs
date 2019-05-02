@@ -15,6 +15,7 @@ using KeePassLib;
 using KeePassLib.Security;
 using KeePassLib.Utility;
 using System.Collections.Generic;
+using KPEnhancedEntryView.Properties;
 
 namespace KPEnhancedEntryView
 {
@@ -50,7 +51,6 @@ namespace KPEnhancedEntryView
 		public EntryView(MainForm mainForm, Options options)
 		{
 			InitializeComponent();
-
 			mSplitGridPanels.SplitRatio = options.FieldsNotesSplitPosition;
 			mSplitNotesAttachements.SplitRatio = options.NotesAttachmentsSplitPosition;
 
@@ -549,6 +549,7 @@ namespace KPEnhancedEntryView
 			}
 
 			mLockButton.Checked = mOptions.ReadOnly;
+			mLockButton.Image = mOptions.ReadOnly ? Resources.Lock : Resources.Unlock;
 			mAttachments.IsReadOnly = mOptions.ReadOnly;
 			SetPropertiesTabControlsEnabledRecursive(mPropertiesTab, !mOptions.ReadOnly);
 		}
@@ -1529,11 +1530,6 @@ namespace KPEnhancedEntryView
 			mFieldsGrid.AllowCreateHistoryNow = false; // Don't allow a new history record for 1 minute from this modification
 		}
 		#endregion
-
-		private void mLockButton_CheckedChanged(object sender, EventArgs e)
-		{
-			mLockButton.ImageIndex = mLockButton.Checked ? 0 : 1;
-		}
 
 		private void mLockButton_Click(object sender, EventArgs e)
 		{
