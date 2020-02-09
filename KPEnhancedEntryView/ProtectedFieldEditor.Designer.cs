@@ -38,7 +38,7 @@ namespace KPEnhancedEntryView
 			// 
 			// mToggleHidden
 			// 
-			this.mToggleHidden.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.mToggleHidden.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.mToggleHidden.Appearance = System.Windows.Forms.Appearance.Button;
 			this.mToggleHidden.Image = global::KPEnhancedEntryView.Properties.Resources.B17x05_3BlackDots;
 			this.mToggleHidden.Location = new System.Drawing.Point(243, 0);
@@ -60,13 +60,13 @@ namespace KPEnhancedEntryView
 			this.layout.Location = new System.Drawing.Point(0, 0);
 			this.layout.Name = "layout";
 			this.layout.RowCount = 1;
-			this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100));
 			this.layout.Size = new System.Drawing.Size(303, 25);
 			this.layout.TabIndex = 0;
 			// 
 			// mTextBox
 			// 
-			this.mTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this.mTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.mTextBox.Location = new System.Drawing.Point(0, 0);
 			this.mTextBox.Margin = new System.Windows.Forms.Padding(0);
@@ -75,11 +75,9 @@ namespace KPEnhancedEntryView
 			this.mTextBox.Size = new System.Drawing.Size(243, 20);
 			this.mTextBox.TabIndex = 0;
 			this.mTextBox.WordWrap = false;
-			this.mTextBox.SizeChanged += new System.EventHandler(this.mTextBox_SizeChanged);
 			// 
 			// ProtectedFieldEditor
 			// 
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.Controls.Add(this.layout);
 			this.Name = "ProtectedFieldEditor";
 			this.Size = new System.Drawing.Size(303, 25);

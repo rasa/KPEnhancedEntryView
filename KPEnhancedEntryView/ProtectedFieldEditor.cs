@@ -7,7 +7,7 @@ using KeePassLib.Security;
 
 namespace KPEnhancedEntryView
 {
-	public partial class ProtectedFieldEditor : UserControl
+	public partial class ProtectedFieldEditor : Control
 	{
 		public ProtectedFieldEditor()
 		{
@@ -28,22 +28,6 @@ namespace KPEnhancedEntryView
 		{
 			var size = mTextBox.GetPreferredSize(proposedSize);
 			return new Size(size.Width + mToggleHidden.Width, size.Height);
-		}
-
-		protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
-		{
-			//height = mTextBox.Height;
-			base.SetBoundsCore(x, y, width, height, specified);
-		}
-
-		private void mTextBox_SizeChanged(object sender, EventArgs e)
-		{
-			// Resize this control to accomodate it
-			if (IsHandleCreated)
-			{
-				Height = mTextBox.Height;
-				mToggleHidden.Height = mTextBox.PreferredHeight; // One line
-			}
 		}
 
 		public bool HidePassword

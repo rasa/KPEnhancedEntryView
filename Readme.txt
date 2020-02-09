@@ -149,6 +149,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.1.3
+ Fixed display issue with protected field editor under High DPI settings
+
 v2.1.2
  Fixed minor bugs with Read Only option, added padlock button for toggling it
 

@@ -48,63 +48,68 @@ namespace KPEnhancedEntryView
 		{
 		}
 
-		public EntryView(MainForm mainForm, Options options)
-		{
-			InitializeComponent();
-			mSplitGridPanels.SplitRatio = options.FieldsNotesSplitPosition;
-			mSplitNotesAttachements.SplitRatio = options.NotesAttachmentsSplitPosition;
+        public EntryView(MainForm mainForm, Options options)
+        {
+            InitializeComponent();
+            mSplitGridPanels.SplitRatio = options.FieldsNotesSplitPosition;
+            mSplitNotesAttachements.SplitRatio = options.NotesAttachmentsSplitPosition;
 
-			mMainForm = mainForm;
-			mOptions = options;
+            mMainForm = mainForm;
+            mOptions = options;
 
-			mFieldsGrid.Initialise(mMainForm, mOptions);
-			mMultipleSelectionFields.Initialise(mMainForm, mOptions);
+            mFieldsGrid.Initialise(mMainForm, mOptions);
+            mMultipleSelectionFields.Initialise(mMainForm, mOptions);
 
-			mShowAccessTime = (Program.Config.UI.UIFlags & 0x20000) != 0;
-		
-			mAccessTimeLabel.Visible = mAccessTime.Visible = mShowAccessTime;
-			
-			// HACK: MainForm doesn't expose HandleMainWindowKeyMessage, so grab it via reflection
-			mHandleMainWindowKeyMessageMethod = mMainForm.GetType().GetMethod("HandleMainWindowKeyMessage", BindingFlags.Instance | BindingFlags.NonPublic);
-			if (mHandleMainWindowKeyMessageMethod != null)
-			{
-				mSingleEntryTabs.KeyDown += HandleMainWindowShortcutKeyDown;
-				mSingleEntryTabs.KeyUp += HandleMainWindowShortcutKeyUp;
-				mMultipleEntriesTabs.KeyDown += HandleMainWindowShortcutKeyDown;
-				mMultipleEntriesTabs.KeyUp += HandleMainWindowShortcutKeyUp;
-			}
+            mShowAccessTime = (Program.Config.UI.UIFlags & 0x20000) != 0;
 
-			mNotesContextMenu = new RichTextBoxContextMenu();
-			mNotesContextMenu.Attach(mNotes, mMainForm);
-			mNotes.SimpleTextOnly = true;
+            mAccessTimeLabel.Visible = mAccessTime.Visible = mShowAccessTime;
 
-			SetLabel(mCreationTimeLabel, KPRes.CreationTime);
-			if (mShowAccessTime)
-			{
-				SetLabel(mAccessTimeLabel, KPRes.LastAccessTime);
-			}
-			SetLabel(mModificationTimeLabel, KPRes.LastModificationTime);
-			SetLabel(mTagsLabel, KPRes.Tags);
-			SetLabel(mOverrideUrlLabel, KPRes.UrlOverride);
-			SetLabel(mUUIDLabel, KPRes.Uuid);
+            // HACK: MainForm doesn't expose HandleMainWindowKeyMessage, so grab it via reflection
+            mHandleMainWindowKeyMessageMethod = mMainForm.GetType().GetMethod("HandleMainWindowKeyMessage", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (mHandleMainWindowKeyMessageMethod != null)
+            {
+                mSingleEntryTabs.KeyDown += HandleMainWindowShortcutKeyDown;
+                mSingleEntryTabs.KeyUp += HandleMainWindowShortcutKeyUp;
+                mMultipleEntriesTabs.KeyDown += HandleMainWindowShortcutKeyDown;
+                mMultipleEntriesTabs.KeyUp += HandleMainWindowShortcutKeyUp;
+            }
 
-			TranslatePwEntryFormControls(m_lblIcon, m_cbCustomForegroundColor, m_cbCustomBackgroundColor);
+            mNotesContextMenu = new RichTextBoxContextMenu();
+            mNotesContextMenu.Attach(mNotes, mMainForm);
+            mNotes.SimpleTextOnly = true;
 
-			mEditFieldCommand.ShortcutKeyDisplayString = KPRes.KeyboardKeyReturn;
-			mDeleteFieldCommand.ShortcutKeyDisplayString = UIUtil.GetKeysName(Keys.Delete);
-			mCopyCommand.ShortcutKeys = Keys.Control | Keys.C;
-			mAutoTypeCommand.ShortcutKeys = Keys.Control | Keys.V;
+            SetLabel(mCreationTimeLabel, KPRes.CreationTime);
+            if (mShowAccessTime)
+            {
+                SetLabel(mAccessTimeLabel, KPRes.LastAccessTime);
+            }
+            SetLabel(mModificationTimeLabel, KPRes.LastModificationTime);
+            SetLabel(mTagsLabel, KPRes.Tags);
+            SetLabel(mOverrideUrlLabel, KPRes.UrlOverride);
+            SetLabel(mUUIDLabel, KPRes.Uuid);
 
-			mURLDropDownMenu = new OpenWithMenu(mURLDropDown);
-			CustomizeOnClick(mURLDropDownMenu);
-			mURLDropDown.DropDownOpening += UrlDropDownMenuOpening;
+            TranslatePwEntryFormControls(m_lblIcon, m_cbCustomForegroundColor, m_cbCustomBackgroundColor);
 
-			// Code copied from PwEntryForm.cs
-			m_imgStdExpire = UIUtil.CreateDropDownImage(Properties.Resources.B16x16_History);
-			m_cgExpiry.Attach(m_cbExpires, m_dtExpireDateTime);
-			mDefaultExpireDateTimePickerFormat = m_dtExpireDateTime.CustomFormat;
+            mEditFieldCommand.ShortcutKeyDisplayString = KPRes.KeyboardKeyReturn;
+            mDeleteFieldCommand.ShortcutKeyDisplayString = UIUtil.GetKeysName(Keys.Delete);
+            mCopyCommand.ShortcutKeys = Keys.Control | Keys.C;
+            mAutoTypeCommand.ShortcutKeys = Keys.Control | Keys.V;
 
-			System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
+            mURLDropDownMenu = new OpenWithMenu(mURLDropDown);
+            CustomizeOnClick(mURLDropDownMenu);
+            mURLDropDown.DropDownOpening += UrlDropDownMenuOpening;
+
+            // Code copied from PwEntryForm.cs
+            m_imgStdExpire = UIUtil.CreateDropDownImage(Properties.Resources.B16x16_History);
+            m_cgExpiry.Attach(m_cbExpires, m_dtExpireDateTime);
+            mDefaultExpireDateTimePickerFormat = m_dtExpireDateTime.CustomFormat;
+        }
+
+        protected override void OnCreateControl()
+        {
+            base.OnCreateControl();
+
+            System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
 				try { InitOverridesBox(); }
 				catch (Exception) { Debug.Assert(false); }
