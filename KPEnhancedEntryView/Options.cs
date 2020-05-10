@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using KeePass.App;
 using KeePass.Plugins;
 
 namespace KPEnhancedEntryView
@@ -76,10 +77,13 @@ namespace KPEnhancedEntryView
 
 		private void OnRevealProtectedFields()
 		{
-			var handler = RevealProtectedFields;
-			if (handler != null)
+			if (AppPolicy.Try(AppPolicyId.UnhidePasswords))
 			{
-				handler(this, EventArgs.Empty);
+				var handler = RevealProtectedFields;
+				if (handler != null)
+				{
+					handler(this, EventArgs.Empty);
+				}
 			}
 		}
 

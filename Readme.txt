@@ -149,6 +149,10 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.1.4
+ Respect user's choice of alternating row colour
+ Respect UnhidePasswords AppPolicy to prevent revealing passwords
+
 v2.1.3
  Fixed display issue with protected field editor under High DPI settings
 

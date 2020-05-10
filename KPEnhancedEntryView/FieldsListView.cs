@@ -15,6 +15,7 @@ using KeePassLib.Security;
 using KeePass.App.Configuration;
 using KeePass.Util;
 using KeePassLib.Utility;
+using KeePass.App;
 
 namespace KPEnhancedEntryView
 {
@@ -43,7 +44,7 @@ namespace KPEnhancedEntryView
 
 			if (KeePass.Program.Config.MainWindow.EntryListAlternatingBgColors)
 			{
-				AlternateRowBackColor = UIUtil.GetAlternateColor(BackColor);
+				AlternateRowBackColor = UIUtil.GetAlternateColorEx(BackColor);
 				UseAlternatingBackColors = true;
 			}
 
@@ -123,6 +124,16 @@ namespace KPEnhancedEntryView
 
 		public void RefreshItems()
 		{
+			if (KeePass.Program.Config.MainWindow.EntryListAlternatingBgColors)
+			{
+				AlternateRowBackColor = UIUtil.GetAlternateColorEx(BackColor);
+				UseAlternatingBackColors = true;
+			}
+			else
+			{
+				UseAlternatingBackColors = false;
+			}
+
 			if (Database != null && Database.IsOpen)
 			{
 				foreach (OLVListItem item in Items)
@@ -219,7 +230,7 @@ namespace KPEnhancedEntryView
 					}
 					else
 					{
-						args.SubItem.Decoration = EyeGreyDecoration;						
+						args.SubItem.Decoration = EyeGreyDecoration;
 					}
 				}
 				else
@@ -264,35 +275,37 @@ namespace KPEnhancedEntryView
 		private bool mMouseInReveal;
 		protected override void OnCellOver(CellOverEventArgs args)
 		{
-			bool invalidate = false;
-			if (args.Item != null && 
-				((RowObject)args.Item.RowObject).CanRevealValue &&
-				args.Location.X > args.Item.Bounds.Right - EyeRegionWidth)
+			if (args.Item != null && args.Item.RowObject is RowObject)
 			{
-				mMouseInReveal = true;
-				Cursor = Cursors.Hand;
-				args.SubItem.Decoration = EyeDecoration;
-				invalidate = true;
-			}
-			else if (mMouseInReveal)
-			{
-				mMouseInReveal = false;
-				Cursor = Cursors.Default;
-				if (!((RowObject)args.Item.RowObject).RevealValue)
+				bool invalidate = false;
+				if (args.Item != null &&
+					((RowObject)args.Item.RowObject).CanRevealValue &&
+					args.Location.X > args.Item.Bounds.Right - EyeRegionWidth)
 				{
-					args.SubItem.Decoration = EyeGreyDecoration;
+					mMouseInReveal = true;
+					Cursor = Cursors.Hand;
+					args.SubItem.Decoration = EyeDecoration;
+					invalidate = true;
 				}
-				invalidate = true;
-			}
+				else if (mMouseInReveal)
+				{
+					mMouseInReveal = false;
+					Cursor = Cursors.Default;
+					if (!((RowObject)args.Item.RowObject).RevealValue)
+					{
+						args.SubItem.Decoration = EyeGreyDecoration;
+					}
+					invalidate = true;
+				}
 
-			if (invalidate)
-			{
-				var bounds = args.Item.Bounds;
-				bounds.X = bounds.Right - EyeRegionWidth;
-				bounds.Width = EyeRegionWidth;
-				Invalidate(bounds);
+				if (invalidate)
+				{
+					var bounds = args.Item.Bounds;
+					bounds.X = bounds.Right - EyeRegionWidth;
+					bounds.Width = EyeRegionWidth;
+					Invalidate(bounds);
+				}
 			}
-
 			base.OnCellOver(args);
 		}
 
@@ -860,6 +873,8 @@ namespace KPEnhancedEntryView
 		#region RowObject
 		internal class RowObject
 		{
+			private bool mRevealValue;
+
 			public static RowObject CreateInsertionRow()
 			{
 				return new RowObject(null, null);
@@ -950,7 +965,7 @@ namespace KPEnhancedEntryView
 
 			public bool CanRevealValue
 			{
-				get 
+				get
 				{
 					if (HideValue)
 					{
@@ -971,11 +986,25 @@ namespace KPEnhancedEntryView
 			}
 			
 			public bool IsInsertionRow { get { return FieldName == null; } }
-			
+
 			/// <summary>
 			/// If true, the password should be temporarily revealed, even though HideValue remains true.
 			/// </summary>
-			public bool RevealValue { get; set; }
+			public bool RevealValue
+			{
+				get
+				{
+					return mRevealValue;
+				}
+
+				set
+				{
+					if (AppPolicy.Try(AppPolicyId.UnhidePasswords))
+					{
+						mRevealValue = value;
+					}
+				}
+			}
 		}
 
 		protected static bool ShouldHideValue(string fieldName, ProtectedString value)
