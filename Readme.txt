@@ -149,6 +149,10 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.2
+ Added References indicator. If a field has references to another entry, an arrow is shown. This
+  can be clicked to jump to that entry. Multiple entry references are shown in a menu.
+
 v2.1.4
  Respect user's choice of alternating row colour
  Respect UnhidePasswords AppPolicy to prevent revealing passwords

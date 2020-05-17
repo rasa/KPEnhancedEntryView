@@ -40,6 +40,8 @@ KPEnhancedEntryView/Resources/Nuvola/B16x16_KGPG_Sign.png -text svneol=unset#uns
 KPEnhancedEntryView/Resources/Nuvola/B16x16_KTouch.png -text
 KPEnhancedEntryView/Resources/Nuvola_Derived/B16x16_DeleteEntry.png -text svneol=unset#unset
 KPEnhancedEntryView/Resources/Nuvola_Derived/B16x16_Key_New.png -text svneol=unset#unset
+KPEnhancedEntryView/Resources/Reference.png -text
+KPEnhancedEntryView/Resources/ReferenceGrey.png -text
 KPEnhancedEntryView/Resources/Reveal.png -text
 KPEnhancedEntryView/Resources/RevealGrey.png -text
 KPEnhancedEntryView/Resources/Unlock.png -text

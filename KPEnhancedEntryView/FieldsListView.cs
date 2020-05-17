@@ -16,6 +16,7 @@ using KeePass.App.Configuration;
 using KeePass.Util;
 using KeePassLib.Utility;
 using KeePass.App;
+using KPEnhancedEntryView.Properties;
 
 namespace KPEnhancedEntryView
 {
@@ -30,7 +31,9 @@ namespace KPEnhancedEntryView
 		protected MainForm mMainForm;
 		protected Options mOptions;
 
-		public FieldsListView() 
+		private ContextMenuStrip mReferencedEntriesMenu;
+
+		public FieldsListView()
 		{
 			CellEditTabChangesRows = true;
 			CopySelectionOnControlC = false;
@@ -65,11 +68,14 @@ namespace KPEnhancedEntryView
 				AspectPutter = SetFieldValue,
 				MinimumWidth = 60,
 			};
-			
+
 			Columns.Add(mFieldNames);
 			Columns.Add(mFieldValues);
 
 			ShowItemToolTips = true;
+
+			mReferencedEntriesMenu = new CustomContextMenuStripEx();
+			mReferencedEntriesMenu.ItemClicked += OnReferencedEntriesMenuItemClicked;
 
 			OnFontChanged(EventArgs.Empty); // Set initial font
 		}
@@ -90,15 +96,15 @@ namespace KPEnhancedEntryView
 			mOptions = options;
 		}
 
-		protected PwDatabase Database 
-		{ 
-			get 
+		protected PwDatabase Database
+		{
+			get
 			{
 				if (mMainForm == null)
 				{
 					return null;
 				}
-				return  mMainForm.ActiveDatabase; 
+				return mMainForm.ActiveDatabase;
 			}
 		}
 
@@ -116,6 +122,10 @@ namespace KPEnhancedEntryView
 				{
 					mBoldFont.Dispose();
 					mBoldFont = null;
+				}
+				if (mReferencedEntriesMenu != null)
+				{
+					mReferencedEntriesMenu.Dispose();
 				}
 			}
 			base.Dispose(disposing);
@@ -160,7 +170,7 @@ namespace KPEnhancedEntryView
 
 		protected bool IsExcludedField(string fieldName)
 		{
-			return fieldName == "KPRPC JSON";			 // Exclude KeyFox's custom field (not intended to be user visible or directly editable)
+			return fieldName == "KPRPC JSON";            // Exclude KeyFox's custom field (not intended to be user visible or directly editable)
 		}
 
 		/// <summary>
@@ -206,7 +216,7 @@ namespace KPEnhancedEntryView
 		protected override void OnFormatCell(FormatCellEventArgs args)
 		{
 			base.OnFormatCell(args);
-		
+
 			var rowObject = (RowObject)args.Model;
 			if (args.Column == mFieldNames)
 			{
@@ -221,27 +231,13 @@ namespace KPEnhancedEntryView
 			}
 			else
 			{
-				if (rowObject.CanRevealValue)
+				if ((rowObject.CanRevealValue && rowObject.RevealValue) ||
+					(rowObject.Value != null && rowObject.Value.IsProtected))
 				{
-					if (rowObject.RevealValue)
-					{
-						args.SubItem.Decoration = EyeDecoration;
-						args.SubItem.Font = PasswordFont;
-					}
-					else
-					{
-						args.SubItem.Decoration = EyeGreyDecoration;
-					}
+					args.SubItem.Font = PasswordFont;
 				}
-				else
-				{
-					args.SubItem.Decoration = null;
 
-					if (rowObject.Value != null && rowObject.Value.IsProtected)
-					{
-						args.SubItem.Font = PasswordFont;
-					}
-				}
+				SetDecorations(args.SubItem.Decorations, rowObject);
 			}
 		}
 
@@ -269,41 +265,71 @@ namespace KPEnhancedEntryView
 
 		private static readonly int EyePadding = DpiUtil.ScaleIntX(5);
 		private static readonly int EyeRegionWidth = Properties.Resources.Reveal.Width + EyePadding;
+		private static readonly int ReferenceRegionWidth = EyeRegionWidth;
 		private static readonly ImageDecoration EyeGreyDecoration = new ImageDecoration(Properties.Resources.RevealGrey, ContentAlignment.MiddleRight) { Offset = new Size(-EyePadding, 0) };
 		private static readonly ImageDecoration EyeDecoration = new ImageDecoration(Properties.Resources.Reveal, ContentAlignment.MiddleRight) { Offset = new Size(-EyePadding, 0) };
+		private static readonly ImageDecoration ReferenceGreyDecoration = new ImageDecoration(Properties.Resources.ReferenceGrey, ContentAlignment.MiddleRight) { Offset = new Size(-EyeRegionWidth - EyePadding, 0) };
+		private static readonly ImageDecoration ReferenceDecoration = new ImageDecoration(Properties.Resources.Reference, ContentAlignment.MiddleRight) { Offset = new Size(-EyeRegionWidth - EyePadding, 0) };
+
+		private void SetDecorations(IList<IDecoration> decorations, RowObject rowObject)
+		{
+			decorations.Clear();
+			if (rowObject.CanRevealValue)
+			{
+				decorations.Add((mMouseInReveal || rowObject.RevealValue) ? EyeDecoration : EyeGreyDecoration);
+			}
+
+			if (rowObject.HasReferences)
+			{
+				decorations.Add(mMouseInReference ? ReferenceDecoration : ReferenceGreyDecoration);
+			}
+		}
 
 		private bool mMouseInReveal;
+		private bool mMouseInReference;
 		protected override void OnCellOver(CellOverEventArgs args)
 		{
-			if (args.Item != null && args.Item.RowObject is RowObject)
+			if (args.Item != null)
 			{
-				bool invalidate = false;
-				if (args.Item != null &&
-					((RowObject)args.Item.RowObject).CanRevealValue &&
-					args.Location.X > args.Item.Bounds.Right - EyeRegionWidth)
+				var rowObject = args.Item.RowObject as RowObject;
+				if (rowObject != null)
 				{
-					mMouseInReveal = true;
-					Cursor = Cursors.Hand;
-					args.SubItem.Decoration = EyeDecoration;
-					invalidate = true;
-				}
-				else if (mMouseInReveal)
-				{
-					mMouseInReveal = false;
-					Cursor = Cursors.Default;
-					if (!((RowObject)args.Item.RowObject).RevealValue)
+					var invalidate = false;
+					if (rowObject.CanRevealValue &&
+						args.Location.X > args.Item.Bounds.Right - EyeRegionWidth)
 					{
-						args.SubItem.Decoration = EyeGreyDecoration;
-					}
-					invalidate = true;
-				}
+						mMouseInReveal = true;
+						mMouseInReference = false;
 
-				if (invalidate)
-				{
-					var bounds = args.Item.Bounds;
-					bounds.X = bounds.Right - EyeRegionWidth;
-					bounds.Width = EyeRegionWidth;
-					Invalidate(bounds);
+						Cursor = Cursors.Hand;
+						invalidate = true;
+					}
+					else if (rowObject.HasReferences &&
+							args.Location.X > args.Item.Bounds.Right - EyeRegionWidth - ReferenceRegionWidth &&
+							args.Location.X < args.Item.Bounds.Right - EyeRegionWidth)
+					{
+						mMouseInReference = true;
+						mMouseInReveal = false;
+
+						Cursor = Cursors.Hand;
+						invalidate = true;
+					}
+					else if (mMouseInReveal || mMouseInReference)
+					{
+						mMouseInReveal = false;
+						mMouseInReference = false;
+						Cursor = Cursors.Default;
+						invalidate = true;
+					}
+
+					if (invalidate)
+					{
+						SetDecorations(args.SubItem.Decorations, (RowObject)args.Item.RowObject);
+						var bounds = args.Item.Bounds;
+						bounds.X = bounds.Right - EyeRegionWidth - ReferenceRegionWidth - EyePadding;
+						bounds.Width = EyeRegionWidth + ReferenceRegionWidth;
+						Invalidate(bounds);
+					}
 				}
 			}
 			base.OnCellOver(args);
@@ -315,9 +341,10 @@ namespace KPEnhancedEntryView
 			{
 				mLastMouseDownLocation = null;
 
-				if (mMouseInReveal)
+				if (mMouseInReveal || mMouseInReference)
 				{
 					mMouseInReveal = false;
+					mMouseInReference = false;
 					Cursor = Cursors.Default;
 				}
 			}
@@ -326,18 +353,80 @@ namespace KPEnhancedEntryView
 
 		protected override void OnCellClick(CellClickEventArgs args)
 		{
-			if (args.Item != null && args.Location.X > args.Item.Bounds.Right - EyeRegionWidth)
+			if (args.Item != null)
 			{
 				var rowObject = (RowObject)args.Model;
-				if (rowObject.CanRevealValue)
+
+				if (args.Location.X > args.Item.Bounds.Right - EyeRegionWidth)
 				{
-					rowObject.RevealValue = !rowObject.RevealValue;
-					
-					RefreshObject(rowObject);
-					args.Handled = true;
+					if (rowObject.CanRevealValue)
+					{
+						rowObject.RevealValue = !rowObject.RevealValue;
+
+						RefreshObject(rowObject);
+						args.Handled = true;
+					}
+				}
+				else if (args.Location.X > args.Item.Bounds.Right - EyeRegionWidth - ReferenceRegionWidth)
+				{
+					var references = rowObject.GetReferences();
+					/* UX is better to always show a menu than to directly jump, I think
+					if (references.Count == 1)
+					{
+						FollowReference(GetReferencedEntity(references[0]));
+					}
+					else if (references.Count > 1)*/
+					if (references.Count > 0)
+					{
+						ShowReferencesMenu(references, new Point(args.Item.Bounds.Right - EyeRegionWidth - ReferenceRegionWidth, args.Item.Bounds.Bottom));
+					}
 				}
 			}
 			base.OnCellClick(args);
+		}
+
+		private PwEntry GetReferencedEntity(string reference)
+		{
+			var context = new SprContext(null, Database, SprCompileFlags.References);
+			char chScan, chWanted;
+			return SprEngine.FindRefTarget(reference, context, out chScan, out chWanted);
+		}
+
+		private void ShowReferencesMenu(IEnumerable<string> references, Point position)
+		{
+			mReferencedEntriesMenu.SuspendLayout();
+			mReferencedEntriesMenu.Items.Clear();
+
+			var uniqueEntities = new HashSet<PwUuid>();
+			foreach (var reference in references)
+			{
+				var entry = GetReferencedEntity(reference);
+				if (entry != null && uniqueEntities.Add(entry.Uuid))
+				{
+					mReferencedEntriesMenu.Items.Add(new ToolStripMenuItem(entry.Strings.ReadSafe(PwDefs.TitleField)) { Tag = entry });
+				}
+			}
+
+			mReferencedEntriesMenu.ResumeLayout();
+
+			mReferencedEntriesMenu.Show(this, position);
+		}
+
+		private void OnReferencedEntriesMenuItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
+			mReferencedEntriesMenu.Items.Clear();
+			FollowReference(e.ClickedItem.Tag as PwEntry);
+		}
+
+		private void FollowReference(PwEntry entry)
+		{
+			if (entry != null)
+			{
+				mMainForm.UpdateUI(false, null, true, entry.ParentGroup, true, null, false, null);
+				mMainForm.SelectEntries(new KeePassLib.Collections.PwObjectList<PwEntry> { entry }, true, true);
+				mMainForm.EnsureVisibleEntry(entry.Uuid);
+				mMainForm.UpdateUI(false, null, false, null, false, null, false, null);
+			}
 		}
 
 		public void ToggleRevealAll()
@@ -468,7 +557,7 @@ namespace KPEnhancedEntryView
 		{
 			var column = GetColumn(subItemIndex);
 			var rowObject = item.RowObject as RowObject;
-			
+
 			if (rowObject != null)
 			{
 				if (column == mFieldValues && !rowObject.IsInsertionRow)
@@ -503,7 +592,7 @@ namespace KPEnhancedEntryView
 		protected override void OnCellEditorValidating(CellEditEventArgs e)
 		{
 			base.OnCellEditorValidating(e);
-		
+
 			if (e.Column == mFieldNames)
 			{
 				var newValue = ((FieldNameEditor)e.Control).FieldName;
@@ -732,7 +821,7 @@ namespace KPEnhancedEntryView
 				PwGenerator.Generate(out newPassword, passwordGenerator.SelectedProfile, entropy, KeePass.Program.PwGeneratorPool);
 
 				SetFieldValue(rowObject, newPassword);
-				
+
 				RefreshObject(rowObject);
 			}
 
@@ -769,7 +858,7 @@ namespace KPEnhancedEntryView
 			{
 				return null;
 			}
-			
+
 			var dragValue = GetDisplayValue(rowObject.Value, true, DragValueSprCompileFlags);
 			BeginInvoke(new Action(Repopulate)); // As DragValueSprCompileFlags includes active (state changing) operations, it's possible that other values will have been updated, so refresh them.
 			return dragValue;
@@ -846,8 +935,8 @@ namespace KPEnhancedEntryView
 		protected override void OnMouseUp(MouseEventArgs e)
 		{
 			if (mLastMouseDownLocation.HasValue &&
-			    (Math.Abs(e.X - mLastMouseDownLocation.Value.X) <= (SystemInformation.DragSize.Width/2) ||
-			     Math.Abs(e.Y - mLastMouseDownLocation.Value.Y) <= (SystemInformation.DragSize.Height/2)))
+				(Math.Abs(e.X - mLastMouseDownLocation.Value.X) <= (SystemInformation.DragSize.Width / 2) ||
+				 Math.Abs(e.Y - mLastMouseDownLocation.Value.Y) <= (SystemInformation.DragSize.Height / 2)))
 			{
 				// Mouse is still within click zone, so process click
 				base.OnMouseUp(e);
@@ -857,8 +946,8 @@ namespace KPEnhancedEntryView
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			if (mLastMouseDownLocation.HasValue &&
-				(Math.Abs(e.X - mLastMouseDownLocation.Value.X) > (SystemInformation.DragSize.Width/2) ||
-			     Math.Abs(e.Y - mLastMouseDownLocation.Value.Y) > (SystemInformation.DragSize.Height/2)))
+				(Math.Abs(e.X - mLastMouseDownLocation.Value.X) > (SystemInformation.DragSize.Width / 2) ||
+				 Math.Abs(e.Y - mLastMouseDownLocation.Value.Y) > (SystemInformation.DragSize.Height / 2)))
 			{
 				// Moved out of click zone, cancel possible click
 				mLastMouseDownLocation = null;
@@ -984,7 +1073,7 @@ namespace KPEnhancedEntryView
 					return false;
 				}
 			}
-			
+
 			public bool IsInsertionRow { get { return FieldName == null; } }
 
 			/// <summary>
@@ -1004,6 +1093,24 @@ namespace KPEnhancedEntryView
 						mRevealValue = value;
 					}
 				}
+			}
+
+			public bool HasReferences
+			{
+				get
+				{
+					return Value != null && Value.ReadString().IndexOf("{REF:", StringComparison.OrdinalIgnoreCase) >= 0;
+				}
+			}
+
+			public IList<string> GetReferences()
+			{
+				if (Value == null)
+				{
+					return new string[0];
+				}
+
+				return Regex.Matches(Value.ReadString(), "{REF:[^}]+}").Cast<Match>().Select(m => m.Value).ToArray();
 			}
 		}
 

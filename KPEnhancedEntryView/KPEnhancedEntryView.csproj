@@ -75,6 +75,10 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
+  <PropertyGroup>
+    <!-- User the same compiler as KeePass PlgX -->
+    <LangVersion>5</LangVersion>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -205,6 +209,10 @@
   <ItemGroup>
     <None Include="Resources\Lock.png" />
     <None Include="Resources\Unlock.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Reference.png" />
+    <Content Include="Resources\ReferenceGrey.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
