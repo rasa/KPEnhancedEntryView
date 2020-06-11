@@ -308,15 +308,6 @@ namespace KPEnhancedEntryView.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Name.
-        /// </summary>
-        internal static string Name {
-            get {
-                return ResourceManager.GetString("Name", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to (add new).
         /// </summary>
         internal static string NewFieldRowName {
@@ -408,15 +399,6 @@ namespace KPEnhancedEntryView.Properties {
             get {
                 object obj = ResourceManager.GetObject("Unlock", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value.
-        /// </summary>
-        internal static string Value {
-            get {
-                return ResourceManager.GetString("Value", resourceCulture);
             }
         }
     }

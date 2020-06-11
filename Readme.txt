@@ -149,6 +149,10 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.2.1
+ Use custom drawing for field values so that the text does not overlay the icons on the right.
+ Use some additional translated strings from KeePass
+
 v2.2
  Added References indicator. If a field has references to another entry, an arrow is shown. This
   can be clicked to jump to that entry. Multiple entry references are shown in a menu.

@@ -43,6 +43,7 @@ namespace KPEnhancedEntryView
 			ShowGroups = false;
 			UseCellFormatEvents = true;
 			UseHyperlinks = true;
+			OwnerDraw = true;
 			DragSource = new FieldValueDragSource();
 
 			if (KeePass.Program.Config.MainWindow.EntryListAlternatingBgColors)
@@ -53,14 +54,14 @@ namespace KPEnhancedEntryView
 
 			mFieldNames = new OLVColumn
 			{
-				Text = Properties.Resources.Name,
+				Text = KPRes.Name,
 				AutoCompleteEditor = false,
 				AspectGetter = rowObject => ((RowObject)rowObject).DisplayName,
 				AspectPutter = SetFieldName
 			};
 			mFieldValues = new OLVColumn
 			{
-				Text = Properties.Resources.Value,
+				Text = KPRes.Value,
 				AutoCompleteEditor = false,
 				FillsFreeSpace = true,
 				Hyperlink = true,
@@ -237,7 +238,7 @@ namespace KPEnhancedEntryView
 					args.SubItem.Font = PasswordFont;
 				}
 
-				SetDecorations(args.SubItem.Decorations, rowObject);
+				SetDecorations(args.SubItem, rowObject);
 			}
 		}
 
@@ -271,18 +272,25 @@ namespace KPEnhancedEntryView
 		private static readonly ImageDecoration ReferenceGreyDecoration = new ImageDecoration(Properties.Resources.ReferenceGrey, ContentAlignment.MiddleRight) { Offset = new Size(-EyeRegionWidth - EyePadding, 0) };
 		private static readonly ImageDecoration ReferenceDecoration = new ImageDecoration(Properties.Resources.Reference, ContentAlignment.MiddleRight) { Offset = new Size(-EyeRegionWidth - EyePadding, 0) };
 
-		private void SetDecorations(IList<IDecoration> decorations, RowObject rowObject)
+		private void SetDecorations(OLVListSubItem subItem, RowObject rowObject)
 		{
+			var decorations = subItem.Decorations;
+
+			var rightMargin = 0;
 			decorations.Clear();
 			if (rowObject.CanRevealValue)
 			{
 				decorations.Add((mMouseInReveal || rowObject.RevealValue) ? EyeDecoration : EyeGreyDecoration);
+				rightMargin = EyeRegionWidth;
 			}
 
 			if (rowObject.HasReferences)
 			{
 				decorations.Add(mMouseInReference ? ReferenceDecoration : ReferenceGreyDecoration);
+				rightMargin = ReferenceRegionWidth + EyeRegionWidth;
 			}
+
+			subItem.CellPadding = rightMargin == 0 ? (Rectangle?)null: new Rectangle(0, 0, rightMargin, 0);
 		}
 
 		private bool mMouseInReveal;
@@ -324,7 +332,7 @@ namespace KPEnhancedEntryView
 
 					if (invalidate)
 					{
-						SetDecorations(args.SubItem.Decorations, (RowObject)args.Item.RowObject);
+						SetDecorations(args.SubItem, (RowObject)args.Item.RowObject);
 						var bounds = args.Item.Bounds;
 						bounds.X = bounds.Right - EyeRegionWidth - ReferenceRegionWidth - EyePadding;
 						bounds.Width = EyeRegionWidth + ReferenceRegionWidth;
@@ -562,6 +570,9 @@ namespace KPEnhancedEntryView
 			{
 				if (column == mFieldValues && !rowObject.IsInsertionRow)
 				{
+					// Ensure the control fills the whole cell
+					item.GetSubItem(subItemIndex).CellPadding = null;
+
 					if (rowObject.Value.IsProtected)
 					{
 						return new ProtectedFieldEditor
@@ -634,6 +645,10 @@ namespace KPEnhancedEntryView
 			else
 			{
 				var rowObject = (RowObject)e.RowObject;
+
+				// Reset cell padding
+				SetDecorations(e.ListViewItem.GetSubItem(e.SubItemIndex), rowObject);
+
 				if (rowObject.Value.IsProtected)
 				{
 					var editor = e.Control as ProtectedFieldEditor;

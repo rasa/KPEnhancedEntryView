@@ -88,9 +88,21 @@ namespace KPEnhancedEntryView
             SetLabel(mOverrideUrlLabel, KPRes.UrlOverride);
             SetLabel(mUUIDLabel, KPRes.Uuid);
 
-            TranslatePwEntryFormControls(m_lblIcon, m_cbCustomForegroundColor, m_cbCustomBackgroundColor);
+            TranslatePwEntryFormControls(m_lblIcon,
+				m_cbCustomForegroundColor,
+				m_cbCustomBackgroundColor,
+				m_cbExpires,
+				m_cbAutoTypeObfuscation,
+				m_cbAutoTypeEnabled,
+				m_tabProperties);
 
-            mEditFieldCommand.ShortcutKeyDisplayString = KPRes.KeyboardKeyReturn;
+			TranslateContextMenu(m_ctxDefaultTimes.Items.Cast<ToolStripItem>(), "KeePass.Forms.PwEntryForm.m_ctxDefaultTimes");
+
+			TranslateOtherFormControl(mFieldsTab, "KeePass.Forms.PrintForm", "m_grpFields");
+
+			mAttachments.EmptyListMsg = KPRes.Attachments;
+
+			mEditFieldCommand.ShortcutKeyDisplayString = KPRes.KeyboardKeyReturn;
             mDeleteFieldCommand.ShortcutKeyDisplayString = UIUtil.GetKeysName(Keys.Delete);
             mCopyCommand.ShortcutKeys = Keys.Control | Keys.C;
             mAutoTypeCommand.ShortcutKeys = Keys.Control | Keys.V;
@@ -105,7 +117,7 @@ namespace KPEnhancedEntryView
             mDefaultExpireDateTimePickerFormat = m_dtExpireDateTime.CustomFormat;
         }
 
-        protected override void OnCreateControl()
+		protected override void OnCreateControl()
         {
             base.OnCreateControl();
 
@@ -135,6 +147,37 @@ namespace KPEnhancedEntryView
 					{
 						control.Text = controlTranslation.Text;
 					}
+				}
+			}
+		}
+
+		private void TranslateContextMenu(IEnumerable<ToolStripItem> menuItems, string stringTableName)
+		{
+			var namedItems = menuItems.ToDictionary(c => c.Name);
+			var stringTable = Program.Translation.StringTables.SingleOrDefault(table => table.Name == stringTableName);
+			if (stringTable != null)
+			{
+				foreach (var translation in stringTable.Strings)
+				{
+					ToolStripItem item;
+					if (!String.IsNullOrEmpty(translation.Value) &&
+						namedItems.TryGetValue(translation.Name, out item))
+					{
+						item.Text = translation.Value;
+					}
+				}
+			}
+		}
+
+		private static void TranslateOtherFormControl(Control control, string formName, string controlName)
+		{
+			var pwEntryFormTranslation = Program.Translation.Forms.SingleOrDefault(form => form.FullName == formName);
+			if (pwEntryFormTranslation != null)
+			{
+				var translation = (from controlTranslation in pwEntryFormTranslation.Controls where controlTranslation.Name == controlName select controlTranslation.Text).SingleOrDefault();
+				if (!String.IsNullOrEmpty(translation))
+				{
+					control.Text = translation;
 				}
 			}
 		}
@@ -190,7 +233,7 @@ namespace KPEnhancedEntryView
 					mFieldsTab.Dispose();
 				} catch (Exception){ }
 				try {
-					mPropertiesTab.Dispose();
+					m_tabProperties.Dispose();
 				} catch (Exception){ }
 				try {
 					mAllTextTab.Dispose();
@@ -556,7 +599,7 @@ namespace KPEnhancedEntryView
 			mLockButton.Checked = mOptions.ReadOnly;
 			mLockButton.Image = mOptions.ReadOnly ? Resources.Lock : Resources.Unlock;
 			mAttachments.IsReadOnly = mOptions.ReadOnly;
-			SetPropertiesTabControlsEnabledRecursive(mPropertiesTab, !mOptions.ReadOnly);
+			SetPropertiesTabControlsEnabledRecursive(m_tabProperties, !mOptions.ReadOnly);
 		}
 
 		public void RefreshItems()

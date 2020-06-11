@@ -27,7 +27,7 @@ namespace KPEnhancedEntryView
 			this.mNotesBorder = new System.Windows.Forms.Panel();
 			this.mNotes = new KeePass.UI.CustomRichTextBoxEx();
 			this.mAttachments = new KPEnhancedEntryView.AttachmentsListView();
-			this.mPropertiesTab = new System.Windows.Forms.TabPage();
+			this.m_tabProperties = new System.Windows.Forms.TabPage();
 			this.mPropertiesTabScrollPanel = new System.Windows.Forms.Panel();
 			this.mAutoTypeLayout = new System.Windows.Forms.TableLayoutPanel();
 			this.m_cbAutoTypeObfuscation = new System.Windows.Forms.CheckBox();
@@ -99,16 +99,18 @@ namespace KPEnhancedEntryView
 			this.mLockButton = new System.Windows.Forms.CheckBox();
 			this.mSingleEntryTabs.SuspendLayout();
 			this.mFieldsTab.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.mSplitGridPanels)).BeginInit();
 			this.mSplitGridPanels.Panel1.SuspendLayout();
 			this.mSplitGridPanels.Panel2.SuspendLayout();
 			this.mSplitGridPanels.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.mFieldsGrid)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.mSplitNotesAttachements)).BeginInit();
 			this.mSplitNotesAttachements.Panel1.SuspendLayout();
 			this.mSplitNotesAttachements.Panel2.SuspendLayout();
 			this.mSplitNotesAttachements.SuspendLayout();
 			this.mNotesBorder.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.mAttachments)).BeginInit();
-			this.mPropertiesTab.SuspendLayout();
+			this.m_tabProperties.SuspendLayout();
 			this.mPropertiesTabScrollPanel.SuspendLayout();
 			this.mAutoTypeLayout.SuspendLayout();
 			this.mTextPropertiesLayout.SuspendLayout();
@@ -126,7 +128,7 @@ namespace KPEnhancedEntryView
 			// mSingleEntryTabs
 			// 
 			this.mSingleEntryTabs.Controls.Add(this.mFieldsTab);
-			this.mSingleEntryTabs.Controls.Add(this.mPropertiesTab);
+			this.mSingleEntryTabs.Controls.Add(this.m_tabProperties);
 			this.mSingleEntryTabs.Controls.Add(this.mAllTextTab);
 			this.mSingleEntryTabs.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.mSingleEntryTabs.Location = new System.Drawing.Point(0, 0);
@@ -269,14 +271,14 @@ namespace KPEnhancedEntryView
 			this.mAttachments.EntryModified += new System.EventHandler(this.mAttachments_EntryModified);
 			this.mAttachments.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mAttachments_CellRightClick);
 			// 
-			// mPropertiesTab
+			// m_tabProperties
 			// 
-			this.mPropertiesTab.Controls.Add(this.mPropertiesTabScrollPanel);
-			this.mPropertiesTab.Location = new System.Drawing.Point(4, 22);
-			this.mPropertiesTab.Name = "mPropertiesTab";
-			this.mPropertiesTab.Size = new System.Drawing.Size(365, 410);
-			this.mPropertiesTab.TabIndex = 1;
-			this.mPropertiesTab.Text = "Properties";
+			this.m_tabProperties.Controls.Add(this.mPropertiesTabScrollPanel);
+			this.m_tabProperties.Location = new System.Drawing.Point(4, 22);
+			this.m_tabProperties.Name = "m_tabProperties";
+			this.m_tabProperties.Size = new System.Drawing.Size(365, 410);
+			this.m_tabProperties.TabIndex = 1;
+			this.m_tabProperties.Text = "Properties";
 			// 
 			// mPropertiesTabScrollPanel
 			// 
@@ -1034,14 +1036,16 @@ namespace KPEnhancedEntryView
 			this.mFieldsTab.ResumeLayout(false);
 			this.mSplitGridPanels.Panel1.ResumeLayout(false);
 			this.mSplitGridPanels.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.mSplitGridPanels)).EndInit();
 			this.mSplitGridPanels.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.mFieldsGrid)).EndInit();
 			this.mSplitNotesAttachements.Panel1.ResumeLayout(false);
 			this.mSplitNotesAttachements.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.mSplitNotesAttachements)).EndInit();
 			this.mSplitNotesAttachements.ResumeLayout(false);
 			this.mNotesBorder.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.mAttachments)).EndInit();
-			this.mPropertiesTab.ResumeLayout(false);
+			this.m_tabProperties.ResumeLayout(false);
 			this.mPropertiesTabScrollPanel.ResumeLayout(false);
 			this.mPropertiesTabScrollPanel.PerformLayout();
 			this.mAutoTypeLayout.ResumeLayout(false);
@@ -1068,7 +1072,7 @@ namespace KPEnhancedEntryView
 
 		private System.Windows.Forms.TabControl mSingleEntryTabs;
 		private System.Windows.Forms.TabPage mFieldsTab;
-		private System.Windows.Forms.TabPage mPropertiesTab;
+		private System.Windows.Forms.TabPage m_tabProperties;
 		private SingleEntryFieldsListView mFieldsGrid;
 		private CollapsibleSplitContainer mSplitGridPanels;
 		private CollapsibleSplitContainer mSplitNotesAttachements;
