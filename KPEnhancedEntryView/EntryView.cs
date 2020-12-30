@@ -819,10 +819,12 @@ namespace KPEnhancedEntryView
 				mPasswordGeneratorCommand.Enabled = !mOptions.ReadOnly;
 				mDeleteFieldCommand.Enabled = !mOptions.ReadOnly;
 				mAddNewCommand.Enabled = !mOptions.ReadOnly;
-			
+
 				mProtectFieldCommand.Checked = rowObject.Value.IsProtected;
-				mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, rowObject.DisplayName);
-				mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, rowObject.DisplayName);
+
+				var fieldName = GetFieldNameForContextMenuCommand(rowObject);
+				mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, fieldName);
+				mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, fieldName);
 			}
 			e.MenuStrip = mFieldGridContextMenu;
 			mFieldGridContextMenuTarget = mFieldsGrid;
@@ -854,7 +856,7 @@ namespace KPEnhancedEntryView
 					mCopyCommand.Enabled = false;
 					mAutoTypeCommand.Enabled = false;
 					mProtectFieldCommand.Enabled = false;
-					
+
 					mProtectFieldCommand.Checked = false;
 					mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, rowObject.DisplayName);
 					mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, rowObject.DisplayName);
@@ -867,11 +869,12 @@ namespace KPEnhancedEntryView
 					mCopyCommand.Enabled = true;
 					mAutoTypeCommand.Enabled = mMultipleSelectionFields.Entries.Any(entry => entry.GetAutoTypeEnabled());
 					mProtectFieldCommand.Enabled = !mOptions.ReadOnly;
-					
+
 					mProtectFieldCommand.Checked = rowObject.Value.IsProtected;
 
-					mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, rowObject.DisplayName);
-					mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, rowObject.DisplayName);
+					var fieldName = GetFieldNameForContextMenuCommand(rowObject);
+					mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, fieldName);
+					mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, fieldName);
 				}
 
 				mEditFieldCommand.Enabled = !mOptions.ReadOnly;
@@ -881,6 +884,21 @@ namespace KPEnhancedEntryView
 			}
 			e.MenuStrip = mFieldGridContextMenu;
 			mFieldGridContextMenuTarget = mMultipleSelectionFields;
+		}
+
+		private static string GetFieldNameForContextMenuCommand(FieldsListView.RowObject rowObject)
+		{
+			var fieldName = rowObject.FieldName;
+			if (fieldName.StartsWith("HmacOtp-Secret") || fieldName.StartsWith("TimeOtp-Secret"))
+			{
+				fieldName = Properties.Resources.AutoTypeOrCopyCommandOtp;
+			}
+			else
+			{
+				fieldName = rowObject.DisplayName;
+			}
+
+			return fieldName;
 		}
 
 		private void mAttachments_CellRightClick(object sender, CellRightClickEventArgs e)

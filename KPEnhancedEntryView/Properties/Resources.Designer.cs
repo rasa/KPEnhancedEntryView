@@ -70,6 +70,15 @@ namespace KPEnhancedEntryView.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OTP Value.
+        /// </summary>
+        internal static string AutoTypeOrCopyCommandOtp {
+            get {
+                return ResourceManager.GetString("AutoTypeOrCopyCommandOtp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap B16x16_Attach {

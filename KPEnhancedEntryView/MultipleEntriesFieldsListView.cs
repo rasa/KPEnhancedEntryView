@@ -359,11 +359,7 @@ namespace KPEnhancedEntryView
 		{
 			if (!IsMultiValuedField(rowObject))
 			{
-				if (ClipboardUtil.CopyAndMinimize(rowObject.Value, true, mMainForm, Entries.First(), Database))
-				{
-					mMainForm.StartClipboardCountdown();
-				}
-				Repopulate();
+				CopyField(Entries.First(), rowObject);
 			}
 		}
 

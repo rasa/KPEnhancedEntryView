@@ -134,6 +134,15 @@ however placeholders which require UI interaction (like PickChars) are not evalu
 impossible to interact with them while continuing the drag operation.
 
 
+One Time Passwords (2FA)
+------------------------
+
+KeePass supports HMAC and TOTP one time passwords when the secret for them is stored in special
+fields (https://keepass.info/help/base/placeholders.html#otp). The context menu commands for
+copying or autotyping these special Otp-Secret fields will generate and copy or auto type the 
+OTP value for the entry rather than the secret.
+
+
 Checking for updates
 --------------------
 If you want to use the KeePass Check for Updates function to check for updates to this plugin
@@ -149,6 +158,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.3
+ Special handling for HmacOtp-Secret and TimeOtp-Secret fields to generate the OTP values
+
 v2.2.1
  Use custom drawing for field values so that the text does not overlay the icons on the right.
  Use some additional translated strings from KeePass

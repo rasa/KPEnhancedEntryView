@@ -168,11 +168,7 @@ namespace KPEnhancedEntryView
 		#region Commands
 		protected override void CopyCommand(RowObject rowObject)
 		{
-			if (ClipboardUtil.CopyAndMinimize(rowObject.Value, true, mMainForm, Entry, Database))
-			{
-				mMainForm.StartClipboardCountdown();
-			}
-			Repopulate();
+			CopyField(Entry, rowObject);
 		}
 
 		protected override void AutoTypeCommand(RowObject rowObject)

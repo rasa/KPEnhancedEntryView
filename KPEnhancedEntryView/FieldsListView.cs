@@ -797,13 +797,63 @@ namespace KPEnhancedEntryView
 		{
 			try
 			{
+				string autoTypePlaceholder;
+				if (PwDefs.IsStandardField(fieldName))
+				{
+					autoTypePlaceholder = fieldName;
+				}
+				else
+				{
+					if (fieldName.StartsWith("HmacOtp-Secret"))
+					{
+						autoTypePlaceholder = "HMACOTP";
+					}
+					else if (fieldName.StartsWith("TimeOtp-Secret"))
+					{
+						autoTypePlaceholder = "TIMEOTP";
+					}
+					else
+					{
+						autoTypePlaceholder = PwDefs.AutoTypeStringPrefix + fieldName;
+					}
+				}
+
 				AutoType.PerformIntoPreviousWindow(mMainForm, entry, Database,
 					// Extract any setup information from autotype
 					AutoTypeSequenceSpecialCommandsExtractor.Match(entry.GetAutoTypeSequence()).Value +
 					// Auto-type just this field
-					"{" + (PwDefs.IsStandardField(fieldName) ? "" : PwDefs.AutoTypeStringPrefix) + fieldName + "}");
+					"{" + autoTypePlaceholder + "}");
 			}
 			catch (Exception ex) { MessageService.ShowWarning(ex); }
+		}
+
+		protected void CopyField(PwEntry entry, RowObject rowObject)
+		{
+			if (ClipboardUtil.CopyAndMinimize(GetFieldValueWithOtpPlaceholder(rowObject), true, mMainForm, entry, Database))
+			{
+				mMainForm.StartClipboardCountdown();
+			}
+			Repopulate();
+		}
+
+		private static ProtectedString GetFieldValueWithOtpPlaceholder(RowObject rowObject)
+		{
+			var fieldName = rowObject.FieldName;
+			ProtectedString value;
+			if (fieldName.StartsWith("HmacOtp-Secret"))
+			{
+				value = new ProtectedString(false, "{HMACOTP}");
+			}
+			else if (fieldName.StartsWith("TimeOtp-Secret"))
+			{
+				value = new ProtectedString(false, "{TIMEOTP}");
+			}
+			else
+			{
+				value = rowObject.Value;
+			}
+
+			return value;
 		}
 
 		private void EditFieldCommand(RowObject rowObject)
@@ -874,7 +924,7 @@ namespace KPEnhancedEntryView
 				return null;
 			}
 
-			var dragValue = GetDisplayValue(rowObject.Value, true, DragValueSprCompileFlags);
+			var dragValue = GetDisplayValue(GetFieldValueWithOtpPlaceholder(rowObject), true, DragValueSprCompileFlags);
 			BeginInvoke(new Action(Repopulate)); // As DragValueSprCompileFlags includes active (state changing) operations, it's possible that other values will have been updated, so refresh them.
 			return dragValue;
 		}
