@@ -158,6 +158,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.3.1
+ Fixed bug where Protect Field menu item may be stuck disabled after using multi-entry editing.
+
 v2.3
  Special handling for HmacOtp-Secret and TimeOtp-Secret fields to generate the OTP values
 

@@ -815,6 +815,7 @@ namespace KPEnhancedEntryView
 				mCopyCommand.Enabled = true;
 				mAutoTypeCommand.Enabled = mFieldsGrid.Entry.GetAutoTypeEnabled();
 				mEditFieldCommand.Enabled = !mOptions.ReadOnly;
+				mProtectFieldCommand.Enabled = !mOptions.ReadOnly;
 				mProtectFieldCommand.Visible = !mOptions.ReadOnly && !PwDefs.IsStandardField(rowObject.FieldName); // Changing the protection of standard fields has no visible effect, so don't allow it
 				mPasswordGeneratorCommand.Enabled = !mOptions.ReadOnly;
 				mDeleteFieldCommand.Enabled = !mOptions.ReadOnly;
