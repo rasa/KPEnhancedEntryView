@@ -194,7 +194,7 @@ namespace KPEnhancedEntryView
 			this.mFieldsGrid.UseHyperlinks = true;
 			this.mFieldsGrid.ValidationFailureReporter = this.mValidationFailureReporter;
 			this.mFieldsGrid.View = System.Windows.Forms.View.Details;
-			this.mFieldsGrid.Modified += new System.EventHandler(this.mFieldsGrid_Modified);
+			this.mFieldsGrid.Modified += new System.EventHandler<EntryModifiedEventArgs>(this.mFieldsGrid_Modified);
 			this.mFieldsGrid.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mFieldsGrid_CellRightClick);
 			this.mFieldsGrid.HyperlinkClicked += new System.EventHandler<BrightIdeasSoftware.HyperlinkClickedEventArgs>(this.mFieldsGrid_HyperlinkClicked);
 			// 
@@ -832,7 +832,7 @@ namespace KPEnhancedEntryView
 			this.mMultipleSelectionFields.UseHyperlinks = true;
 			this.mMultipleSelectionFields.ValidationFailureReporter = this.mValidationFailureReporter;
 			this.mMultipleSelectionFields.View = System.Windows.Forms.View.Details;
-			this.mMultipleSelectionFields.Modified += new System.EventHandler(this.mMultipleSelectionFields_Modified);
+			this.mMultipleSelectionFields.Modified += new System.EventHandler<EntryModifiedEventArgs>(this.mMultipleSelectionFields_Modified);
 			this.mMultipleSelectionFields.CellRightClick += new System.EventHandler<BrightIdeasSoftware.CellRightClickEventArgs>(this.mMultipleSelectionFields_CellRightClick);
 			// 
 			// mDoubleClickTimer

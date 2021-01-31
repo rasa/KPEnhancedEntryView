@@ -97,6 +97,7 @@
     <Compile Include="DynamicMultiLineTextBox.cs">
       <SubType>component</SubType>
     </Compile>
+    <Compile Include="EntryModifiedEventArgs.cs" />
     <Compile Include="MultiLineHelper.cs" />
     <Compile Include="MultipleEntriesFieldsListView.cs">
       <SubType>Component</SubType>

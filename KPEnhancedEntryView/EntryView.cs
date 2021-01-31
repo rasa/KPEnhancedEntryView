@@ -794,7 +794,7 @@ namespace KPEnhancedEntryView
 				mCopyCommand.Enabled = false;
 				mAutoTypeCommand.Enabled = false;
 				mEditFieldCommand.Enabled = false;
-				mProtectFieldCommand.Visible = false;
+				mProtectFieldCommand.Enabled = false;
 				mPasswordGeneratorCommand.Enabled = false;
 				mDeleteFieldCommand.Enabled = false;
 				mAddNewCommand.Enabled = Entry != null && !mOptions.ReadOnly;
@@ -816,11 +816,11 @@ namespace KPEnhancedEntryView
 				mAutoTypeCommand.Enabled = mFieldsGrid.Entry.GetAutoTypeEnabled();
 				mEditFieldCommand.Enabled = !mOptions.ReadOnly;
 				mProtectFieldCommand.Enabled = !mOptions.ReadOnly;
-				mProtectFieldCommand.Visible = !mOptions.ReadOnly && !PwDefs.IsStandardField(rowObject.FieldName); // Changing the protection of standard fields has no visible effect, so don't allow it
 				mPasswordGeneratorCommand.Enabled = !mOptions.ReadOnly;
 				mDeleteFieldCommand.Enabled = !mOptions.ReadOnly;
 				mAddNewCommand.Enabled = !mOptions.ReadOnly;
 
+				mProtectFieldCommand.Visible = !PwDefs.IsStandardField(rowObject.FieldName); // Changing the protection of standard fields has no visible effect, so don't allow it
 				mProtectFieldCommand.Checked = rowObject.Value.IsProtected;
 
 				var fieldName = GetFieldNameForContextMenuCommand(rowObject);
@@ -834,6 +834,8 @@ namespace KPEnhancedEntryView
 		private void mMultipleSelectionFields_CellRightClick(object sender, CellRightClickEventArgs e)
 		{
 			var rowObject = (FieldsListView.RowObject)e.Model;
+
+			var isStandardField = PwDefs.IsStandardField(rowObject.FieldName);
 
 			if (rowObject == null || rowObject.IsInsertionRow)
 			{
@@ -856,9 +858,12 @@ namespace KPEnhancedEntryView
 					mURLDropDown.Visible = false;
 					mCopyCommand.Enabled = false;
 					mAutoTypeCommand.Enabled = false;
-					mProtectFieldCommand.Enabled = false;
 
-					mProtectFieldCommand.Checked = false;
+					mProtectFieldCommand.Checked = !isStandardField && mMultipleSelectionFields.Entries.All(entry =>
+					{
+						var property = entry.Strings.Get(rowObject.FieldName);
+						return property == null || property.IsProtected; // If all the properties that are actually present are protected, show menu item as checked
+					});
 					mCopyCommand.Text = String.Format(Properties.Resources.CopyCommand, rowObject.DisplayName);
 					mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, rowObject.DisplayName);
 				}
@@ -869,7 +874,6 @@ namespace KPEnhancedEntryView
 					mURLDropDown.Visible = url != null;
 					mCopyCommand.Enabled = true;
 					mAutoTypeCommand.Enabled = mMultipleSelectionFields.Entries.Any(entry => entry.GetAutoTypeEnabled());
-					mProtectFieldCommand.Enabled = !mOptions.ReadOnly;
 
 					mProtectFieldCommand.Checked = rowObject.Value.IsProtected;
 
@@ -878,6 +882,8 @@ namespace KPEnhancedEntryView
 					mAutoTypeCommand.Text = String.Format(Properties.Resources.AutoTypeCommand, fieldName);
 				}
 
+				mProtectFieldCommand.Visible = !isStandardField; // Changing the protection of standard fields has no visible effect, so don't allow it
+				mProtectFieldCommand.Enabled = !mOptions.ReadOnly;
 				mEditFieldCommand.Enabled = !mOptions.ReadOnly;
 				mPasswordGeneratorCommand.Enabled = !mOptions.ReadOnly;
 				mDeleteFieldCommand.Enabled = !mOptions.ReadOnly;
@@ -918,26 +924,6 @@ namespace KPEnhancedEntryView
 		#endregion
 
 		#region EntryModified event
-
-		public class EntryModifiedEventArgs : EventArgs
-		{
-			private readonly PwEntry[] mEntries;
-
-			public EntryModifiedEventArgs(IEnumerable<PwEntry> entries)
-			{
-				mEntries = entries.ToArray();
-			}
-
-			public EntryModifiedEventArgs(PwEntry entry)
-			{
-				mEntries = new[] { entry };
-			}
-
-			public IEnumerable<PwEntry> Entries
-			{
-				get { return mEntries; }
-			}
-		}
 		public event EventHandler<EntryModifiedEventArgs> EntryModified;
 		protected virtual void OnEntryModified(EntryModifiedEventArgs e)
 		{
@@ -970,14 +956,14 @@ namespace KPEnhancedEntryView
 			OnEntryModified(new EntryModifiedEventArgs(mAttachments.Entry));
 		}
 
-		private void mFieldsGrid_Modified(object sender, EventArgs e)
+		private void mFieldsGrid_Modified(object sender, EntryModifiedEventArgs e)
 		{
-			OnEntryModified(new EntryModifiedEventArgs(mFieldsGrid.Entry));
+			OnEntryModified(e);
 		}
 
-		private void mMultipleSelectionFields_Modified(object sender, EventArgs e)
+		private void mMultipleSelectionFields_Modified(object sender, EntryModifiedEventArgs e)
 		{
-			OnEntryModified(new EntryModifiedEventArgs(mMultipleSelectionFields.Entries));
+			OnEntryModified(e);
 		}
 
 

@@ -110,7 +110,6 @@ namespace KPEnhancedEntryView
 										System.Diagnostics.Debug.Assert(!ShouldHideValue(field.Key, field.Value) && !ShouldHideValue(field.Key, existingValue), "Unnecessary reading of in-memory protected strings");
 										if (!existingValue.ReadString().Equals(field.Value.ReadString(), StringComparison.Ordinal))	// No longer consistent
 										{
-
 											// Mark it as a field with multiple values.
 											unionOfFields[field.Key] = multipleValues;
 										}
@@ -157,7 +156,7 @@ namespace KPEnhancedEntryView
 					// Finally, an empty "add new" row
 					rows.Add(RowObject.CreateInsertionRow());
 				}
-				
+
 				BeginInvoke(new Action(delegate
 				{
 					if (Object.ReferenceEquals(entries, mEntries)) // Final guard against repopulation
@@ -291,7 +290,7 @@ namespace KPEnhancedEntryView
 				}
 				rowObject.Value = newValue;
 
-				OnModified(EventArgs.Empty);
+				OnModified(new EntryModifiedEventArgs(allEntries));
 			}
 		}
 
@@ -350,7 +349,7 @@ namespace KPEnhancedEntryView
 
 			rowObject.FieldName = newName;
 
-			OnModified(EventArgs.Empty);
+			OnModified(new EntryModifiedEventArgs(entriesWithField));
 		}
 		#endregion
 
@@ -359,7 +358,7 @@ namespace KPEnhancedEntryView
 		{
 			if (!IsMultiValuedField(rowObject))
 			{
-				CopyField(Entries.First(), rowObject);
+				CopyField(Entries[0], rowObject);
 			}
 		}
 
@@ -367,7 +366,7 @@ namespace KPEnhancedEntryView
 		{
 			if (!IsMultiValuedField(rowObject))
 			{
-				AutoTypeField(Entries.First(), rowObject.FieldName);
+				AutoTypeField(Entries[0], rowObject.FieldName);
 			}
 		}
 
@@ -406,19 +405,41 @@ namespace KPEnhancedEntryView
 				{
 					RemoveObject(rowObject);
 				}
-			}
 
-			OnModified(EventArgs.Empty);
+				OnModified(new EntryModifiedEventArgs(entriesWithField));
+			}
+		}
+
+		protected override void ProtectFieldCommand(RowObject rowObject, bool isChecked)
+		{
+			var entriesWithFieldToChange = Entries.Where(entry =>
+			{
+				var property = entry.Strings.Get(rowObject.FieldName);
+				return property != null && property.IsProtected != isChecked;
+			}).ToArray();
+			if (ConfirmOperationOnAllEntries(String.Format(isChecked ? Properties.Resources.MultipleEntryFieldProtectQuestion : Properties.Resources.MultipleEntryFieldUnprotectQuestion, rowObject.DisplayName), Properties.Resources.MultipleEntryFieldProtectCommand, entriesWithFieldToChange))
+			{
+				var createBackups = AllowCreateHistoryNow;
+				foreach (var entry in entriesWithFieldToChange)
+				{
+					entry.Strings.Set(rowObject.FieldName, entry.Strings.Get(rowObject.FieldName).WithProtection(isChecked));
+				}
+
+				OnModified(new EntryModifiedEventArgs(entriesWithFieldToChange));
+				Repopulate();
+			}
 		}
 
 		private bool ConfirmOperationOnAllEntries(string question, string command, PwEntry[] entries)
 		{
-			VistaTaskDialog dlg = new VistaTaskDialog();
-			dlg.CommandLinks = false;
-			dlg.Content = EntryUtil.CreateSummaryList(null, entries);
-			dlg.MainInstruction = question;
+			var dlg = new VistaTaskDialog
+			{
+				CommandLinks = false,
+				Content = EntryUtil.CreateSummaryList(null, entries),
+				MainInstruction = question,
+				WindowTitle = PwDefs.ShortProductName
+			};
 			dlg.SetIcon(VtdCustomIcon.Question);
-			dlg.WindowTitle = PwDefs.ShortProductName;
 			dlg.AddButton((int)DialogResult.OK, command, null);
 			dlg.AddButton((int)DialogResult.Cancel, KPRes.Cancel, null);
 

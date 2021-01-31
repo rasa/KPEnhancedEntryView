@@ -180,8 +180,8 @@ namespace KPEnhancedEntryView
 		protected abstract void Repopulate();
 
 		#region EntryModified event
-		public event EventHandler Modified;
-		protected virtual void OnModified(EventArgs e)
+		public event EventHandler<EntryModifiedEventArgs> Modified;
+		protected virtual void OnModified(EntryModifiedEventArgs e)
 		{
 			AllowCreateHistoryNow = false; // Don't allow a new history record for 1 minute from this modification
 
@@ -861,11 +861,7 @@ namespace KPEnhancedEntryView
 			StartCellEdit(ModelToItem(rowObject), 1);
 		}
 
-		private void ProtectFieldCommand(RowObject rowObject, bool isChecked)
-		{
-			SetFieldValue(rowObject, rowObject.Value.WithProtection(isChecked));
-			RefreshObject(rowObject);
-		}
+		protected abstract void ProtectFieldCommand(RowObject rowObject, bool isChecked);
 
 		private void PasswordGeneratorCommand(RowObject rowObject)
 		{

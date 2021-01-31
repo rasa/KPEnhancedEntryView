@@ -15,7 +15,7 @@ namespace KPEnhancedEntryView
 {
 	internal class SingleEntryFieldsListView : FieldsListView
 	{
-		public SingleEntryFieldsListView() 
+		public SingleEntryFieldsListView()
 		{
 		}
 
@@ -123,7 +123,7 @@ namespace KPEnhancedEntryView
 				Entry.Strings.Set(rowObject.FieldName, newValue);
 				rowObject.Value = newValue;
 
-				OnModified(EventArgs.Empty);
+				OnModified(new EntryModifiedEventArgs(Entry));
 			}
 		}
 
@@ -136,8 +136,8 @@ namespace KPEnhancedEntryView
 				if (rowObject.IsInsertionRow)
 				{
 					// Coerce to standard field value casing
-					newName = PwDefs.GetStandardFields().FirstOrDefault(standardField => standardField.Equals(newName, StringComparison.OrdinalIgnoreCase)) ?? newName;
-			
+					newName = PwDefs.GetStandardFields().Find(standardField => standardField.Equals(newName, StringComparison.OrdinalIgnoreCase)) ?? newName;
+
 					// Check if this should be a protected string
 					var isProtected = false; // Default to not protected
 					var fieldOnOtherEntry = (from otherEntry in Entry.ParentGroup.Entries select otherEntry.Strings.Get(newName)).FirstOrDefault();
@@ -158,7 +158,7 @@ namespace KPEnhancedEntryView
 				}
 
 				Entry.Strings.Set(newName, rowObject.Value);
-				OnModified(EventArgs.Empty);
+				OnModified(new EntryModifiedEventArgs(Entry));
 
 				rowObject.FieldName = newName;
 			}
@@ -202,7 +202,12 @@ namespace KPEnhancedEntryView
 				RemoveObject(rowObject);
 			}
 
-			OnModified(EventArgs.Empty);
+			OnModified(new EntryModifiedEventArgs(Entry));
+		}
+		protected override void ProtectFieldCommand(RowObject rowObject, bool isChecked)
+		{
+			SetFieldValueInternal(rowObject, rowObject.Value.WithProtection(isChecked));
+			RefreshObject(rowObject);
 		}
 
 		#endregion

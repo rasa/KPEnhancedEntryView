@@ -158,6 +158,10 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.4
+ Support for applying or removing protection from a field on a multiple selection of entries
+ Fixed bug where auto-completed field names would not correct case of manually typed characters
+
 v2.3.1
  Fixed bug where Protect Field menu item may be stuck disabled after using multi-entry editing.
 

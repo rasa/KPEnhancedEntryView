@@ -5,12 +5,15 @@ using System.Threading;
 using System.Windows.Forms;
 using KeePassLib;
 using KeePass.Resources;
+using System.Reflection;
 
 namespace KPEnhancedEntryView
 {
 	public class FieldNameEditor : ComboBox
 	{
 		private static readonly TimeSpan PopulationUIUpdateFrequency = TimeSpan.FromSeconds(0.5);
+
+		private static readonly MethodInfo NotifyAutoComplete = typeof(ComboBox).GetMethod("NotifyAutoComplete", BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[0], null);
 
 		private Options mOptions;
 		private Thread mPopulationThread;
@@ -50,7 +53,14 @@ namespace KPEnhancedEntryView
 		{
 			get
 			{
+				if (SelectedItem == null && NotifyAutoComplete != null)
+				{
+					// Attempt to force the auto-complete, if one is pending
+					NotifyAutoComplete.Invoke(this, new object[0]);
+				}
+
 				var selectedFieldName = SelectedItem as FieldNameItem;
+
 				if (selectedFieldName != null)
 				{
 					return selectedFieldName.FieldName;

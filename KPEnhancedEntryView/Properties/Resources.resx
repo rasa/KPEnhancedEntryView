@@ -230,4 +230,13 @@
   <data name="AutoTypeOrCopyCommandOtp" xml:space="preserve">
     <value>OTP Value</value>
   </data>
+  <data name="MultipleEntryFieldProtectCommand" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="MultipleEntryFieldProtectQuestion" xml:space="preserve">
+    <value>Are you sure you want to protect the field '{0}' on all selected entries?</value>
+  </data>
+  <data name="MultipleEntryFieldUnprotectQuestion" xml:space="preserve">
+    <value>Are you sure you want to unprotect the field '{0}' on all selected entries?</value>
+  </data>
 </root>
