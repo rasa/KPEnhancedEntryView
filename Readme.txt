@@ -158,6 +158,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.4.1
+ Fixed bug with right clicking on empty area in multi-select field
+
 v2.4
  Support for applying or removing protection from a field on a multiple selection of entries
  Fixed bug where auto-completed field names would not correct case of manually typed characters

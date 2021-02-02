@@ -835,7 +835,6 @@ namespace KPEnhancedEntryView
 		{
 			var rowObject = (FieldsListView.RowObject)e.Model;
 
-			var isStandardField = PwDefs.IsStandardField(rowObject.FieldName);
 
 			if (rowObject == null || rowObject.IsInsertionRow)
 			{
@@ -853,6 +852,8 @@ namespace KPEnhancedEntryView
 			}
 			else
 			{
+				var isStandardField = PwDefs.IsStandardField(rowObject.FieldName);
+
 				if (mMultipleSelectionFields.IsMultiValuedField(rowObject))
 				{
 					mURLDropDown.Visible = false;
