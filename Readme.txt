@@ -158,6 +158,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.4.2
+ Fixed bug with splitter position between KPEnhancedEntryView and main list sometimes inverting
+
 v2.4.1
  Fixed bug with right clicking on empty area in multi-select field
 

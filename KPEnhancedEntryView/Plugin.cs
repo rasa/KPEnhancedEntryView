@@ -57,11 +57,11 @@ namespace KPEnhancedEntryView
 			{
 				if (container.Panel2 == entryViewContainer)
 				{
-					container.Panel2MinSize = MinimumEntryViewHeight;
-					var splitterDistanceFrac = container.SplitterDistanceFrac;
+                    var splitterDistanceFrac = container.SplitterDistanceFrac;
+                    container.Panel2MinSize = MinimumEntryViewHeight;
 					container.SplitterDistance--; // .net has a bug with Panel2MinSize where it won't update if the split is vertical rather than horizontal, so force it here
 					container.SplitterDistanceFrac = splitterDistanceFrac; // Attempt to restore original split
-				}
+				 }
 			}
 
 			// Replace existing entry view with new one
