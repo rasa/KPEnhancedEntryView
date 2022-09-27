@@ -52,17 +52,7 @@ namespace KPEnhancedEntryView
 			}
 
 			// Enforce a minimum height to avoid disappearing fields grid issue
-			var container = entryViewContainer.Parent as CustomSplitContainerEx;
-			if (container != null)
-			{
-				if (container.Panel2 == entryViewContainer)
-				{
-                    var splitterDistanceFrac = container.SplitterDistanceFrac;
-                    container.Panel2MinSize = MinimumEntryViewHeight;
-					container.SplitterDistance--; // .net has a bug with Panel2MinSize where it won't update if the split is vertical rather than horizontal, so force it here
-					container.SplitterDistanceFrac = splitterDistanceFrac; // Attempt to restore original split
-				 }
-			}
+			entryViewContainer.Layout += EnforceMinimumSplit;
 
 			// Replace existing entry view with new one
 			mEntryView = new EntryView(mHost.MainWindow, mOptions)
@@ -103,6 +93,25 @@ namespace KPEnhancedEntryView
 
 			return true;
 		}
+
+		private void EnforceMinimumSplit(object sender, LayoutEventArgs e)
+		{
+			var entryViewContainer = (Control)sender;
+            entryViewContainer.Layout -= EnforceMinimumSplit; // Do this only once
+
+            var container = entryViewContainer.Parent as CustomSplitContainerEx;
+            if (container != null)
+            {
+                if (container.Panel2 == entryViewContainer)
+                {
+                    var splitterDistanceFrac = container.SplitterDistanceFrac;
+                    container.Panel2MinSize = MinimumEntryViewHeight;
+                    container.SplitterDistance--; // .net has a bug with Panel2MinSize where it won't update if the split is vertical rather than horizontal, so force it here
+                    container.SplitterDistanceFrac = splitterDistanceFrac; // Attempt to restore original split
+                }
+            }
+
+        }
 
 		/* Use this when 2.41 is guaranteed minimum
 		public override ToolStripMenuItem GetMenuItem(PluginMenuType t)

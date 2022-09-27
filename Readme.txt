@@ -158,6 +158,9 @@ Bugs can be reported using the issue tracker, for anything else, a discussion fo
 
 Changelog
 ---------
+v2.4.3
+ Further splitter position fixes
+
 v2.4.2
  Fixed bug with splitter position between KPEnhancedEntryView and main list sometimes inverting
 
