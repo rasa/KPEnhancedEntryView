@@ -1,4 +1,4 @@
-KeePass Enhanced Entry View is built using Visual Studio 2017 on Windows.
+KeePass Enhanced Entry View is built using Visual Studio 2022 on Windows.
 
 It may or may not build under other environments, I don't know.
 
@@ -7,12 +7,12 @@ Build Environment
 
 To set up the build environment, download the following dependencies:
 
-KeePass 2.39
- Download http://downloads.sourceforge.net/keepass/KeePass-2.39.zip
+KeePass
+ Download the latest version of KeePass 2 portable zip file from https://keepass.info/download.html
  Extract contents to the "KeePass" folder
 
-KeePass 2.39 Source
- Download http://downloads.sourceforge.net/keepass/KeePass-2.39-Source.zip
+KeePass Source
+ Download the latest version of the KeePass 2 source code package from https://keepass.info/download.html (near the bottom of the page)
  Extract contents to the "KeePass-Source" folder
 
 ObjectListView Source
@@ -35,5 +35,10 @@ In order to correctly package the Plgx including ObjectListView, please use the 
 build config (that way, the dll is placed in the correct folder for plgx packaging).
 
 Under Release configuration, KeePass is referenced as a binary, from the KeePass.exe in
-the KeePass-2.39 folder. This ensures a correct strong-named dependency. The build outputs
+the KeePass folder. This ensures a correct strong-named dependency. The build outputs
 will be placed in the Releases folder, ready for publication.
+
+Note that under Debug configuration a warning stating: 
+"The referenced component 'Fake ObjectListView reference for PlgX' could not be found."
+will be logged. This can be safely ignored, it is a side effect of a workaround to ensure
+that the PlgX compiler includes the ObjectListView dll.
